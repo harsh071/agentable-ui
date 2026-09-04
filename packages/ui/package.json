@@ -1,0 +1,27 @@
+{
+  "name": "@agentable/ui",
+  "version": "0.1.0",
+  "description": "Headless, agent-callable React components: Form, DataTable, Combobox, ActionBar, Dialog, Tabs, Nav, Filters, Pagination, Toast.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "files": ["dist", "README.md"],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+    "./styles.css": "./dist/styles.css",
+    "./tailwind": { "types": "./dist/tailwind.d.ts", "default": "./dist/tailwind.js" }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "repository": { "type": "git", "url": "https://github.com/harsh071/agentable-ui", "directory": "packages/ui" },
+  "keywords": ["webmcp", "agent", "mcp", "components", "react", "modelContext"],
+  "publishConfig": { "access": "public" },
+  "dependencies": { "@agentable/core": "workspace:^", "@agentable/react": "workspace:^" },
+  "peerDependencies": { "react": "^18.2.0 || ^19.0.0", "react-dom": "^18.2.0 || ^19.0.0" },
+  "devDependencies": { "react": "^19.2.8", "react-dom": "^19.2.8", "@types/react": "^19.2.18", "@types/react-dom": "^19.2.7", "@testing-library/react": "^16.3.3", "@testing-library/user-event": "^14.6.7" }
+}

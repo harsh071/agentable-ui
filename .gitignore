@@ -1,0 +1,10 @@
+node_modules
+dist
+*.tsbuildinfo
+.DS_Store
+coverage
+test-results
+playwright-report
+conformance/.results
+apps/site/dist
+*.log

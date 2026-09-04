@@ -1,0 +1,13 @@
+packages:
+  - packages/*
+  - apps/*
+  - conformance
+minimumReleaseAgeExclude:
+  - '@types/react-dom@19.2.7'
+  - '@vitest/mocker@5.0.0'
+  - '@vitest/spy@5.0.0'
+  - happy-dom@20.14.0
+  - rolldown-plugin-dts@0.28.5
+  - tinyexec@1.3.1
+  - tsdown@0.23.0
+  - vitest@5.0.0

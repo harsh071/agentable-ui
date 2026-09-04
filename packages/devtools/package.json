@@ -1,0 +1,61 @@
+{
+  "name": "@agentable/devtools",
+  "version": "0.1.0",
+  "description": "In-page devtools overlay for Agentable: resident tools, budget, cache hit rate, schema sizes, tool console.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "default": "./dist/react.js"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/harsh071/agentable-ui",
+    "directory": "packages/devtools"
+  },
+  "keywords": [
+    "webmcp",
+    "agent",
+    "mcp",
+    "components",
+    "react",
+    "modelContext"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@agentable/core": "workspace:^",
+    "@agentable/react": "workspace:^"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0 || ^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "react": "^19.2.8",
+    "@types/react": "^19.2.18"
+  }
+}
