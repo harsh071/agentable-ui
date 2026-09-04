@@ -1,0 +1,875 @@
+<title>Agentable Blueprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;1,400&display=swap">
+<style>
+  :root {
+    --paper:      #EEEFE9;
+    --surface:    #F7F8F4;
+    --surface-2:  #E4E7DE;
+    --ink:        #15201E;
+    --ink-soft:   #4A5551;
+    --ink-faint:  #7A847F;
+    --rule:       #D2D7CB;
+    --rule-soft:  #E1E5DA;
+    --teal:       #0F4C4A;
+    --teal-soft:  #DCE8E5;
+    --ochre:      #9A7715;
+    --ochre-soft: #F0E7C9;
+    --crit:       #9E3B2A;
+    --crit-soft:  #F3DFDA;
+
+    --f-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --f-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --f-serif: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+
+    --measure: 68ch;
+    --rail: 8.5rem;
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:      #0E1211;
+      --surface:    #151B19;
+      --surface-2:  #1E2624;
+      --ink:        #E4E9E5;
+      --ink-soft:   #A3AEA9;
+      --ink-faint:  #77827D;
+      --rule:       #2A3331;
+      --rule-soft:  #202826;
+      --teal:       #5FBDB0;
+      --teal-soft:  #16302D;
+      --ochre:      #D8B24A;
+      --ochre-soft: #2E2716;
+      --crit:       #E0836E;
+      --crit-soft:  #33201B;
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:      #0E1211;
+    --surface:    #151B19;
+    --surface-2:  #1E2624;
+    --ink:        #E4E9E5;
+    --ink-soft:   #A3AEA9;
+    --ink-faint:  #77827D;
+    --rule:       #2A3331;
+    --rule-soft:  #202826;
+    --teal:       #5FBDB0;
+    --teal-soft:  #16302D;
+    --ochre:      #D8B24A;
+    --ochre-soft: #2E2716;
+    --crit:       #E0836E;
+    --crit-soft:  #33201B;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--f-sans);
+    font-size: 16px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 3.5rem 1.5rem 6rem;
+  }
+
+  /* ---- masthead ---------------------------------------------------- */
+
+  .masthead { border-bottom: 2px solid var(--ink); padding-bottom: 1.75rem; }
+
+  .eyebrow {
+    font-family: var(--f-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.25rem;
+  }
+  .eyebrow b { color: var(--teal); font-weight: 600; }
+
+  h1 {
+    font-size: clamp(2.4rem, 6vw, 3.6rem);
+    line-height: 1.02;
+    letter-spacing: -0.028em;
+    font-weight: 700;
+    margin: 1.1rem 0 0;
+    text-wrap: balance;
+  }
+  h1 em {
+    font-style: normal;
+    color: var(--teal);
+  }
+
+  .thesis {
+    font-family: var(--f-serif);
+    font-size: 1.2rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 60ch;
+    margin: 1.1rem 0 0;
+  }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.5rem; }
+  .chip {
+    font-family: var(--f-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
+    padding: 0.28rem 0.6rem;
+    border: 1px solid var(--rule);
+    background: var(--surface);
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .chip.live   { border-color: var(--teal);  color: var(--teal);  background: var(--teal-soft); }
+  .chip.warn   { border-color: var(--ochre); color: var(--ochre); background: var(--ochre-soft); }
+
+  /* ---- section scaffolding ----------------------------------------- */
+
+  section { margin-top: 3.75rem; }
+
+  .sec-head {
+    display: grid;
+    grid-template-columns: var(--rail) 1fr;
+    gap: 1.5rem;
+    align-items: baseline;
+    border-top: 1px solid var(--rule);
+    padding-top: 1rem;
+  }
+  .sec-num {
+    font-family: var(--f-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  h2 {
+    font-size: 1.55rem;
+    line-height: 1.2;
+    letter-spacing: -0.018em;
+    font-weight: 600;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .body {
+    display: grid;
+    grid-template-columns: var(--rail) minmax(0, 1fr);
+    gap: 1.5rem;
+    margin-top: 1.1rem;
+  }
+  .body > .rail {
+    font-family: var(--f-mono);
+    font-size: 0.7rem;
+    line-height: 1.5;
+    color: var(--ink-faint);
+    letter-spacing: 0.01em;
+  }
+  .body > .col { min-width: 0; max-width: var(--measure); }
+  .body > .col.wide { max-width: none; }
+
+  @media (max-width: 720px) {
+    .sec-head, .body { grid-template-columns: 1fr; gap: 0.5rem; }
+    .body > .rail { order: 2; margin-top: 1rem; }
+  }
+
+  p { margin: 0 0 0.95rem; }
+  .col > :last-child { margin-bottom: 0; }
+
+  h3 {
+    font-family: var(--f-mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin: 1.9rem 0 0.7rem;
+  }
+
+  a { color: var(--teal); text-underline-offset: 2px; }
+  a:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--ochre); outline-offset: 2px;
+  }
+
+  code {
+    font-family: var(--f-mono);
+    font-size: 0.86em;
+    background: var(--surface-2);
+    padding: 0.1em 0.32em;
+    color: var(--ink);
+  }
+
+  pre {
+    font-family: var(--f-mono);
+    font-size: 0.775rem;
+    line-height: 1.62;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--teal);
+    padding: 1rem 1.15rem;
+    overflow-x: auto;
+    margin: 0 0 1.1rem;
+    tab-size: 2;
+  }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  .cm { color: var(--ink-faint); }
+  .kw { color: var(--teal); font-weight: 500; }
+  .st { color: var(--ochre); }
+
+  ul, ol { margin: 0 0 1rem; padding-left: 1.15rem; }
+  li { margin-bottom: 0.45rem; }
+  li::marker { color: var(--ink-faint); }
+
+  /* ---- data tables -------------------------------------------------- */
+
+  .tablewrap { overflow-x: auto; margin: 0 0 1.2rem; border: 1px solid var(--rule); background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.85rem; }
+  th, td {
+    text-align: left;
+    padding: 0.62rem 0.85rem;
+    border-bottom: 1px solid var(--rule-soft);
+    vertical-align: top;
+  }
+  th {
+    font-family: var(--f-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 500;
+    background: var(--surface-2);
+    white-space: nowrap;
+  }
+  tr:last-child td { border-bottom: none; }
+  td.mono, .num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td strong { font-weight: 600; }
+
+  /* ---- budget bars -------------------------------------------------- */
+
+  .budget { display: grid; gap: 0.85rem; margin: 0 0 1.3rem; }
+  .brow { display: grid; grid-template-columns: 13rem 1fr auto; gap: 0.9rem; align-items: center; }
+  .brow .lbl { font-family: var(--f-mono); font-size: 0.75rem; color: var(--ink-soft); }
+  .track { height: 0.7rem; background: var(--surface-2); position: relative; overflow: hidden; }
+  .fill { position: absolute; inset: 0 auto 0 0; }
+  .fill.bad  { background: var(--crit); }
+  .fill.good { background: var(--teal); }
+  .brow .val { font-family: var(--f-mono); font-size: 0.75rem; font-variant-numeric: tabular-nums; color: var(--ink-soft); }
+  @media (max-width: 620px) { .brow { grid-template-columns: 1fr auto; } .brow .track { grid-column: 1 / -1; } }
+
+  /* ---- architecture diagram ---------------------------------------- */
+
+  .arch {
+    border: 1px solid var(--rule);
+    background: var(--surface);
+    padding: 1.4rem;
+    margin: 0 0 1.3rem;
+    overflow-x: auto;
+  }
+  .archflow { display: grid; gap: 0.75rem; min-width: 520px; }
+  .lane { display: grid; grid-template-columns: 7.5rem 1fr; gap: 1rem; align-items: stretch; }
+  .lane > .lname {
+    font-family: var(--f-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding-top: 0.7rem;
+  }
+  .boxes { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .box {
+    flex: 1 1 0;
+    min-width: 8.5rem;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    padding: 0.65rem 0.75rem;
+  }
+  .box .bt { font-family: var(--f-mono); font-size: 0.75rem; font-weight: 600; color: var(--ink); }
+  .box .bd { font-size: 0.72rem; line-height: 1.4; color: var(--ink-soft); margin-top: 0.2rem; }
+  .box.core { border-color: var(--teal); border-left-width: 3px; }
+  .box.edge { border-style: dashed; }
+  .arrow {
+    font-family: var(--f-mono);
+    font-size: 0.7rem;
+    color: var(--ink-faint);
+    text-align: center;
+    letter-spacing: 0.3em;
+    padding-left: 8.5rem;
+  }
+
+  /* ---- phases ------------------------------------------------------- */
+
+  .phases { display: grid; gap: 0; border-top: 1px solid var(--rule); }
+  .phase {
+    display: grid;
+    grid-template-columns: 3.2rem 1fr 11rem;
+    gap: 1.2rem;
+    padding: 1.05rem 0;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .phase .pn {
+    font-family: var(--f-mono);
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--ochre);
+    font-variant-numeric: tabular-nums;
+  }
+  .phase h4 { margin: 0 0 0.3rem; font-size: 1rem; font-weight: 600; letter-spacing: -0.01em; }
+  .phase p { margin: 0; font-size: 0.875rem; color: var(--ink-soft); }
+  .phase .exit {
+    font-family: var(--f-mono);
+    font-size: 0.72rem;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    border-left: 2px solid var(--teal);
+    padding-left: 0.7rem;
+  }
+  .phase .exit b { display: block; color: var(--ink-faint); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.64rem; margin-bottom: 0.2rem; }
+  @media (max-width: 760px) {
+    .phase { grid-template-columns: 2.4rem 1fr; }
+    .phase .exit { grid-column: 2; margin-top: 0.6rem; }
+  }
+
+  /* ---- risk / decision blocks --------------------------------------- */
+
+  .risk {
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--crit);
+    background: var(--surface);
+    padding: 0.85rem 1rem;
+    margin: 0 0 0.7rem;
+  }
+  .risk .rt { font-weight: 600; font-size: 0.92rem; margin-bottom: 0.2rem; }
+  .risk p { margin: 0; font-size: 0.86rem; color: var(--ink-soft); }
+  .risk.q { border-left-color: var(--ochre); }
+
+  .callout {
+    background: var(--teal-soft);
+    border: 1px solid var(--teal);
+    padding: 0.9rem 1.1rem;
+    margin: 0 0 1.2rem;
+    font-size: 0.9rem;
+  }
+  .callout p { margin: 0; }
+  .callout strong { color: var(--teal); }
+
+  footer {
+    margin-top: 4rem;
+    border-top: 2px solid var(--ink);
+    padding-top: 1.1rem;
+    font-family: var(--f-mono);
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.5rem;
+  }
+  footer a { color: var(--ink-soft); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<div class="page">
+
+  <header class="masthead">
+    <div class="eyebrow">
+      <span>Implementation plan</span>
+      <span>Research current to <b>4 Sep 2026</b></span>
+      <span>Repo <b>agentable-ui</b> · empty</span>
+    </div>
+    <h1>A component library that <em>registers itself</em> with the agent.</h1>
+    <p class="thesis">Every interactive component already knows its own name, its inputs, and what it does when you press it. WebMCP asks a page to say that out loud. Agentable makes each component say it once — and makes something upstream decide how much of it the agent actually hears.</p>
+    <div class="chips">
+      <span class="chip live">document.modelContext</span>
+      <span class="chip live">Chrome 149+ origin trial</span>
+      <span class="chip live">Edge 147 native</span>
+      <span class="chip warn">OT ends 16 Nov 2026</span>
+      <span class="chip warn">API surface still moving</span>
+      <span class="chip">W3C WebML CG draft</span>
+    </div>
+  </header>
+
+  <!-- ============================================================== -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-num">01 — Ground truth</div>
+      <h2>What the platform actually looks like today</h2>
+    </div>
+    <div class="body">
+      <div class="rail">Verified against the spec source and Chrome's docs, not from memory. The API has moved twice.</div>
+      <div class="col">
+        <p>WebMCP lets a page hand an AI agent a set of callable tools instead of making it guess at buttons. The shape that matters for us is the current spec IDL — note that the entry point is on <code>document</code>, not <code>navigator</code>:</p>
+        <pre><code><span class="kw">partial interface</span> Document {
+  [SecureContext, SameObject] <span class="kw">readonly attribute</span> ModelContext modelContext;
+};
+
+[Exposed=Window, SecureContext]
+<span class="kw">interface</span> ModelContext : EventTarget {
+  Promise&lt;undefined&gt; registerTool(ModelContextTool tool, optional RegisterOptions options = {});
+  Promise&lt;sequence&lt;RegisteredTool&gt;&gt; getTools(optional GetToolOptions options = {});
+  Promise&lt;DOMString&gt; executeTool(RegisteredTool tool, optional object input = {}, optional ExecOptions o = {});
+  <span class="kw">attribute</span> EventHandler ontoolchange;
+};
+
+<span class="kw">dictionary</span> ModelContextTool {
+  <span class="kw">required</span> DOMString name;          <span class="cm">// ≤ 30 chars (Chrome guidance)</span>
+  USVString title;
+  <span class="kw">required</span> DOMString description;   <span class="cm">// ≤ 500 chars</span>
+  object inputSchema;                <span class="cm">// JSON Schema</span>
+  <span class="kw">required</span> ToolExecuteCallback execute;
+  ToolAnnotations annotations;       <span class="cm">// readOnly / consequential / untrustedContent hints</span>
+};</code></pre>
+
+        <h3>Three facts that shape the design</h3>
+        <ul>
+          <li><strong>The entry point has moved twice.</strong> <code>window.agent</code> → <code>navigator.modelContext</code> → <code>document.modelContext</code> (July 2026). Chrome currently aliases the old name; nothing promises it survives the origin trial, which ends <span class="num">16 Nov 2026</span>. Any code that names the global directly is code we will rewrite.</li>
+          <li><strong>Chrome publishes character budgets, not tool-count budgets.</strong> 30 chars for names, 500 for tool descriptions, 150 for parameter descriptions, 1.5K for a single tool's output. Nobody caps how many tools you register — which is exactly where a component library gets dangerous.</li>
+          <li><strong>Deployment is close to zero.</strong> Two browsers ship it; almost no production site uses it; ChatGPT's desktop browser added support in Aug 2026 and Gemini-in-Chrome is still catching up. Practical consequence: <em>the agent layer cannot be the reason someone installs this.</em> The components have to be worth using with the agent layer switched off.</li>
+        </ul>
+
+        <div class="callout">
+          <p><strong>Don't build another shadcn.</strong> Progress already bolted WebMCP onto Kendo UI; React hook wrappers exist (<code>use-webmcp-tool</code> from Chrome, <code>@mcp-b/react-webmcp</code>, <code>usewebmcp</code>). All of them register tools. <strong>None of them manage the tool budget.</strong> That gap is the product.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-num">02 — The problem</div>
+      <h2>A component library is a tool-count bomb</h2>
+    </div>
+    <div class="body">
+      <div class="rail">The failure is silent. Registration succeeds; the agent just gets worse.</div>
+      <div class="col wide">
+        <p style="max-width:var(--measure)">Auto-registration is the obvious feature and the obvious trap. A table registers query/sort/filter. A form registers fill and submit. A dialog registers open and close. On a real dashboard with 40 agent-enabled components, that is roughly 120 tool schemas pushed into the agent's context before it has read a single word of the page.</p>
+
+        <div class="budget">
+          <div class="brow">
+            <span class="lbl">Naive auto-registration</span>
+            <span class="track"><span class="fill bad" style="width:100%"></span></span>
+            <span class="val">~120 tools · ~24K tok</span>
+          </div>
+          <div class="brow">
+            <span class="lbl">Route-scoped only</span>
+            <span class="track"><span class="fill bad" style="width:29%"></span></span>
+            <span class="val">~35 tools · ~7K tok</span>
+          </div>
+          <div class="brow">
+            <span class="lbl">Agentable tier-0 resident</span>
+            <span class="track"><span class="fill good" style="width:9%"></span></span>
+            <span class="val">≤ 12 tools · ~2K tok</span>
+          </div>
+        </div>
+
+        <p style="max-width:var(--measure)">Tool-selection accuracy degrades well before the context fills — the widely cited threshold is around 20 concurrent tools. Published progressive-disclosure results in the MCP-server world report an order-of-magnitude context reduction from loading schemas on demand rather than upfront. The same arithmetic applies here, and a component library is the layer with enough structural knowledge to do it automatically.</p>
+
+        <p style="max-width:var(--measure)"><strong>So the thesis is inverted from the existing libraries:</strong> the interesting engineering is not <em>registering</em> tools. It is deciding, continuously, which small subset of a large latent tool surface is currently worth the agent's attention.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-num">03 — Architecture</div>
+      <h2>Five packages, one descriptor</h2>
+    </div>
+    <div class="body">
+      <div class="rail">Everything below <code>@agentable/core</code> is replaceable. Core knows nothing about React or about WebMCP.</div>
+      <div class="col wide">
+        <div class="arch">
+          <div class="archflow">
+            <div class="lane">
+              <div class="lname">Authoring</div>
+              <div class="boxes">
+                <div class="box"><div class="bt">@agentable/ui</div><div class="bd">Styled components. Each declares capabilities.</div></div>
+                <div class="box"><div class="bt">@agentable/react</div><div class="bd">useTool, ToolScope, provider. SSR + StrictMode safe.</div></div>
+                <div class="box edge"><div class="bt">your own code</div><div class="bd">defineCapability() directly.</div></div>
+              </div>
+            </div>
+            <div class="arrow">↓  capability descriptors  ↓</div>
+            <div class="lane">
+              <div class="lname">Control</div>
+              <div class="boxes">
+                <div class="box core"><div class="bt">Registry</div><div class="bd">Dedupe, refcount, scope, tiers.</div></div>
+                <div class="box core"><div class="bt">Budgeter</div><div class="bd">Caps residents, evicts by priority.</div></div>
+                <div class="box core"><div class="bt">Cache</div><div class="bd">TTL + tag invalidation on results.</div></div>
+                <div class="box core"><div class="bt">Shaper</div><div class="bd">Projects, paginates, truncates output.</div></div>
+              </div>
+            </div>
+            <div class="arrow">↓  normalized tools  ↓</div>
+            <div class="lane">
+              <div class="lname">Transport</div>
+              <div class="boxes">
+                <div class="box"><div class="bt">webmcpAdapter</div><div class="bd">document.modelContext, with legacy fallback.</div></div>
+                <div class="box edge"><div class="bt">bridgeAdapter</div><div class="bd">postMessage → extension / MCP-B.</div></div>
+                <div class="box edge"><div class="bt">inspectorAdapter</div><div class="bd">Devtools + test harness.</div></div>
+              </div>
+            </div>
+            <div class="arrow">↓</div>
+            <div class="lane">
+              <div class="lname">Consumer</div>
+              <div class="boxes">
+                <div class="box"><div class="bt">Browser agent</div><div class="bd">Gemini in Chrome, ChatGPT desktop, Copilot in Edge.</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3>The single descriptor</h3>
+        <p style="max-width:var(--measure)">One object describes a capability, and it feeds <em>both</em> the agent tool and — later — the generative-UI catalog entry. This is the piece that makes gen-UI a small addition rather than a second system:</p>
+
+        <pre><code><span class="kw">export interface</span> Capability&lt;A = unknown, R = unknown&gt; {
+  id: string;                <span class="cm">// "orders.table.query" — stable, dot-scoped</span>
+  tier?: 0 | 1 | 2;          <span class="cm">// 0 resident · 1 unlockable · 2 dormant</span>
+  group?: string;            <span class="cm">// unlocked together: "orders"</span>
+  priority?: number;         <span class="cm">// eviction order inside a tier</span>
+
+  tool?: {
+    name: string;            <span class="cm">// validated ≤30 chars at dev time</span>
+    description: string;     <span class="cm">// validated ≤500</span>
+    inputSchema?: JSONSchema;
+    annotations?: { readOnlyHint?: boolean; consequentialHint?: boolean;
+                    untrustedContentHint?: boolean };
+    execute: (args: A, ctx: ExecuteContext) =&gt; R | Promise&lt;R&gt;;
+
+    cache?: { ttl?: number; tags?: string[]; key?: (a: A) =&gt; string };
+    invalidates?: string[];  <span class="cm">// cache tags cleared after this runs</span>
+    output?: { maxChars?: number; project?: string[]; paginate?: boolean };
+  };
+
+  render?: {                 <span class="cm">// same source of truth → generative UI</span>
+    component: string;
+    props: JSONSchema;
+  };
+}</code></pre>
+
+        <p style="max-width:var(--measure)">And the transport boundary, which is the whole hedge against a moving spec:</p>
+
+        <pre><code><span class="kw">export interface</span> AgentAdapter {
+  <span class="kw">readonly</span> id: string;
+  available(): boolean;
+  register(tool: NormalizedTool): Promise&lt;() =&gt; void&gt;;   <span class="cm">// returns unregister</span>
+  onToolChange?(cb: () =&gt; void): () =&gt; void;
+}</code></pre>
+
+        <p style="max-width:var(--measure)">When the origin trial ends or the entry point moves a third time, we change roughly forty lines in one file and ship a patch release. Nothing above the adapter mentions <code>document.modelContext</code>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-num">04 — Mechanisms</div>
+      <h2>Six ways the surface stays small</h2>
+    </div>
+    <div class="body">
+      <div class="rail">These are the load-bearing features. Each is independently testable and independently useful.</div>
+      <div class="col wide">
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr><th>Mechanism</th><th>What it does</th><th>Where it lives</th><th>Default</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Scope</strong></td>
+                <td>Only mounted components register. An <code>IntersectionObserver</code> demotes long-offscreen groups from tier&nbsp;0 to tier&nbsp;1 instead of unregistering, so a scroll-back is instant.</td>
+                <td class="mono">react / registry</td>
+                <td class="mono">on</td>
+              </tr>
+              <tr>
+                <td><strong>Tier gate</strong></td>
+                <td>Tier&nbsp;0 is always exposed. Everything else sits behind two meta-tools: <code>list_capabilities</code> returns a one-line index; <code>open_capability(group)</code> promotes a group and fires <code>toolchange</code>. Full schemas are materialized only on promotion.</td>
+                <td class="mono">core/registry</td>
+                <td class="mono">on</td>
+              </tr>
+              <tr>
+                <td><strong>Fan-in</strong></td>
+                <td>Collapses N sibling tools into one parameterized tool with an enum. Twelve toolbar buttons become <code>run_action({ action })</code> — one schema instead of twelve.</td>
+                <td class="mono">core/registry</td>
+                <td class="mono">opt-in</td>
+              </tr>
+              <tr>
+                <td><strong>Cache</strong></td>
+                <td>Read-only tools memoize on canonical-serialized args with a TTL. Mutating tools declare <code>invalidates</code> tags; matching entries are dropped on success. Repeated agent probing costs nothing.</td>
+                <td class="mono">core/cache</td>
+                <td class="mono">on for readOnly</td>
+              </tr>
+              <tr>
+                <td><strong>Shape</strong></td>
+                <td>Output passes through field projection, cursor pagination, then a hard truncate at Chrome's 1.5K with an explicit <code>has_more</code> + <code>cursor</code>, so the agent knows to ask again rather than seeing a silently cut string.</td>
+                <td class="mono">core/shaper</td>
+                <td class="mono">on</td>
+              </tr>
+              <tr>
+                <td><strong>Budget</strong></td>
+                <td>A hard cap on resident tools (default 12). Exceeding it evicts the lowest-priority tier-0 entry to tier 1 and logs a dev warning naming both tools. Character limits are validated at registration, not discovered in production.</td>
+                <td class="mono">core/budgeter</td>
+                <td class="mono">12 resident</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Progressive disclosure, concretely</h3>
+        <pre><code><span class="cm">// Resident at all times — two tools, ~180 tokens total.</span>
+{
+  name: <span class="st">"list_capabilities"</span>,
+  description: <span class="st">"List capability groups available on this page. Call open_capability to load one."</span>,
+  annotations: { readOnlyHint: <span class="kw">true</span> },
+  execute: () =&gt; registry.index()
+  <span class="cm">// → "orders (6): query, filter, export…  ·  billing (4): …  ·  settings (9): …"</span>
+}
+
+<span class="cm">// The unlock. Promoting fires toolchange; the agent re-reads getTools().</span>
+{
+  name: <span class="st">"open_capability"</span>,
+  description: <span class="st">"Load the tools for one capability group."</span>,
+  inputSchema: { type: <span class="st">"object"</span>, properties: { group: { type: <span class="st">"string"</span> } },
+                 required: [<span class="st">"group"</span>] },
+  execute: ({ group }) =&gt; registry.promote(group)
+}</code></pre>
+
+        <p style="max-width:var(--measure)"><strong>One honest gap.</strong> The spec gives no signal for "an agent is present." There is no presence event to gate on. So the heuristic is: register tier&nbsp;0 unconditionally (it is two tools and costs nothing), and defer all group materialization until the first <code>execute</code> arrives — the first tool call <em>is</em> the presence signal. Document this as a heuristic, and revisit if the CG adds a presence primitive.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-num">05 — Component API</div>
+      <h2>One prop, or none at all</h2>
+    </div>
+    <div class="body">
+      <div class="rail">Agent behavior is a prop, never a wrapper. Omit it and the component is ordinary — and the agent code tree-shakes out.</div>
+      <div class="col wide">
+        <pre><code><span class="cm">// A form derives its inputSchema from its own field metadata.</span>
+&lt;Form
+  agent={{ name: <span class="st">"create_invoice"</span>, group: <span class="st">"billing"</span>, confirm: <span class="kw">true</span> }}
+  onSubmit={createInvoice}
+&gt;
+  &lt;Field name=<span class="st">"customer"</span> required describe=<span class="st">"Customer's legal name"</span> /&gt;
+  &lt;Field name=<span class="st">"amountCents"</span> type=<span class="st">"integer"</span> min={1} describe=<span class="st">"Amount in cents"</span> /&gt;
+&lt;/Form&gt;
+
+<span class="cm">// A table exposes one query tool, not one per column.</span>
+&lt;DataTable
+  agent={{ name: <span class="st">"query_orders"</span>, group: <span class="st">"orders"</span>,
+           project: [<span class="st">"id"</span>, <span class="st">"customer"</span>, <span class="st">"total"</span>, <span class="st">"status"</span>],  <span class="cm">// output shaping</span>
+           cache: { ttl: 30_000, tags: [<span class="st">"orders"</span>] } }}
+  columns={cols} rows={rows}
+/&gt;
+
+<span class="cm">// Twelve actions, one schema.</span>
+&lt;ActionBar agent={{ name: <span class="st">"run_order_action"</span>, fanIn: <span class="kw">true</span> }} actions={actions} /&gt;
+
+<span class="cm">// Anything hand-rolled uses the same registry.</span>
+useTool({
+  name: <span class="st">"apply_coupon"</span>,
+  description: <span class="st">"Apply a discount code to the current cart."</span>,
+  inputSchema: z.object({ code: z.string() }),   <span class="cm">// zod → JSON Schema at build</span>
+  annotations: { consequentialHint: <span class="kw">true</span> },
+  invalidates: [<span class="st">"cart"</span>],
+  execute: ({ code }) =&gt; cart.applyCoupon(code),
+});</code></pre>
+
+        <h3>Safety defaults</h3>
+        <ul>
+          <li><code>consequentialHint: true</code> is inferred for anything that mutates, and such tools render a real confirmation in the page before resolving. The user watches the action happen — that visibility is WebMCP's core trust property, and we don't spend it.</li>
+          <li><code>exposedTo</code> defaults to same-origin. Cross-origin exposure is explicit, per-capability, and logged in devtools.</li>
+          <li>Any tool returning user-generated or third-party content gets <code>untrustedContentHint</code> automatically — the table and comment primitives set it without being asked.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-num">06 — Generative UI</div>
+      <h2>The catalog you already wrote</h2>
+    </div>
+    <div class="body">
+      <div class="rail">Deliberately last. Built on the descriptor, not beside it.</div>
+      <div class="col">
+        <p>Because every capability may carry a <code>render</code> entry, the component catalog a generative-UI system needs is a projection of the registry we already maintain — same names, same JSON Schemas, same validation. No second registry to keep in sync.</p>
+        <p>The shipping pattern is the one that has settled across the ecosystem: a single <code>present</code> tool whose argument is a validated JSON tree of component names and props, rendered through an allowlist.</p>
+        <pre><code>&lt;AgentSurface /&gt;   <span class="cm">// renders whatever `present` was last called with</span>
+
+<span class="cm">// registered automatically when a surface is mounted:</span>
+{
+  name: <span class="st">"present"</span>,
+  description: <span class="st">"Render a UI response using this app's components."</span>,
+  inputSchema: registry.catalogSchema(),   <span class="cm">// allowlisted union, generated</span>
+  execute: (spec) =&gt; surface.render(validate(spec))
+}</code></pre>
+        <p>Two rules keep this safe and cheap: props are validated against the catalog schema before render, and the catalog schema itself is tier-gated like everything else, so a page with sixty renderable components still advertises a bounded union.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-num">07 — Engineering</div>
+      <h2>Decisions worth pinning now</h2>
+    </div>
+    <div class="body">
+      <div class="rail">Boring where boring is correct. The one non-obvious call is the test strategy.</div>
+      <div class="col wide">
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>Area</th><th>Decision</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">repo</td><td>pnpm workspaces + changesets, independent versioning</td><td>Core will version faster than UI while the spec moves.</td></tr>
+              <tr><td class="mono">build</td><td>TypeScript, tsdown, ESM-only, explicit <code>exports</code> map, <code>sideEffects: false</code></td><td>The agent layer must vanish from bundles that don't use it.</td></tr>
+              <tr><td class="mono">core deps</td><td>zero</td><td>Core is the piece other people will want to reuse under a different UI kit.</td></tr>
+              <tr><td class="mono">schema</td><td>Standard Schema interface; zod and valibot both accepted, JSON Schema emitted</td><td>WebMCP wants JSON Schema; authors want types. Don't force one validator.</td></tr>
+              <tr><td class="mono">styling</td><td>Headless primitives + unstyled <code>data-*</code> hooks; a Tailwind preset ships separately</td><td>Keeps the agent value proposition independent of anyone's design system.</td></tr>
+              <tr><td class="mono">tests</td><td><strong>Playwright against real Chrome with <code>--enable-features</code>, gating every release</strong></td><td>See the note below. This is the one place to spend extra effort.</td></tr>
+              <tr><td class="mono">license</td><td>MIT</td><td>Nothing here benefits from restriction; adoption is the only scarce resource.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="risk" style="max-width:var(--measure)">
+          <div class="rt">Mocked tests are actively dangerous here</div>
+          <p>There is a published post-mortem of a migration where eight WebMCP tools registered nothing in a real browser while a fully mocked suite stayed green — the mock implemented the old <code>navigator</code> surface. Our contract suite must run against a real Chrome build, assert against <code>getTools()</code>, and fail loudly when the entry point moves. Unit tests may mock; the release gate may not.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-num">08 — Sequence</div>
+      <h2>Twelve weeks, six gates</h2>
+    </div>
+    <div class="body">
+      <div class="rail">Each phase ships something usable. Nothing here needs the phase after it to be worth merging.</div>
+      <div class="col wide">
+        <div class="phases">
+          <div class="phase">
+            <div class="pn">00</div>
+            <div>
+              <h4>Conformance spike</h4>
+              <p>Before any library code: register a tool by hand in Chrome with <code>chrome://flags/#enable-webmcp-testing</code>, confirm the live IDL against the spec, and write the Playwright harness that asserts it. Record what's actually there versus what's documented.</p>
+            </div>
+            <div class="exit"><b>Gate</b>A red/green conformance report checked into the repo.</div>
+          </div>
+          <div class="phase">
+            <div class="pn">01</div>
+            <div>
+              <h4>@agentable/core</h4>
+              <p>Registry with refcounting and dedupe, tier model, budgeter with eviction, cache with tag invalidation, output shaper, adapter interface, and the WebMCP adapter. Framework-free and fully testable headlessly.</p>
+            </div>
+            <div class="exit"><b>Gate</b>120 declared capabilities resolve to ≤12 resident tools, verified in a real browser.</div>
+          </div>
+          <div class="phase">
+            <div class="pn">02</div>
+            <div>
+              <h4>@agentable/react</h4>
+              <p><code>&lt;AgentableProvider&gt;</code>, <code>useTool</code>, <code>useCapability</code>, <code>&lt;ToolScope&gt;</code>. SSR-safe, StrictMode-safe, no double registration, stable identity across re-render.</p>
+            </div>
+            <div class="exit"><b>Gate</b>Drop-in on an existing app with no component rewrite.</div>
+          </div>
+          <div class="phase">
+            <div class="pn">03</div>
+            <div>
+              <h4>@agentable/devtools</h4>
+              <p>Moved ahead of the components deliberately. An in-page overlay: resident tools, budget usage, cache hit rate, schema-size ranking, and a tool console that invokes capabilities without needing an agent or a Chrome flag.</p>
+            </div>
+            <div class="exit"><b>Gate</b>A developer with no WebMCP-capable browser can build and verify agent behavior.</div>
+          </div>
+          <div class="phase">
+            <div class="pn">04</div>
+            <div>
+              <h4>@agentable/ui — first ten</h4>
+              <p>Form + Field, DataTable, Combobox, ActionBar, Dialog, Tabs, Nav, Filters, Pagination, Toast. Each ships its capability declaration, its docs, and a real agent scenario test.</p>
+            </div>
+            <div class="exit"><b>Gate</b>A demo app where an agent completes a three-step task end to end.</div>
+          </div>
+          <div class="phase">
+            <div class="pn">05</div>
+            <div>
+              <h4>@agentable/genui + docs</h4>
+              <p><code>&lt;AgentSurface&gt;</code>, catalog schema generation, validated rendering. The docs site is built with the library and is itself the flagship demo — its own search, navigation, and examples are agent-callable.</p>
+            </div>
+            <div class="exit"><b>Gate</b>An agent can drive the docs site to answer a question about the docs site.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-num">09 — Risks</div>
+      <h2>What could make this wrong</h2>
+    </div>
+    <div class="body">
+      <div class="rail">Listed with the mitigation already in the plan, or with the trigger that would change the plan.</div>
+      <div class="col">
+        <div class="risk">
+          <div class="rt">The spec moves again, or the origin trial lapses</div>
+          <p>Likely, not hypothetical — two renames already. Mitigated by the adapter boundary and the real-browser conformance gate. If WebMCP stalls entirely, core plus the bridge adapter still delivers value to extension-based agents, and the components remain a normal library.</p>
+        </div>
+        <div class="risk">
+          <div class="rt">Nobody is calling these tools yet</div>
+          <p>Adoption is genuinely near zero. This is why phase 4 comes after devtools and why the agent prop is optional: the library has to be chosen for the components, with the agent layer as upside.</p>
+        </div>
+        <div class="risk">
+          <div class="rt">Prompt injection through tool output</div>
+          <p>Untrusted page content flowing into an agent is the known attack class. Automatic <code>untrustedContentHint</code>, confirm-gated mutations, and same-origin-by-default <code>exposedTo</code> are the baseline; a security review belongs at the phase-4 gate, not at launch.</p>
+        </div>
+        <div class="risk">
+          <div class="rt">Our budget heuristics are guesses</div>
+          <p>The 12-tool default and the tiering rules are informed estimates, not measurements. Phase 3's devtools exist partly to generate the data that replaces them.</p>
+        </div>
+
+        <h3>Four calls that are yours, not mine</h3>
+        <div class="risk q">
+          <div class="rt">Headless base</div>
+          <p>Build primitives ourselves, or sit on Base UI / Radix? Faster and more accessible on day one, but adds a dependency the "zero-dep core" story has to explain.</p>
+        </div>
+        <div class="risk q">
+          <div class="rt">Framework scope for v1</div>
+          <p>React-only ships in twelve weeks. Core is framework-free by design, so Vue and Svelte adapters are cheap later — but only if we resist shipping them early.</p>
+        </div>
+        <div class="risk q">
+          <div class="rt">Open source now or after phase 4</div>
+          <p>Public from commit one buys feedback while the spec is still moving; public after phase 4 buys a first impression that isn't a skeleton.</p>
+        </div>
+        <div class="risk q">
+          <div class="rt">Name</div>
+          <p><code>agentable</code> is the repo, and the npm scope is the one thing that's painful to change later.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Sources: W3C WebMCP spec (webmachinelearning/webmcp) · Chrome for Developers, WebMCP &amp; tool security · GoogleChromeLabs/use-webmcp-tool · WebMCP-org/npm-packages</span>
+    <span>Prepared 4 Sep 2026</span>
+  </footer>
+
+</div>
