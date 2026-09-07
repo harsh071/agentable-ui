@@ -45,9 +45,18 @@ export function AgentableProvider({ children, agentable: provided, adapters, con
     });
   });
 
+  // StrictMode mounts, unmounts, then remounts with the same useState value, so a
+  // synchronous dispose() here would permanently kill the registry the second mount
+  // reuses (adapters cleared, notify() short-circuited). Deferring the teardown lets
+  // the remount cancel it; a real unmount has no remount to cancel, so it still runs.
+  const teardown = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => {
     if (provided) return;
-    return () => agentable.dispose();
+    clearTimeout(teardown.current);
+    teardown.current = undefined;
+    return () => {
+      teardown.current = setTimeout(() => agentable.dispose(), 0);
+    };
   }, [agentable, provided]);
 
   const current = queue[0];

@@ -1,0 +1,77 @@
+# @agentable/ui
+
+Headless, agent-callable React components. Every component takes one `agent` prop and becomes a tool.
+
+```bash
+npm install @agentable/ui @agentable/react @agentable/core
+```
+
+```tsx
+import { AgentableProvider } from "@agentable/react";
+import { DataTable, ActionBar, Toaster } from "@agentable/ui";
+import "@agentable/ui/styles.css";
+
+<AgentableProvider budget={12}>
+  <DataTable
+    rows={orders}
+    columns={columns}
+    agent={{ name: "query_orders", project: ["id", "customer", "total", "status"], cache: { ttl: 30_000, tags: ["orders"] } }}
+  />
+  <ActionBar
+    agent={{ name: "run_order_action", title: "Order actions" }}
+    actions={[
+      { id: "mark_paid", label: "Mark paid", describe: "Set selected orders to paid", onAction: markPaid },
+      { id: "ship", label: "Ship", describe: "Set selected orders to shipped", onAction: ship },
+    ]}
+  />
+  <Toaster agent={{ name: "read_notifications", group: "page", tier: 1 }} />
+</AgentableProvider>;
+```
+
+Omit the `agent` prop and the component is ordinary — no tool, no registry, no cost.
+
+## Components
+
+| Component | Tools it declares |
+|---|---|
+| `Form` + `Field` | One submit tool whose input schema is derived from the fields. |
+| `DataTable` | A query tool (filter, sort, project, paginate) and a select tool. |
+| `Combobox` | Select an option by label or value, ranked by exact, prefix, then substring match. |
+| `ActionBar` | Fan-in: many actions collapse into one tool with an `action` enum. |
+| `Dialog` | Open/close; tools inside it mount only while it is open. |
+| `Tabs`, `Nav` | Navigate by value or href. |
+| `Filters` | One tool for the whole filter set. |
+| `Pagination` | Page navigation. |
+| `Toaster` | `toast()` imperatively; the agent reads notifications back. |
+
+`uiCatalog` exports presentational primitives (`Text`, `Card`, `Stat`, `Callout`, `KeyValue`, `SimpleTable`, `List`, `Stack`, `Progress`) for use with [`@agentable/genui`](../genui).
+
+## The `agent` prop
+
+```ts
+{
+  name: string;            // tool name, <= 30 chars
+  id?: string;             // capability id, defaults to `<component>.<name>`
+  description?: string;    // overrides the generated description
+  title?: string;
+  group?: string;
+  tier?: 0 | 1 | 2;
+  priority?: number;
+  confirm?: boolean | string;
+  cache?: CacheOptions | false;
+  invalidates?: string[];
+  project?: string[];      // fields to keep in output
+  maxChars?: number;       // output cap, default 1500
+  exposedTo?: string[];
+}
+```
+
+Each component picks safe defaults: read-only components cache and skip confirmation, mutating ones ask first.
+
+## Styling
+
+`@agentable/ui/styles.css` is a plain stylesheet with no build step. Components are headless — they carry `data-agentable-*` attributes, so you can drop the stylesheet and use your own, or import the Tailwind preset from `@agentable/ui/tailwind`.
+
+Also exported for reuse outside the components: `applyQuery`, `applyFilters`, `matchOptions`, `resolveOption`, `useAgentCapability`.
+
+MIT

@@ -1,6 +1,6 @@
 # WebMCP conformance report
 
-Generated 2026-09-04 against real Chrome with `--enable-features=WebMCP`. 43/43 checks green.
+Generated 2026-09-07 against real Chrome with `--enable-features=WebMCP`. 45/45 checks green.
 
 Red rows are facts about the platform that differ from the documented spec, or library gates that failed. Every row is asserted in `conformance/tests`, never mocked.
 
@@ -72,8 +72,8 @@ Red rows are facts about the platform that differ from the documented spec, or l
 | 🟢 | resident tools in getTools() | <= 12 | 12: g0_c0, g0_c1, g0_c2, g0_c3, g0_c4, g1_c0, g1_c1, g1_c2, g1_c3, g1_c4, list_capabilities, open_capability |
 | 🟢 | estimated context | < 2500 tokens | ~320 tokens |
 | 🟢 | list_capabilities via executeTool | index of unloaded groups | g0 [5]: g0_c5, g0_c6, g0_c7, g0_c8, g0_c9 g1 [5]: g1_c5, g1_c6, g1_c7, g1_c8, g1_c9 g10 [10]: g10_c0, g10_c1, g10_c2, g10_c3, g10_c4, g10_c5, g10_c6, g10_c7, g1 |
-| 🟢 | open_capability promotes a group | g7 tools loaded, count still <= 12 | 12: g0_c0, g0_c1, g0_c2, g1_c0, g1_c1, g1_c2, g1_c3, g7_c0, g7_c1, g7_c2, list_capabilities, open_capability |
-| 🟢 | toolchange fired on promotion | > 0 | 18 |
+| 🟢 | open_capability promotes a group | g7 tools loaded, count still <= 12 | 12: g0_c0, g0_c1, g0_c2, g1_c0, g1_c1, g1_c2, g7_c0, g7_c1, g7_c2, g7_c3, list_capabilities, open_capability |
+| 🟢 | toolchange fired on promotion | > 0 | 20 |
 | 🟢 | execute through Chrome | {"group":7,"i":0,"q":"hello"} | {"group":7,"i":0,"q":"hello"} |
 | 🟢 | library validates input | {"error":"Invalid input." ...} | {"error":"Invalid input.","issues":[{"path":"q","message":"expected string, got integer"}]} |
 | 🟢 | budget warnings emitted for evictions | > 0 | 20 |
@@ -89,8 +89,10 @@ Red rows are facts about the platform that differ from the documented spec, or l
 | 🟢 | consequential action gated by confirm dialog | user decline returns declined:true | {"error":"The user declined this action.","declined":true} |
 | 🟢 | list_capabilities index | lists evicted/unloaded groups only | billing [1]: invoice_dialog \| page [1]: read_notifications |
 | 🟢 | dialog tool mounts form tool | create_invoice appears after invoice_dialog{open:true} | 12: choose_customer, create_invoice, get_dashboard_stats, invoice_dialog, list_capabilities, navigate, open_capability, query_orders, query_orders_select, reports_page, settings_tab, update_profile |
-| 🟢 | form fill + submit via confirm dialog | invoiceId returned, toast shown, dialog closed | {"invoiceId":"INV-6995"} |
+| 🟢 | form fill + submit via confirm dialog | invoiceId returned, toast shown, dialog closed | {"invoiceId":"INV-9890"} |
 | 🟢 | combobox select by label | Grace Hopper selected | {"selected":{"value":"cust_2","label":"Grace Hopper","description":"grace.hopper@example.com"}} |
+| 🟢 | read_notifications after actions | includes 'Invoice created' | ["Invoice created","Marked paid 3 orders"] |
+| 🟢 | phase 05 gate: agent drives the docs site | navigate + search_docs return results | ["mechanisms"] |
 
 ## Playwright specs
 
@@ -101,4 +103,4 @@ Red rows are facts about the platform that differ from the documented spec, or l
 - 🟢 limits and annotations: what Chrome enforces vs reflects
 - 🟢 unregistering a tool while its execute is pending rejects the pending call
 - 🟢 phase 01 gate: 120 declared capabilities resolve to <= 12 tools in getTools()
-- 🔴 phase 04 gate: an agent completes a three-step task on the demo through real WebMCP
+- 🟢 phase 04 gate: an agent completes a three-step task on the demo through real WebMCP
