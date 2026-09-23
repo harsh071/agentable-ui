@@ -572,6 +572,18 @@ export class Agentable {
     return tool.execute(input, ctx);
   }
 
+  /**
+   * Run a capability's tool from app code, loaded or not. Same validation,
+   * confirmation, caching and output shaping as an agent call, but it does not
+   * count as agent presence. Generated UI uses this so a button and an agent
+   * reach a tool through one path.
+   */
+  async invokeCapability(id: string, input: unknown, ctx: { signal?: AbortSignal } = {}): Promise<string> {
+    const rec = this.recs.get(id);
+    if (!rec?.cap.tool) return errorText(`Capability "${id}" has no tool.`);
+    return this.runCapability(rec, input, { adapter: "app", signal: ctx.signal }, undefined, "app");
+  }
+
   private markPresent(): void {
     if (!this.agentPresent) {
       this.agentPresent = true;
@@ -584,8 +596,9 @@ export class Agentable {
     input: unknown,
     ctx: { adapter?: string; signal?: AbortSignal } | undefined,
     viaTool?: string,
+    source: "agent" | "app" = "agent",
   ): Promise<string> {
-    this.markPresent();
+    if (source === "agent") this.markPresent();
     const cap = rec.cap;
     const t = cap.tool!;
     const toolName = viaTool ?? t.name;
@@ -621,7 +634,9 @@ export class Agentable {
           ? t.confirm
           : typeof t.confirm === "function"
             ? t.confirm(args as never)
-            : `Allow the agent to run "${t.title ?? t.name}"?`;
+            : source === "app"
+              ? `Run "${t.title ?? t.name}"?`
+              : `Allow the agent to run "${t.title ?? t.name}"?`;
       const ok = await this.confirm({ capabilityId: cap.id, toolName, title: t.title ?? t.name, message, args });
       if (!ok) return errorText("The user declined this action.", { declined: true });
     }

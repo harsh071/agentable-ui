@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { useAgentable, useAgentableSnapshot } from "@agentable/react";
-import { AgentSurface, type UISpec } from "@agentable/genui";
+import { useMemo, useState } from "react";
+import { useAgentable, useAgentableSnapshot, useTool } from "@agentable/react";
+import { AgentSurface, type PresentArgs } from "@agentable/genui";
 import { uiCatalog, toast } from "@agentable/ui";
+import { makeOrders, type Order } from "../data.js";
 
-const SAMPLES: Array<{ label: string; title?: string; root: UISpec }> = [
+const SAMPLES: Array<{ label: string } & PresentArgs> = [
   {
     label: "Revenue summary",
     title: "August at a glance",
@@ -34,6 +35,55 @@ const SAMPLES: Array<{ label: string; title?: string; root: UISpec }> = [
     },
   },
   {
+    label: "Refund desk (interactive)",
+    title: "Paid orders",
+    ui: {},
+    root: {
+      component: "Stack",
+      id: "root",
+      children: [
+        {
+          component: "StatGroup",
+          children: [
+            { component: "Stat", props: { label: "Paid orders" }, bind: { value: "data.summary.paid" } },
+            { component: "Stat", props: { label: "Refunded" }, bind: { value: "data.summary.refunded" } },
+          ],
+        },
+        {
+          component: "RecordTable",
+          id: "orders",
+          props: { caption: "Choose an order to refund", columns: [{ key: "id", label: "Order" }, { key: "customer", label: "Customer" }, { key: "total", label: "Total" }] },
+          bind: { rows: "data.paid" },
+          on: { select: [{ type: "set", path: "ui.selected", value: "{{value}}" }] },
+        },
+        {
+          component: "Card",
+          id: "detail",
+          props: { title: "Selected order" },
+          when: "ui.selected",
+          children: [
+            { component: "Text", bind: { text: "ui.selected.customer" }, props: { text: "" } },
+            { component: "TextInput", props: { label: "Reason" }, bind: { value: "ui.reason" }, on: { change: [{ type: "set", path: "ui.reason", value: "{{value}}" }] } },
+            {
+              component: "Button",
+              props: { label: "Refund this order", variant: "danger" },
+              on: { press: [{ type: "tool", name: "refund_order", args: { id: "{{ui.selected.id}}", reason: "{{ui.reason}}" }, into: "ui.last" }, { type: "remove", path: "ui.selected" }] },
+            },
+          ],
+        },
+        { component: "Callout", props: { kind: "success", text: "" }, bind: { text: "ui.last.message" }, when: "ui.last" },
+      ],
+    },
+  },
+  {
+    label: "Patch: add a note",
+    ops: [{ op: "add", parent: "root", index: 0, node: { component: "Callout", id: "note", props: { kind: "info", text: "Refunds over $500 need a manager." } } }],
+  },
+  {
+    label: "Invalid (write to data)",
+    root: { component: "Button", props: { label: "Zero revenue" }, on: { press: [{ type: "set", path: "data.summary.paid", value: 0 }] } },
+  },
+  {
     label: "Invalid (unknown component)",
     root: { component: "Chart", props: { series: [1, 2, 3] } },
   },
@@ -47,11 +97,35 @@ export function PlaygroundPage() {
   const agentable = useAgentable();
   const snapshot = useAgentableSnapshot();
   const [log, setLog] = useState<string[]>([]);
+  const [orders, setOrders] = useState<Order[]>(() => makeOrders(40));
+
+  const data = useMemo(() => {
+    const paid = orders.filter((o) => o.status === "paid").slice(0, 6);
+    return {
+      paid,
+      summary: { paid: orders.filter((o) => o.status === "paid").length, refunded: orders.filter((o) => o.status === "refunded").length },
+    };
+  }, [orders]);
+
+  useTool<{ id: string; reason?: string }, { id: string; message: string }>({
+    name: "refund_order",
+    title: "Refund order",
+    description: "Refund a paid order in full.",
+    inputSchema: { type: "object", properties: { id: { type: "string" }, reason: { type: "string" } }, required: ["id"] },
+    confirm: (a) => `Refund ${a.id} in full?`,
+    execute: ({ id, reason }) => {
+      const order = orders.find((o) => o.id === id);
+      if (!order || order.status !== "paid") throw new Error(`${id} is not a paid order.`);
+      setOrders((os) => os.map((o) => (o.id === id ? { ...o, status: "refunded" } : o)));
+      return { id, message: `Refunded ${id} ($${order.total.toFixed(2)})${reason ? `: ${reason}` : ""}.` };
+    },
+  });
 
   const present = async (sample: (typeof SAMPLES)[number]) => {
     if (!agentable) return;
-    const out = await agentable.invoke("present", { root: sample.root, title: sample.title }, { adapter: "playground" });
-    setLog((l) => [`present(${sample.label}) -> ${out}`, ...l].slice(0, 8));
+    const { label, ...args } = sample;
+    const out = await agentable.invoke("present", args, { adapter: "playground" });
+    setLog((l) => [`present(${label}) -> ${out}`, ...l].slice(0, 8));
     if (out.includes('"error"')) toast({ title: "present rejected the spec", description: out.slice(0, 160), kind: "warning", source: "agent" });
   };
 
@@ -63,7 +137,7 @@ export function PlaygroundPage() {
         <div>
           <h1>Playground</h1>
           <p className="muted">
-            <code>&lt;AgentSurface&gt;</code> registers one <code>present</code> tool. Its schema is generated from the catalog below and every spec is validated before it renders.
+            <code>&lt;AgentSurface&gt;</code> registers a <code>present</code> tool. Its schema is generated from the catalog below and every spec is validated before it renders. Nodes can bind to app data, keep their own <code>ui.*</code> state, and call registered tools, which confirm exactly as they would for an agent.
           </p>
         </div>
       </div>
@@ -78,7 +152,7 @@ export function PlaygroundPage() {
             </button>
           ))}
         </div>
-        <AgentSurface components={uiCatalog} placeholder={<span>Nothing presented yet. Click a sample above.</span>} />
+        <AgentSurface components={uiCatalog} data={data} placeholder={<span>Nothing presented yet. Click a sample above.</span>} />
       </section>
 
       <section className="section">
