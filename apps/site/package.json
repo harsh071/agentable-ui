@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/build-llms.mjs && vite",
-    "build": "node scripts/build-llms.mjs && vite build",
+    "build": "pnpm --filter \"@agentable-ui/site^...\" run build && node scripts/build-llms.mjs && vite build",
     "preview": "vite preview --port 4173 --strictPort",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
