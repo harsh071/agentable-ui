@@ -73,6 +73,117 @@ export function App() {
     ),
   },
   {
+    id: "plain-english",
+    group: "Start",
+    title: "In plain English",
+    summary: "What this is, why it helps, and what does and does not work today.",
+    text: "Plain English explainer. AI agents today use websites like a person squinting at a screenshot: they guess which button to click. WebMCP lets a website hand the agent a menu of actions (tools) such as search orders or refund order, with exact inputs. Agentable is React components that come with that menu built in: add one agent prop. Too many tools confuse agents, so Agentable shows at most 12 at a time and keeps the rest one step away. Consequential actions ask the user first. Does it work: unit tests and a real-Chrome conformance suite pass; WebMCP itself is experimental and behind a Chrome flag; few agents call WebMCP tools yet; the accuracy benefit of the budget is based on published observations, not our own benchmark. For AI assistants: /llms.txt and /llms-full.txt.",
+    body: (
+      <>
+        <h1>In plain English</h1>
+        <p className="lede">No jargon. What this is, why anyone would want it, and an honest answer to "does it actually work?"</p>
+
+        <h2>The problem</h2>
+        <p>
+          AI assistants are starting to use websites for people: "find last month's unpaid invoices", "refund order 1042". Today they mostly do this the way a person would over a bad video call. They look at the page, guess which button means what, click, and hope. It is slow, it breaks when the design changes, and it is easy to click the wrong thing.
+        </p>
+
+        <h2>The idea</h2>
+        <p>
+          A new browser feature called <b>WebMCP</b> lets a website hand the assistant a menu instead: a short list of things it can do, each with a clear name and the exact inputs it needs. "Search orders (by status, customer, date)." "Refund an order (order id, reason)." The assistant picks from the menu instead of guessing at pixels.
+        </p>
+        <p>
+          <b>Agentable is a set of React components that come with that menu built in.</b> Put a table on your page, add one <code>agent</code> prop, and the assistant can search and sort it. Add a form, and the assistant can fill it in and submit it. Leave the prop off and the component is completely ordinary.
+        </p>
+
+        <h2>Why that is useful</h2>
+        <div className="grid">
+          <div className="card">
+            <h3>For the people using your app</h3>
+            <p className="muted">Their assistant does the task properly instead of fumbling. Anything with consequences, like a refund or a delete, pops up a confirmation first, and nothing runs until they say yes.</p>
+          </div>
+          <div className="card">
+            <h3>For the assistant</h3>
+            <p className="muted">It gets exact inputs and short, predictable answers, so it makes fewer mistakes and finishes faster.</p>
+          </div>
+          <div className="card">
+            <h3>For you, the developer</h3>
+            <p className="muted">You don't write and maintain a separate "AI version" of every feature. The components you already use describe themselves.</p>
+          </div>
+        </div>
+
+        <h2>The part most people miss: too many tools</h2>
+        <p>
+          If every button, table and form on a busy screen added itself to the menu, the assistant would be handed a hundred options at once. Assistants get noticeably worse at choosing when the list gets long, and every option costs part of their limited memory before they have done anything.
+        </p>
+        <p>
+          So Agentable keeps a <b>budget</b>: at most 12 tools on the menu at any moment (you can change the number). The rest stay one step away. The assistant can ask "what else can you do?" and open a group when it needs it. Parts of the page that are scrolled out of view step back automatically. Related buttons collapse into a single tool. Long answers are trimmed and split into pages.
+        </p>
+        <p>
+          Measured on this site's own <a href="#/demo">demo</a>: 12 tools on the menu cost about 1,300 tokens of the assistant's memory, roughly 110 each. At that rate, a screen that exposed 120 tools would spend around 13,000 tokens before the assistant read a single word.
+        </p>
+
+        <h2>How it works, in four steps</h2>
+        <ol>
+          <li>You add <code>agent=&#123;&#123; name: "search_orders" &#125;&#125;</code> to a component.</li>
+          <li>The component tells Agentable what it can do and what inputs it takes.</li>
+          <li>Agentable decides what goes on the menu right now, within the budget, and hands that to the browser.</li>
+          <li>When the assistant uses a tool, Agentable checks the inputs, asks the user if the action matters, runs it, and trims the answer to a sensible size.</li>
+        </ol>
+
+        <h2>Does it actually work?</h2>
+        <p>Honest status as of September 2026, version 0.1.0:</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Area</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>The engine (budget, caching, trimming, confirmations)</td>
+              <td>Works. Covered by automated tests.</td>
+            </tr>
+            <tr>
+              <td>Talking to a real browser</td>
+              <td>Works. A test suite drives real Chrome with WebMCP switched on, with nothing faked. All 45 checks passed on Chrome 152. On Chrome 153 one check about the browser's own behaviour changed, and that test still needs updating.</td>
+            </tr>
+            <tr>
+              <td>The components (table, form, dialog…) and the AI-built screens</td>
+              <td>Work in the demo and playground, checked by hand in Chrome. Automated tests for them are still thin.</td>
+            </tr>
+            <tr>
+              <td>WebMCP itself</td>
+              <td>
+                <b>Experimental.</b> It is a draft standard, Chrome only turns it on with a flag, and it has already changed shape once. Very few assistants call these tools yet. Agentable follows the platform; it can't make it arrive sooner.
+              </td>
+            </tr>
+            <tr>
+              <td>"Fewer tools means better results"</td>
+              <td>Based on published observations about how assistants handle long tool lists. We have not run our own benchmark yet.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          You don't need an assistant or the Chrome flag to try it. Open the <a href="#/demo">demo</a>, press <kbd>Alt</kbd>+<kbd>A</kbd>, and call any tool from the console exactly as an assistant would.
+        </p>
+
+        <h2>When not to use it</h2>
+        <ul>
+          <li>Your app isn't React. The core engine is framework-free, but only React components exist today.</li>
+          <li>You need this in production for most of your users today. Most browsers and assistants can't use WebMCP yet.</li>
+          <li>You only need one or two tools. You can register those yourself without a library.</li>
+        </ul>
+
+        <h2>For AI assistants</h2>
+        <p>
+          These docs are rendered by JavaScript, so a tool that only fetches pages sees nothing. The same material is available as plain text: <a href="/llms.txt">/llms.txt</a> gives the short version, and <a href="/llms-full.txt">/llms-full.txt</a> adds the full API reference for every package.
+        </p>
+      </>
+    ),
+  },
+  {
     id: "problem",
     group: "Start",
     title: "Why budget tools",

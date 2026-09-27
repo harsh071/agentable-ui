@@ -44,7 +44,7 @@ Omit the `agent` prop and the component is ordinary — no tool, no registry, no
 | `Pagination` | Page navigation. |
 | `Toaster` | `toast()` imperatively; the agent reads notifications back. |
 
-`uiCatalog` exports presentational primitives (`Text`, `Card`, `Stat`, `Callout`, `KeyValue`, `SimpleTable`, `List`, `Stack`, `Progress`) for use with [`@agentable-ui/genui`](../genui).
+`uiCatalog` exports presentational primitives (`Text`, `Card`, `Stat`, `StatGroup`, `Callout`, `KeyValue`, `SimpleTable`, `List`, `Stack`, `Progress`) and interactive ones with events (`Button`, `TextInput`, `Select`, `Checkbox`, `RecordTable`) for use with [`@agentable-ui/genui`](../genui).
 
 ## The `agent` prop
 
