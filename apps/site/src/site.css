@@ -209,7 +209,13 @@ main.page {
 }
 .dash {
   display: grid;
+  /* minmax(0, …) lets wide <pre> blocks scroll instead of stretching the page. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
+}
+pre.log {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 .dash-header {
   display: flex;

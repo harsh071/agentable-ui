@@ -126,7 +126,7 @@ export function PlaygroundPage() {
     const { label, ...args } = sample;
     const out = await agentable.invoke("present", args, { adapter: "playground" });
     setLog((l) => [`present(${label}) -> ${out}`, ...l].slice(0, 8));
-    if (out.includes('"error"')) toast({ title: "present rejected the spec", description: out.slice(0, 160), kind: "warning", source: "agent" });
+    if (out.includes('"error"')) toast({ title: "present rejected the spec", description: rejection(out), kind: "warning", source: "agent" });
   };
 
   const presentTool = snapshot.resident.find((t) => t.name === "present");
@@ -167,8 +167,20 @@ export function PlaygroundPage() {
 
       <section className="section">
         <h2>Call log</h2>
-        {log.length ? <pre>{log.join("\n")}</pre> : <p className="muted">No calls yet.</p>}
+        {log.length ? <pre className="log">{log.join("\n")}</pre> : <p className="muted">No calls yet.</p>}
       </section>
     </div>
   );
+}
+
+/** The first validation issue in plain words, e.g. "root.props.value: is required". */
+function rejection(out: string): string {
+  try {
+    const r = JSON.parse(out) as { error?: string; issues?: Array<{ path: string; message: string }> };
+    const issue = r.issues?.[0];
+    const text = issue ? `${issue.path}: ${issue.message}` : (r.error ?? out);
+    return text.length > 160 ? `${text.slice(0, 157)}...` : text;
+  } catch {
+    return out.slice(0, 160);
+  }
 }
