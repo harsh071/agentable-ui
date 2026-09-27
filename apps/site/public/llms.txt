@@ -1,0 +1,88 @@
+# Agentable
+
+> React components that expose themselves to AI agents as WebMCP tools, with a budget that keeps the agent's tool list small (12 by default). Published on npm as `@agentable-ui/*`, version 0.1.0, MIT.
+
+The docs site renders its pages client-side, so fetching them returns an empty page. This file and `/llms-full.txt` hold the same material as plain text.
+
+## What it is
+
+WebMCP is an experimental browser API (`document.modelContext`) that lets a web page register "tools" an AI agent can call: a name, a description, a JSON Schema for inputs, and an `execute` function. Agents call tools instead of guessing at buttons in screenshots.
+
+Agentable is a component library built on it. Each component takes an optional `agent` prop and declares its own tool: a `DataTable` becomes a query tool, a `Form` becomes a submit tool whose input schema comes from its fields. Without the prop, the component is ordinary.
+
+## Why it exists
+
+Registering tools is easy; keeping the list usable is the hard part. A dashboard where every component registers tools can hand an agent 100+ schemas, and agents choose less accurately as the list grows. Every schema also costs context before the agent does anything. On this project's demo, 12 resident tools cost about 1,300 tokens (~110 each).
+
+Agentable manages the list:
+- **Budget**: a hard cap on resident tools (default 12). Overflow is evicted by priority, and the eviction is logged.
+- **Tiers**: tier 0 is always registered. Tier 1 is listed by the `list_capabilities` meta tool and loaded with `open_capability`. Tier 2 is app-only.
+- **Scope**: only mounted components register. `<ToolScope>` demotes groups that stay offscreen for 5 s.
+- **Fan-in**: sibling actions collapse into one tool with an `action` enum (`<ActionBar>` does this).
+- **Cache**: read-only tools memoize by canonical args, with TTL and tag invalidation.
+- **Shape**: output is projected, paginated with a cursor, and truncated at 1,500 characters with `has_more`.
+- **Confirmation**: consequential tools (any tool without `annotations.readOnlyHint: true`) ask the user first. A decline returns `{"error": ..., "declined": true}`. With no confirm handler, consequential calls are declined (fail closed).
+
+## Status (September 2026, v0.1.0)
+
+- Works: core registry, budget, cache, output shaping and confirmation, all covered by unit tests. A real-Chrome conformance suite (`--enable-features=WebMCP`, nothing mocked) passed 45/45 checks on Chrome 152; on Chrome 153 one platform check changed and its expectation is being updated.
+- Works, lightly tested: the UI components and generative UI. Verified by hand in Chrome; automated coverage is thin.
+- Experimental: WebMCP itself. It is a draft spec behind a Chrome flag, and few agents call WebMCP tools yet.
+- Not measured: the claim that a smaller tool list improves agent accuracy rests on published observations, not a benchmark run by this project.
+- React only. `@agentable-ui/core` is framework-free, but only React bindings exist.
+
+## Quick start
+
+```bash
+npm install @agentable-ui/ui @agentable-ui/react @agentable-ui/core
+```
+
+```tsx
+import { AgentableProvider } from "@agentable-ui/react";
+import { DataTable, Form, Field } from "@agentable-ui/ui";
+import "@agentable-ui/ui/styles.css";
+
+export function App() {
+  return (
+    <AgentableProvider budget={12}>
+      <DataTable
+        columns={cols}
+        rows={rows}
+        agent={{ name: "query_orders", group: "orders", project: ["id", "customer", "total"] }}
+      />
+      <Form agent={{ name: "create_invoice", group: "billing" }} onSubmit={createInvoice}>
+        <Field name="customer" required describe="Customer's legal name" />
+        <Field name="amountCents" type="integer" min={1} describe="Amount in cents" />
+      </Form>
+    </AgentableProvider>
+  );
+}
+```
+
+`<AgentableProvider>` registers tools with `document.modelContext` and shows a built-in confirmation dialog. To see what an agent sees without a WebMCP browser, add `<AgentableDevtools />` from `@agentable-ui/devtools/react` and press Alt+A.
+
+## Rules for writing code with Agentable
+
+- Tool names: at most 30 characters, letters, digits, `_` or `-`. Keep descriptions short; the library warns when limits are exceeded.
+- Mark read-only tools with `annotations: { readOnlyHint: true }`. Otherwise they count as consequential and ask for confirmation.
+- Use `project: [...]` on data components so the agent receives only the fields it needs.
+- Group related capabilities with `group` and use `tier: 1` for rarely needed ones, so they don't take a budget slot.
+- Pass `confirm={false}` only when you really want consequential tools to run without asking.
+- Tool inputs are validated by the library, not the browser. `inputSchema` accepts JSON Schema or a Standard Schema validator (zod 4, valibot 1).
+
+## Packages
+
+- [@agentable-ui/core](https://www.npmjs.com/package/@agentable-ui/core): framework-free registry (budget, tiers, cache, shaper, confirmation) and adapters: `webmcpAdapter`, `memoryAdapter`, `bridgeAdapter`.
+- [@agentable-ui/react](https://www.npmjs.com/package/@agentable-ui/react): `AgentableProvider`, `useTool`, `useCapability`, `ToolScope`, `useAgentableSnapshot`, `useAgentPresent`.
+- [@agentable-ui/ui](https://www.npmjs.com/package/@agentable-ui/ui): headless components with an `agent` prop: Form/Field, DataTable, Combobox, ActionBar, Dialog, Tabs, Nav, Filters, Pagination, Toaster. Also `uiCatalog` for generative UI.
+- [@agentable-ui/genui](https://www.npmjs.com/package/@agentable-ui/genui): `<AgentSurface>` registers one `present` tool. The agent sends a UI spec, which is validated against your component catalog before it renders. Specs can bind to data, keep `ui.*` state, and call registered tools.
+- [@agentable-ui/devtools](https://www.npmjs.com/package/@agentable-ui/devtools): in-page overlay (Alt+A) that shows resident tools, budget, token estimate, cache, warnings, and a console for calling tools by hand.
+
+## Docs
+
+- [Full reference](/llms-full.txt): this file plus the README of every package.
+
+## Optional
+
+- [WebMCP explainer](https://github.com/webmachinelearning/webmcp): the browser API Agentable targets.
+- [llms.txt format](https://llmstxt.org): the convention this file follows.

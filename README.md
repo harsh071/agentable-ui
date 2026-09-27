@@ -40,7 +40,7 @@ A real dashboard has hundreds of possible actions. Agents degrade badly past a f
 
 Capabilities are grouped, prioritised, and evicted by a budgeter (priority desc → most recently opened → declared tier → most recently declared). Fan-in collapses many related actions into one tool with an `action` enum. Output is shaped, paginated by cursor, and hard-truncated, because the browser enforces none of that.
 
-The demo declares over 120 capabilities and holds 12 resident, at roughly 320 tokens of context.
+The demo declares 19 capabilities and holds 12 resident, at about 1,300 tokens of context (~110 per tool).
 
 ## Getting started
 
@@ -79,6 +79,8 @@ pnpm conformance:report   # writes conformance/REPORT.md
 - **SSR-safe and StrictMode-safe**: registration happens in effects and is refcounted.
 
 See [docs/implementation-plan.md](docs/implementation-plan.md) for the full design.
+
+The docs site also serves plain-text docs for AI assistants: [`/llms.txt`](apps/site/public/llms.txt) (overview, status, usage rules) and `/llms-full.txt` (that plus every package README, generated at build time).
 
 ## License
 
