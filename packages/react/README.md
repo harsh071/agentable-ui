@@ -32,7 +32,7 @@ function Orders() {
 
 ## API
 
-**`<AgentableProvider>`** creates the registry with the WebMCP adapter and a built-in confirmation dialog. Pass `confirm` for your own handler, `confirm={false}` to disable it (a dev warning is logged), `renderConfirm` for custom UI, or `agentable` to bring your own registry.
+**`<AgentableProvider>`** creates the registry with the WebMCP adapter and a built-in confirmation dialog. Pass `confirm` for your own handler, `confirm={false}` to run consequential tools unconfirmed (a dev warning is logged), `renderConfirm` for custom UI, or `agentable` to bring your own registry.
 
 **`useCapability(cap | null)`** declares a full capability descriptor. The registry only sees a new declaration when the static shape changes, so a fresh `execute` closure every render costs nothing. Pass `null` to switch the agent layer off for that component.
 

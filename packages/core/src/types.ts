@@ -221,9 +221,10 @@ export interface AgentableOptions {
   maxOutputChars?: number;
   /**
    * User confirmation for consequential tools. When absent, consequential
-   * tools run unconfirmed and a single dev warning is emitted.
+   * tools are declined (fail closed) and a single dev warning is emitted.
+   * Pass `false` to explicitly run them unconfirmed.
    */
-  confirm?: (req: ConfirmRequest) => Promise<boolean>;
+  confirm?: ((req: ConfirmRequest) => Promise<boolean>) | false;
   /** Dev warnings. Defaults to console.warn, once per distinct message. */
   onWarn?: (message: string) => void;
   /** Throw instead of warn on Chrome character limits. Default false. */

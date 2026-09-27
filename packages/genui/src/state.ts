@@ -8,20 +8,32 @@ export interface SurfaceState {
   ui: Record<string, unknown>;
 }
 
-/** "a.b[0].c" -> ["a", "b", 0, "c"] */
+/** Keys that reach an object's prototype. Paths come from agents and user input, so they are never followed. */
+const UNSAFE_KEYS = new Set(["__proto__", "prototype", "constructor"]);
+
+/** "a.b[0].c" -> ["a", "b", 0, "c"]. Throws on __proto__, prototype and constructor segments. */
 export function parsePath(path: string): Array<string | number> {
   if (!path) return [];
-  return path
+  const keys = path
     .replace(/\[(\d+)\]/g, ".$1")
     .split(".")
     .filter(Boolean)
     .map((p) => (/^\d+$/.test(p) ? Number(p) : p));
+  for (const k of keys) if (typeof k === "string" && UNSAFE_KEYS.has(k)) throw new Error(`Path "${path}" uses the reserved key "${k}".`);
+  return keys;
 }
 
+/** Read a path, following own properties only. Undefined for missing or unsafe paths. */
 export function getPath(obj: unknown, path: string): unknown {
+  let keys: Array<string | number>;
+  try {
+    keys = parsePath(path);
+  } catch {
+    return undefined;
+  }
   let cur: unknown = obj;
-  for (const key of parsePath(path)) {
-    if (cur == null || typeof cur !== "object") return undefined;
+  for (const key of keys) {
+    if (cur == null || typeof cur !== "object" || !Object.hasOwn(cur, key)) return undefined;
     cur = (cur as Record<string | number, unknown>)[key];
   }
   return cur;
@@ -31,8 +43,14 @@ export function getPath(obj: unknown, path: string): unknown {
 export function isStatePath(path: unknown, roots: ReadonlyArray<"data" | "ui"> = ["data", "ui"], negatable = false): path is string {
   if (typeof path !== "string") return false;
   const p = negatable && path.startsWith("!") ? path.slice(1) : path;
-  const head = parsePath(p)[0];
-  return typeof head === "string" && (roots as readonly string[]).includes(head) && parsePath(p).length > 1;
+  let keys: Array<string | number>;
+  try {
+    keys = parsePath(p);
+  } catch {
+    return false;
+  }
+  const head = keys[0];
+  return typeof head === "string" && (roots as readonly string[]).includes(head) && keys.length > 1;
 }
 
 function setPath(obj: Record<string, unknown>, keys: Array<string | number>, value: unknown): void {
@@ -41,7 +59,7 @@ function setPath(obj: Record<string, unknown>, keys: Array<string | number>, val
   for (let i = 0; i < keys.length - 1; i++) {
     const k = keys[i]!;
     const next = keys[i + 1]!;
-    if (cur[k] == null || typeof cur[k] !== "object") cur[k] = typeof next === "number" ? [] : {};
+    if (!Object.hasOwn(cur, k) || cur[k] == null || typeof cur[k] !== "object") cur[k] = typeof next === "number" ? [] : {};
     cur = cur[k] as Record<string | number, unknown>;
   }
   const last = keys[keys.length - 1]!;

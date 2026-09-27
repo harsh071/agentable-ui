@@ -46,7 +46,7 @@ handle.release(); // unregisters
 
 **Cache.** TTL and tag-based, on by default for read-only tools, invalidated by `invalidates` after a successful mutation.
 
-**Confirmation.** Tools default to consequential unless `annotations.readOnlyHint` is set. A consequential call goes through the `confirm` handler first; a decline returns a structured `{"error": "...", "declined": true}` string rather than throwing, because thrown errors reach the agent as an opaque `UnknownError`.
+**Confirmation.** Tools default to consequential unless `annotations.readOnlyHint` is set. A consequential call goes through the `confirm` handler first; a decline returns a structured `{"error": "...", "declined": true}` string rather than throwing, because thrown errors reach the agent as an opaque `UnknownError`. With no `confirm` handler, consequential calls are declined (fail closed); pass `confirm: false` to run them unconfirmed on purpose.
 
 ## Adapters
 

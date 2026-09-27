@@ -89,7 +89,7 @@ export class Agentable {
   private readonly metaTools: boolean;
   private readonly metaPrefix: string;
   private readonly maxOutputChars: number;
-  private readonly confirmHandler?: (req: ConfirmRequest) => Promise<boolean>;
+  private readonly confirmHandler?: ((req: ConfirmRequest) => Promise<boolean>) | false;
   private readonly onWarn: (message: string) => void;
   private readonly strictLimits: boolean;
 
@@ -671,14 +671,17 @@ export class Agentable {
 
   private async confirm(req: ConfirmRequest): Promise<boolean> {
     if (this.confirmHandler) return this.confirmHandler(req);
+    const optedOut = this.confirmHandler === false;
     if (!this.confirmWarned) {
       this.confirmWarned = true;
       this.warn(
-        `No confirm handler configured; consequential tool "${req.toolName}" ran without user confirmation. ` +
-          `Pass \`confirm\` to createAgentable() or mount <AgentableProvider>.`,
+        optedOut
+          ? `Confirmation is disabled; consequential tool "${req.toolName}" ran without user confirmation.`
+          : `No confirm handler configured; consequential tool "${req.toolName}" was declined. ` +
+              `Pass \`confirm\` to createAgentable() or mount <AgentableProvider>.`,
       );
     }
-    return true;
+    return optedOut;
   }
 
   // ---------------------------------------------------------------------------

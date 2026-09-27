@@ -37,7 +37,7 @@ export function AgentableProvider({ children, agentable: provided, adapters, con
   const optionsRef = useRef(options);
   const [agentable] = useState<Agentable>(() => {
     if (provided) return provided;
-    const confirmHandler = confirm === false ? undefined : (confirm ?? ask);
+    const confirmHandler = confirm === false ? false : (confirm ?? ask);
     return createAgentable({
       ...optionsRef.current,
       adapters: adapters ?? [webmcpAdapter()],

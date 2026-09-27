@@ -26,8 +26,14 @@ export interface BridgeAdapterOptions {
   target?: { postMessage(msg: unknown, targetOrigin: string): void };
   /** Where to listen. Defaults to window. */
   source?: { addEventListener(type: "message", cb: (e: Event) => void): void; removeEventListener(type: "message", cb: (e: Event) => void): void };
-  /** Only accept execute messages from this origin. Defaults to the page's own origin. */
+  /** Only accept messages from this origin. Defaults to the page's own origin. "*" accepts any origin. */
   allowedOrigin?: string;
+  /**
+   * Only accept messages whose `event.source` is this window (content scripts
+   * post from the page's own window). Defaults to true when listening on window,
+   * which rejects same-origin iframes and popups.
+   */
+  sameWindowOnly?: boolean;
 }
 
 export function bridgeAdapter(options: BridgeAdapterOptions = {}): AgentAdapter {
@@ -36,6 +42,7 @@ export function bridgeAdapter(options: BridgeAdapterOptions = {}): AgentAdapter 
   const target = options.target ?? (hasWindow ? window : undefined);
   const source = options.source ?? (hasWindow ? window : undefined);
   const origin = options.allowedOrigin ?? (hasWindow ? window.location.origin : "*");
+  const sameWindowOnly = options.sameWindowOnly ?? (!options.source && hasWindow);
   const tools = new Map<string, NormalizedTool>();
   const listeners = new Set<() => void>();
   let listening = false;
@@ -62,7 +69,8 @@ export function bridgeAdapter(options: BridgeAdapterOptions = {}): AgentAdapter 
     const e = ev as MessageEvent;
     const msg = e.data as BridgeMessage | undefined;
     if (!msg || msg.channel !== channel) return;
-    if (origin !== "*" && e.origin && e.origin !== origin) return;
+    if (origin !== "*" && e.origin !== origin) return;
+    if (sameWindowOnly && e.source !== window) return;
     if (msg.type === "agentable:list") announce();
     if (msg.type === "agentable:execute" && msg.name) {
       const tool = tools.get(msg.name);
@@ -72,8 +80,13 @@ export function bridgeAdapter(options: BridgeAdapterOptions = {}): AgentAdapter 
         ok = false;
         output = JSON.stringify({ error: `Tool "${msg.name}" is not registered.` });
       } else {
-        output = await tool.execute(msg.input, { adapter: "bridge" });
-        ok = !output.startsWith('{"error"');
+        try {
+          output = await tool.execute(msg.input, { adapter: "bridge" });
+          ok = !output.startsWith('{"error"');
+        } catch (err) {
+          ok = false;
+          output = JSON.stringify({ error: err instanceof Error ? err.message : String(err) });
+        }
       }
       target?.postMessage({ channel, type: "agentable:result", id: msg.id, ok, output } satisfies BridgeMessage, origin === "*" ? "*" : origin);
     }

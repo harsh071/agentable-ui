@@ -304,16 +304,29 @@ describe("registry: execution pipeline", () => {
     expect(confirm).toHaveBeenCalledTimes(2);
   });
 
-  it("warns once when a consequential tool runs without a confirm handler", async () => {
+  it("declines consequential tools and warns once when there is no confirm handler", async () => {
     const warn = vi.fn();
     const mem = memoryAdapter();
     const ag = createAgentable({ adapters: [mem], onWarn: warn });
+    const execute = vi.fn(() => "saved");
+    ag.declare(cap("save_it", {}, { annotations: {}, execute }));
+    await ag.flush();
+    expect(await mem.execute("save_it")).toMatch(/declined/);
+    expect(await mem.execute("save_it")).toMatch(/declined/);
+    expect(execute).not.toHaveBeenCalled();
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0]![0]).toMatch(/No confirm handler/);
+  });
+
+  it("runs consequential tools unconfirmed only when confirm is explicitly false", async () => {
+    const warn = vi.fn();
+    const mem = memoryAdapter();
+    const ag = createAgentable({ adapters: [mem], confirm: false, onWarn: warn });
     ag.declare(cap("save_it", {}, { annotations: {}, execute: () => "saved" }));
     await ag.flush();
     expect(await mem.execute("save_it")).toBe("saved");
-    expect(await mem.execute("save_it")).toBe("saved");
     expect(warn).toHaveBeenCalledTimes(1);
-    expect(warn.mock.calls[0]![0]).toMatch(/No confirm handler/);
+    expect(warn.mock.calls[0]![0]).toMatch(/Confirmation is disabled/);
   });
 
   it("projects, paginates with a cursor, and adds cursor to the schema", async () => {
