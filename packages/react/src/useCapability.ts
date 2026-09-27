@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo, useRef } from "react";
-import type { Capability, CapabilityTool, ExecuteContext } from "@agentable/core";
+import type { Capability, CapabilityTool, ExecuteContext } from "@agentable-ui/core";
 import { AgentableContext, GroupContext, ScopeContext } from "./context.js";
 import { fingerprint } from "./fingerprint.js";
 

@@ -1,4 +1,4 @@
-import type { Agentable, Snapshot } from "@agentable/core";
+import type { Agentable, Snapshot } from "@agentable-ui/core";
 
 export interface DevtoolsOptions {
   /** Corner for the toggle button. Default "bottom-right". */

@@ -1,4 +1,4 @@
-import { toJsonSchema, validateInput, type SchemaInput } from "@agentable/core";
+import { toJsonSchema, validateInput, type SchemaInput } from "@agentable-ui/core";
 import { getPath, isStatePath, type StateAction, type SurfaceState } from "./state.js";
 
 /** Call a tool through the registry. The result lands in `into` (a ui.* path) when given. */

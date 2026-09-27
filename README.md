@@ -5,9 +5,9 @@ A React component library that registers itself with the agent. WebMCP-native, b
 WebMCP lets a page hand an AI agent callable tools instead of making it guess at buttons. Registering tools is the easy part. The hard part is deciding, continuously, which small subset of a large latent tool surface is worth the agent's attention — Agentable is built around that problem.
 
 ```tsx
-import { AgentableProvider } from "@agentable/react";
-import { DataTable } from "@agentable/ui";
-import "@agentable/ui/styles.css";
+import { AgentableProvider } from "@agentable-ui/react";
+import { DataTable } from "@agentable-ui/ui";
+import "@agentable-ui/ui/styles.css";
 
 <AgentableProvider budget={12}>
   <DataTable
@@ -24,11 +24,11 @@ That one `agent` prop declares a capability. The registry decides whether it is 
 
 | Package | What it is |
 |---|---|
-| [`@agentable/core`](packages/core) | Framework-free capability registry: tiers, budgeter, cache, output shaper, adapters. No React, no WebMCP beyond one adapter file. |
-| [`@agentable/react`](packages/react) | `AgentableProvider`, `useCapability`, `useTool`, `ToolScope`, snapshot hooks. |
-| [`@agentable/ui`](packages/ui) | Headless agent-callable components: Form, DataTable, Combobox, ActionBar, Dialog, Tabs, Nav, Filters, Pagination, Toaster. |
-| [`@agentable/genui`](packages/genui) | Generative UI: `AgentSurface` plus a single validated `present` tool over a component catalog. |
-| [`@agentable/devtools`](packages/devtools) | In-page overlay (<kbd>Alt</kbd>+<kbd>A</kbd>) showing exactly what an agent sees. |
+| [`@agentable-ui/core`](packages/core) | Framework-free capability registry: tiers, budgeter, cache, output shaper, adapters. No React, no WebMCP beyond one adapter file. |
+| [`@agentable-ui/react`](packages/react) | `AgentableProvider`, `useCapability`, `useTool`, `ToolScope`, snapshot hooks. |
+| [`@agentable-ui/ui`](packages/ui) | Headless agent-callable components: Form, DataTable, Combobox, ActionBar, Dialog, Tabs, Nav, Filters, Pagination, Toaster. |
+| [`@agentable-ui/genui`](packages/genui) | Generative UI: `AgentSurface` plus a single validated `present` tool over a component catalog. |
+| [`@agentable-ui/devtools`](packages/devtools) | In-page overlay (<kbd>Alt</kbd>+<kbd>A</kbd>) showing exactly what an agent sees. |
 
 ## The core idea: a tool budget
 

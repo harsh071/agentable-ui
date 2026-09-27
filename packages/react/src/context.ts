@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import type { Agentable } from "@agentable/core";
+import type { Agentable } from "@agentable-ui/core";
 
 export const AgentableContext = createContext<Agentable | null>(null);
 export const ScopeContext = createContext<string | undefined>(undefined);

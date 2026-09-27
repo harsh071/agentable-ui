@@ -1,5 +1,5 @@
 {
-  "name": "@agentable/devtools",
+  "name": "@agentable-ui/devtools",
   "version": "0.1.0",
   "description": "In-page devtools overlay for Agentable: resident tools, budget, cache hit rate, schema sizes, tool console.",
   "license": "MIT",
@@ -43,8 +43,8 @@
     "access": "public"
   },
   "dependencies": {
-    "@agentable/core": "workspace:^",
-    "@agentable/react": "workspace:^"
+    "@agentable-ui/core": "workspace:^",
+    "@agentable-ui/react": "workspace:^"
   },
   "peerDependencies": {
     "react": "^18.2.0 || ^19.0.0"

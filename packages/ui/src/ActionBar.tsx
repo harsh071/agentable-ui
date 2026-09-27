@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, type ReactNode } from "react";
-import type { Capability } from "@agentable/core";
-import { useCapability } from "@agentable/react";
+import type { Capability } from "@agentable-ui/core";
+import { useCapability } from "@agentable-ui/react";
 import type { AgentProp } from "./types.js";
 
 export interface Action {

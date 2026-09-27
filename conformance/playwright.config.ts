@@ -16,7 +16,7 @@ export default defineConfig({
     launchOptions: { args: ["--enable-features=WebMCP"] },
   },
   webServer: {
-    command: "pnpm --filter @agentable/site run preview",
+    command: "pnpm --filter @agentable-ui/site run preview",
     url: "http://localhost:4173",
     reuseExistingServer: true,
     timeout: 30_000,

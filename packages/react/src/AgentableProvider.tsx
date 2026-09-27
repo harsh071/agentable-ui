@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { createAgentable, webmcpAdapter, type AgentAdapter, type Agentable, type AgentableOptions, type ConfirmRequest } from "@agentable/core";
+import { createAgentable, webmcpAdapter, type AgentAdapter, type Agentable, type AgentableOptions, type ConfirmRequest } from "@agentable-ui/core";
 import { AgentableContext } from "./context.js";
 import { ConfirmDialog } from "./ConfirmDialog.js";
 
@@ -37,7 +37,7 @@ export function AgentableProvider({ children, agentable: provided, adapters, con
   const optionsRef = useRef(options);
   const [agentable] = useState<Agentable>(() => {
     if (provided) return provided;
-    const confirmHandler = confirm === false ? undefined : (confirm ?? ask);
+    const confirmHandler = confirm === false ? false : (confirm ?? ask);
     return createAgentable({
       ...optionsRef.current,
       adapters: adapters ?? [webmcpAdapter()],

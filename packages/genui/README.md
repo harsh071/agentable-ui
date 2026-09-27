@@ -1,14 +1,14 @@
-# @agentable/genui
+# @agentable-ui/genui
 
 Generative UI for Agentable: the agent describes what to render, you keep control of what can be rendered.
 
 ```bash
-npm install @agentable/genui @agentable/ui @agentable/react @agentable/core
+npm install @agentable-ui/genui @agentable-ui/ui @agentable-ui/react @agentable-ui/core
 ```
 
 ```tsx
-import { AgentSurface } from "@agentable/genui";
-import { uiCatalog } from "@agentable/ui";
+import { AgentSurface } from "@agentable-ui/genui";
+import { uiCatalog } from "@agentable-ui/ui";
 
 <AgentSurface components={uiCatalog} name="present" maxNodes={60} />;
 ```
@@ -61,6 +61,6 @@ const catalog = {
 };
 ```
 
-`props` accepts a JSON Schema object or any Standard Schema validator. `uiCatalog` from [`@agentable/ui`](../ui) is a ready-made set.
+`props` accepts a JSON Schema object or any Standard Schema validator. `uiCatalog` from [`@agentable-ui/ui`](../ui) is a ready-made set.
 
 MIT

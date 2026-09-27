@@ -7,5 +7,5 @@ export default defineConfig({
   clean: true,
   platform: "browser",
   target: "es2022",
-  external: ["react", "react/jsx-runtime", "@agentable/core"],
+  external: ["react", "react/jsx-runtime", "@agentable-ui/core"],
 });

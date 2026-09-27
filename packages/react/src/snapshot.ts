@@ -1,5 +1,5 @@
 import { useCallback, useContext, useRef, useSyncExternalStore } from "react";
-import type { Snapshot } from "@agentable/core";
+import type { Snapshot } from "@agentable-ui/core";
 import { AgentableContext } from "./context.js";
 
 const EMPTY: Snapshot = {

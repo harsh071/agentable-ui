@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useAgentable } from "@agentable/react";
+import { useAgentable } from "@agentable-ui/react";
 import { mountDevtools, type DevtoolsOptions } from "./index.js";
 
 /** Mounts the devtools overlay for the nearest <AgentableProvider>. Renders nothing itself. */

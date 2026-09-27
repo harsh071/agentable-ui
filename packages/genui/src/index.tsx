@@ -1,6 +1,6 @@
 import { Component, createElement, useCallback, useMemo, useRef, useState, useSyncExternalStore, type ComponentType, type ReactNode } from "react";
-import { toJsonSchema, type Capability, type JSONSchema, type SchemaInput, type Tier } from "@agentable/core";
-import { useAgentable, useAgentableSnapshot, useCapability } from "@agentable/react";
+import { toJsonSchema, type Capability, type JSONSchema, type SchemaInput, type Tier } from "@agentable-ui/core";
+import { useAgentable, useAgentableSnapshot, useCapability } from "@agentable-ui/react";
 import { applyOps, isVisible, resolveProps, validateSpec, type SurfaceOp, type UIAction, type UISpec } from "./spec.js";
 import { createUiStore, getPath, interpolate, type StateAction, type SurfaceState } from "./state.js";
 

@@ -14,16 +14,16 @@ export default defineConfig(({ command }) => ({
     alias:
       command === "serve"
         ? [
-            { find: "@agentable/core/adapters/webmcp", replacement: src("core", "adapters/webmcp.ts") },
-            { find: "@agentable/core/adapters/memory", replacement: src("core", "adapters/memory.ts") },
-            { find: "@agentable/core/adapters/bridge", replacement: src("core", "adapters/bridge.ts") },
-            { find: "@agentable/core", replacement: src("core") },
-            { find: "@agentable/react", replacement: src("react") },
-            { find: "@agentable/devtools/react", replacement: src("devtools", "react.tsx") },
-            { find: "@agentable/devtools", replacement: src("devtools") },
-            { find: "@agentable/ui/styles.css", replacement: src("ui", "styles.css") },
-            { find: "@agentable/ui", replacement: src("ui") },
-            { find: "@agentable/genui", replacement: src("genui", "index.tsx") },
+            { find: "@agentable-ui/core/adapters/webmcp", replacement: src("core", "adapters/webmcp.ts") },
+            { find: "@agentable-ui/core/adapters/memory", replacement: src("core", "adapters/memory.ts") },
+            { find: "@agentable-ui/core/adapters/bridge", replacement: src("core", "adapters/bridge.ts") },
+            { find: "@agentable-ui/core", replacement: src("core") },
+            { find: "@agentable-ui/react", replacement: src("react") },
+            { find: "@agentable-ui/devtools/react", replacement: src("devtools", "react.tsx") },
+            { find: "@agentable-ui/devtools", replacement: src("devtools") },
+            { find: "@agentable-ui/ui/styles.css", replacement: src("ui", "styles.css") },
+            { find: "@agentable-ui/ui", replacement: src("ui") },
+            { find: "@agentable-ui/genui", replacement: src("genui", "index.tsx") },
           ]
         : [],
   },

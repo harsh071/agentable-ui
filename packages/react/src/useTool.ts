@@ -1,4 +1,4 @@
-import type { CapabilityTool, Tier } from "@agentable/core";
+import type { CapabilityTool, Tier } from "@agentable-ui/core";
 import { useCapability } from "./useCapability.js";
 
 export interface UseToolOptions<A, R> extends CapabilityTool<A, R> {

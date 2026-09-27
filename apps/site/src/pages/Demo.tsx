@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import { ToolScope, useTool } from "@agentable/react";
-import { ActionBar, Combobox, DataTable, Dialog, Field, Filters, Form, Pagination, Tabs, applyFilters, toast, type Column, type FilterValues } from "@agentable/ui";
+import { ToolScope, useTool } from "@agentable-ui/react";
+import { ActionBar, Combobox, DataTable, Dialog, Field, Filters, Form, Pagination, Tabs, applyFilters, toast, type Column, type FilterValues } from "@agentable-ui/ui";
 import { customers, integrations, makeOrders, type Order } from "../data.js";
 
 const money = (n: number) => n.toLocaleString(undefined, { style: "currency", currency: "USD" });
