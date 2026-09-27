@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "@agentable/ui/styles.css";
+import "@agentable-ui/ui/styles.css";
 import "./site.css";
 import { App } from "./App.js";
 

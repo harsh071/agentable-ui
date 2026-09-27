@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import type { JSONSchema } from "@agentable/core";
+import type { JSONSchema } from "@agentable-ui/core";
 import { listForDescription, useAgentCapability } from "./useAgentCapability.js";
 import type { AgentProp } from "./types.js";
 

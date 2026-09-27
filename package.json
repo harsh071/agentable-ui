@@ -9,12 +9,12 @@
   "engines": { "node": ">=20" },
   "scripts": {
     "build": "pnpm -r --filter './packages/*' run build",
-    "dev": "pnpm --filter @agentable/site run dev",
+    "dev": "pnpm --filter @agentable-ui/site run dev",
     "typecheck": "pnpm -r run typecheck",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:conformance": "pnpm run build && pnpm --filter @agentable/conformance run test",
-    "conformance:report": "pnpm --filter @agentable/conformance run report",
+    "test:conformance": "pnpm run build && pnpm --filter @agentable-ui/conformance run test",
+    "conformance:report": "pnpm --filter @agentable-ui/conformance run report",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "pnpm run build && changeset publish"

@@ -1,15 +1,15 @@
-# @agentable/react
+# @agentable-ui/react
 
-React bindings for [`@agentable/core`](../core): `AgentableProvider`, `useCapability`, `useTool`, `ToolScope`.
+React bindings for [`@agentable-ui/core`](../core): `AgentableProvider`, `useCapability`, `useTool`, `ToolScope`.
 
 ```bash
-npm install @agentable/react @agentable/core
+npm install @agentable-ui/react @agentable-ui/core
 ```
 
 ## Usage
 
 ```tsx
-import { AgentableProvider, useTool } from "@agentable/react";
+import { AgentableProvider, useTool } from "@agentable-ui/react";
 
 function App() {
   return (

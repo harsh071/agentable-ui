@@ -1,5 +1,5 @@
-import type { Capability, CapabilityTool, ExecuteContext, RenderDescriptor, SchemaInput } from "@agentable/core";
-import { useCapability } from "@agentable/react";
+import type { Capability, CapabilityTool, ExecuteContext, RenderDescriptor, SchemaInput } from "@agentable-ui/core";
+import { useCapability } from "@agentable-ui/react";
 import type { AgentProp } from "./types.js";
 
 export interface ComponentToolSpec<A, R> {

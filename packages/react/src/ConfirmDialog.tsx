@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import type { ConfirmRequest } from "@agentable/core";
+import type { ConfirmRequest } from "@agentable-ui/core";
 
 export interface ConfirmDialogProps {
   request: ConfirmRequest;

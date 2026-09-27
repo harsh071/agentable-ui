@@ -1,4 +1,4 @@
-import type { CacheOptions, Tier } from "@agentable/core";
+import type { CacheOptions, Tier } from "@agentable-ui/core";
 
 /**
  * The one prop that switches a component's agent layer on. Omit it and the

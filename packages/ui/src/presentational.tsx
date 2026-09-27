@@ -1,5 +1,5 @@
 import { useId, type ComponentType, type ReactNode } from "react";
-import type { JSONSchema } from "@agentable/core";
+import type { JSONSchema } from "@agentable-ui/core";
 
 /**
  * Presentational components an agent may compose through the generative-UI
@@ -305,7 +305,7 @@ export function RecordTable({ columns, rows, caption, onSelect }: RecordTablePro
 
 const str = (description?: string): JSONSchema => (description ? { type: "string", description } : { type: "string" });
 
-/** The generative-UI catalog for @agentable/ui. Pass to <AgentSurface components={uiCatalog}>. */
+/** The generative-UI catalog for @agentable-ui/ui. Pass to <AgentSurface components={uiCatalog}>. */
 export const uiCatalog = {
   Text: { component: Text, description: "A paragraph, heading, or code block.", props: { type: "object", properties: { text: str(), variant: { type: "string", enum: ["body", "muted", "heading", "code"] } }, required: ["text"] } },
   Card: { component: Card, description: "A titled container for other components.", props: { type: "object", properties: { title: str(), subtitle: str() } }, childrenProp: "children" },

@@ -10,7 +10,7 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
-import type { JSONSchema } from "@agentable/core";
+import type { JSONSchema } from "@agentable-ui/core";
 import { useAgentCapability } from "./useAgentCapability.js";
 import type { AgentProp } from "./types.js";
 

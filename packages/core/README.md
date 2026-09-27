@@ -1,17 +1,17 @@
-# @agentable/core
+# @agentable-ui/core
 
 Framework-free WebMCP capability registry: tiers, budgeter, cache, output shaper, adapters.
 
 Knows nothing about React, and nothing about WebMCP beyond a single adapter file. Zero dependencies.
 
 ```bash
-npm install @agentable/core
+npm install @agentable-ui/core
 ```
 
 ## Usage
 
 ```ts
-import { createAgentable, webmcpAdapter } from "@agentable/core";
+import { createAgentable, webmcpAdapter } from "@agentable-ui/core";
 
 const agentable = createAgentable({
   budget: 12,
@@ -51,9 +51,9 @@ handle.release(); // unregisters
 ## Adapters
 
 ```ts
-import { webmcpAdapter, findModelContext } from "@agentable/core/adapters/webmcp";
-import { memoryAdapter } from "@agentable/core/adapters/memory";
-import { bridgeAdapter } from "@agentable/core/adapters/bridge";
+import { webmcpAdapter, findModelContext } from "@agentable-ui/core/adapters/webmcp";
+import { memoryAdapter } from "@agentable-ui/core/adapters/memory";
+import { bridgeAdapter } from "@agentable-ui/core/adapters/bridge";
 ```
 
 - `webmcpAdapter()` — `document.modelContext`. Defers unregistration until in-flight executions settle, because Chrome rejects a pending `executeTool()` when its tool disappears mid-flight.

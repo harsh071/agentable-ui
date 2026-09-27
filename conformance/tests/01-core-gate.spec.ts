@@ -3,7 +3,7 @@ import { blankPage, record, CORE_DIST } from "../harness.js";
 
 declare global {
   interface Window {
-    agentableCore: typeof import("@agentable/core");
+    agentableCore: typeof import("@agentable-ui/core");
   }
 }
 

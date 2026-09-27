@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { render, cleanup, act } from "@testing-library/react";
 import { afterEach, expect, test } from "vitest";
-import { memoryAdapter } from "@agentable/core/adapters/memory";
+import { memoryAdapter } from "@agentable-ui/core/adapters/memory";
 import { AgentableProvider } from "../src/AgentableProvider.js";
 import { useCapability } from "../src/useCapability.js";
 import { useAgentableSnapshot } from "../src/snapshot.js";

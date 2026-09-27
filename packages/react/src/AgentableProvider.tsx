@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { createAgentable, webmcpAdapter, type AgentAdapter, type Agentable, type AgentableOptions, type ConfirmRequest } from "@agentable/core";
+import { createAgentable, webmcpAdapter, type AgentAdapter, type Agentable, type AgentableOptions, type ConfirmRequest } from "@agentable-ui/core";
 import { AgentableContext } from "./context.js";
 import { ConfirmDialog } from "./ConfirmDialog.js";
 

@@ -1,15 +1,15 @@
-# @agentable/devtools
+# @agentable-ui/devtools
 
 An in-page overlay that shows exactly what an agent sees: resident tools, budget pressure, cache hit rate, schema sizes, and a console for calling tools by hand.
 
 ```bash
-npm install @agentable/devtools
+npm install @agentable-ui/devtools
 ```
 
 ## React
 
 ```tsx
-import { AgentableDevtools } from "@agentable/devtools/react";
+import { AgentableDevtools } from "@agentable-ui/devtools/react";
 
 <AgentableProvider budget={12}>
   <App />
@@ -20,7 +20,7 @@ import { AgentableDevtools } from "@agentable/devtools/react";
 ## Anywhere else
 
 ```ts
-import { mountDevtools } from "@agentable/devtools";
+import { mountDevtools } from "@agentable-ui/devtools";
 
 const handle = mountDevtools(agentable, { position: "bottom-right", shortcut: "alt+a" });
 handle.toggle();

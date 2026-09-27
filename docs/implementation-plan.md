@@ -65,7 +65,7 @@ Tool-selection accuracy degrades well before the context fills — the widely ci
 ## 3. Architecture: five packages, one descriptor
 
 ```
-AUTHORING   @agentable/ui        @agentable/react       your own code
+AUTHORING   @agentable-ui/ui        @agentable-ui/react       your own code
             styled components    useTool, ToolScope,    defineCapability()
             declaring caps       provider (SSR safe)
                           |
@@ -83,7 +83,7 @@ TRANSPORT   webmcpAdapter        bridgeAdapter          inspectorAdapter
 CONSUMER    Browser agent (Gemini in Chrome, ChatGPT desktop, Copilot in Edge)
 ```
 
-Everything below `@agentable/core` is replaceable. Core knows nothing about React or about WebMCP.
+Everything below `@agentable-ui/core` is replaceable. Core knows nothing about React or about WebMCP.
 
 ### The single descriptor
 
@@ -263,19 +263,19 @@ Each phase ships something usable. Nothing here needs the phase after it to be w
 **00 — Conformance spike.** Before any library code: register a tool by hand in Chrome with `chrome://flags/#enable-webmcp-testing`, confirm the live IDL against the spec, and write the Playwright harness that asserts it. Record what's actually there versus what's documented.
 *Gate: a red/green conformance report checked into the repo.*
 
-**01 — `@agentable/core`.** Registry with refcounting and dedupe, tier model, budgeter with eviction, cache with tag invalidation, output shaper, adapter interface, and the WebMCP adapter. Framework-free and fully testable headlessly.
+**01 — `@agentable-ui/core`.** Registry with refcounting and dedupe, tier model, budgeter with eviction, cache with tag invalidation, output shaper, adapter interface, and the WebMCP adapter. Framework-free and fully testable headlessly.
 *Gate: 120 declared capabilities resolve to <=12 resident tools, verified in a real browser.*
 
-**02 — `@agentable/react`.** `<AgentableProvider>`, `useTool`, `useCapability`, `<ToolScope>`. SSR-safe, StrictMode-safe, no double registration, stable identity across re-render.
+**02 — `@agentable-ui/react`.** `<AgentableProvider>`, `useTool`, `useCapability`, `<ToolScope>`. SSR-safe, StrictMode-safe, no double registration, stable identity across re-render.
 *Gate: drop-in on an existing app with no component rewrite.*
 
-**03 — `@agentable/devtools`.** Moved ahead of the components deliberately. An in-page overlay: resident tools, budget usage, cache hit rate, schema-size ranking, and a tool console that invokes capabilities without needing an agent or a Chrome flag.
+**03 — `@agentable-ui/devtools`.** Moved ahead of the components deliberately. An in-page overlay: resident tools, budget usage, cache hit rate, schema-size ranking, and a tool console that invokes capabilities without needing an agent or a Chrome flag.
 *Gate: a developer with no WebMCP-capable browser can build and verify agent behavior.*
 
-**04 — `@agentable/ui`, first ten.** Form + Field, DataTable, Combobox, ActionBar, Dialog, Tabs, Nav, Filters, Pagination, Toast. Each ships its capability declaration, its docs, and a real agent scenario test.
+**04 — `@agentable-ui/ui`, first ten.** Form + Field, DataTable, Combobox, ActionBar, Dialog, Tabs, Nav, Filters, Pagination, Toast. Each ships its capability declaration, its docs, and a real agent scenario test.
 *Gate: a demo app where an agent completes a three-step task end to end.*
 
-**05 — `@agentable/genui` + docs.** `<AgentSurface>`, catalog schema generation, validated rendering. The docs site is built with the library and is itself the flagship demo — its own search, navigation, and examples are agent-callable.
+**05 — `@agentable-ui/genui` + docs.** `<AgentSurface>`, catalog schema generation, validated rendering. The docs site is built with the library and is itself the flagship demo — its own search, navigation, and examples are agent-callable.
 *Gate: an agent can drive the docs site to answer a question about the docs site.*
 
 ---

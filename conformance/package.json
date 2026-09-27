@@ -1,5 +1,5 @@
 {
-  "name": "@agentable/conformance",
+  "name": "@agentable-ui/conformance",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,7 +9,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@agentable/core": "workspace:^"
+    "@agentable-ui/core": "workspace:^"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",

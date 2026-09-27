@@ -29,19 +29,19 @@ importers:
 
   apps/site:
     dependencies:
-      '@agentable/core':
+      '@agentable-ui/core':
         specifier: workspace:^
         version: link:../../packages/core
-      '@agentable/devtools':
+      '@agentable-ui/devtools':
         specifier: workspace:^
         version: link:../../packages/devtools
-      '@agentable/genui':
+      '@agentable-ui/genui':
         specifier: workspace:^
         version: link:../../packages/genui
-      '@agentable/react':
+      '@agentable-ui/react':
         specifier: workspace:^
         version: link:../../packages/react
-      '@agentable/ui':
+      '@agentable-ui/ui':
         specifier: workspace:^
         version: link:../../packages/ui
       react:
@@ -69,7 +69,7 @@ importers:
 
   conformance:
     dependencies:
-      '@agentable/core':
+      '@agentable-ui/core':
         specifier: workspace:^
         version: link:../packages/core
     devDependencies:
@@ -84,10 +84,10 @@ importers:
 
   packages/devtools:
     dependencies:
-      '@agentable/core':
+      '@agentable-ui/core':
         specifier: workspace:^
         version: link:../core
-      '@agentable/react':
+      '@agentable-ui/react':
         specifier: workspace:^
         version: link:../react
     devDependencies:
@@ -100,14 +100,14 @@ importers:
 
   packages/genui:
     dependencies:
-      '@agentable/core':
+      '@agentable-ui/core':
         specifier: workspace:^
         version: link:../core
-      '@agentable/react':
+      '@agentable-ui/react':
         specifier: workspace:^
         version: link:../react
     devDependencies:
-      '@agentable/ui':
+      '@agentable-ui/ui':
         specifier: workspace:^
         version: link:../ui
       '@testing-library/react':
@@ -128,7 +128,7 @@ importers:
 
   packages/react:
     dependencies:
-      '@agentable/core':
+      '@agentable-ui/core':
         specifier: workspace:^
         version: link:../core
     devDependencies:
@@ -150,10 +150,10 @@ importers:
 
   packages/ui:
     dependencies:
-      '@agentable/core':
+      '@agentable-ui/core':
         specifier: workspace:^
         version: link:../core
-      '@agentable/react':
+      '@agentable-ui/react':
         specifier: workspace:^
         version: link:../react
     devDependencies:

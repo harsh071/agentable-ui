@@ -1,4 +1,4 @@
-import { toJsonSchema, type Capability } from "@agentable/core";
+import { toJsonSchema, type Capability } from "@agentable-ui/core";
 
 /** Static shape of a capability: everything except the execute closure. */
 export function fingerprint(cap: Capability | null | undefined): string {

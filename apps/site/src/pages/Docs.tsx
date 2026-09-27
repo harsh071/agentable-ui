@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from "react";
-import { useTool } from "@agentable/react";
+import { useTool } from "@agentable-ui/react";
 
 interface Doc {
   id: string;
@@ -45,12 +45,12 @@ const DOCS: Doc[] = [
           </div>
         </div>
         <h2>Install</h2>
-        <pre>{`pnpm add @agentable/ui @agentable/react @agentable/core
-pnpm add -D @agentable/devtools`}</pre>
+        <pre>{`pnpm add @agentable-ui/ui @agentable-ui/react @agentable-ui/core
+pnpm add -D @agentable-ui/devtools`}</pre>
         <h2>Use</h2>
-        <pre>{`import { AgentableProvider } from "@agentable/react";
-import { DataTable, Form, Field } from "@agentable/ui";
-import "@agentable/ui/styles.css";
+        <pre>{`import { AgentableProvider } from "@agentable-ui/react";
+import { DataTable, Form, Field } from "@agentable-ui/ui";
+import "@agentable-ui/ui/styles.css";
 
 export function App() {
   return (
@@ -192,14 +192,14 @@ export function App() {
   {
     id: "core",
     group: "Packages",
-    title: "@agentable/core",
+    title: "@agentable-ui/core",
     summary: "Zero-dependency registry, budgeter, cache, shaper, and adapters.",
     text: "createAgentable options: adapters, budget default 12, metaTools, cache defaultTtl, maxOutputChars 1500, confirm handler, onWarn, strictLimits. Capability descriptor: id, tier 0 1 2, group, priority, summary, fanIn, tool { name description inputSchema annotations execute cache invalidates output confirm exposedTo }, render { component props }. Adapters: webmcpAdapter (document.modelContext), memoryAdapter (tests, devtools), bridgeAdapter (postMessage for extensions). Standard Schema: zod and valibot accepted, JSON Schema emitted with zero dependencies via ~standard.jsonSchema.",
     body: (
       <>
-        <h1>@agentable/core</h1>
+        <h1>@agentable-ui/core</h1>
         <p>Framework-free. Knows nothing about React or about WebMCP beyond one adapter file.</p>
-        <pre>{`import { createAgentable, webmcpAdapter } from "@agentable/core";
+        <pre>{`import { createAgentable, webmcpAdapter } from "@agentable-ui/core";
 
 const agentable = createAgentable({
   adapters: [webmcpAdapter()],
@@ -296,13 +296,13 @@ handle.release();`}</pre>
   {
     id: "react",
     group: "Packages",
-    title: "@agentable/react",
+    title: "@agentable-ui/react",
     summary: "AgentableProvider, useTool, useCapability, ToolScope.",
     text: "AgentableProvider creates the registry with the WebMCP adapter and a built-in confirmation dialog. useTool registers a hand-rolled tool. useCapability declares a full descriptor. ToolScope groups capabilities and demotes them when offscreen. useAgentableSnapshot and useAgentPresent observe the registry. SSR safe, StrictMode safe, no double registration, stable identity across re-renders.",
     body: (
       <>
-        <h1>@agentable/react</h1>
-        <pre>{`import { AgentableProvider, ToolScope, useTool } from "@agentable/react";
+        <h1>@agentable-ui/react</h1>
+        <pre>{`import { AgentableProvider, ToolScope, useTool } from "@agentable-ui/react";
 
 <AgentableProvider budget={12} confirm={myHandler /* or omit for the built-in dialog */}>
   <ToolScope group="orders" describe="Order management">
@@ -335,12 +335,12 @@ function Cart() {
   {
     id: "ui",
     group: "Packages",
-    title: "@agentable/ui",
+    title: "@agentable-ui/ui",
     summary: "Ten headless components with an optional agent prop.",
     text: "Form and Field derive the tool schema from field metadata. DataTable exposes one query tool plus an optional select tool. Combobox searches and selects with one tool. ActionBar fans in actions. Dialog opens and closes. Tabs switch panels and unmount inactive ones. Nav navigates. Filters set any subset. Pagination pages. Toaster lets the agent read notifications. Styles are data-* hooks; styles.css is a baseline and a Tailwind preset ships separately.",
     body: (
       <>
-        <h1>@agentable/ui</h1>
+        <h1>@agentable-ui/ui</h1>
         <p>Headless primitives with <code>data-*</code> hooks. Ship the baseline stylesheet, the Tailwind preset, or nothing.</p>
         <table>
           <thead>
@@ -422,15 +422,15 @@ function Cart() {
   {
     id: "devtools",
     group: "Packages",
-    title: "@agentable/devtools",
+    title: "@agentable-ui/devtools",
     summary: "In-page overlay: resident tools, budget, cache, schema sizes, tool console.",
     text: "mountDevtools(agentable) or <AgentableDevtools /> renders an overlay: overview with resident tools ranked by schema size, capabilities table with tiers and eviction reasons, a console that invokes any resident tool without an agent or a Chrome flag, and warnings. Toggle with Alt+A.",
     body: (
       <>
-        <h1>@agentable/devtools</h1>
-        <pre>{`import { AgentableDevtools } from "@agentable/devtools/react";
+        <h1>@agentable-ui/devtools</h1>
+        <pre>{`import { AgentableDevtools } from "@agentable-ui/devtools/react";
 // or, framework-free:
-import { mountDevtools } from "@agentable/devtools";
+import { mountDevtools } from "@agentable-ui/devtools";
 mountDevtools(agentable, { position: "bottom-right", shortcut: "alt+a" });`}</pre>
         <ul>
           <li>Overview: budget usage, estimated tokens, cache hit rate, resident tools ranked by schema size, group open/close.</li>
@@ -445,14 +445,14 @@ mountDevtools(agentable, { position: "bottom-right", shortcut: "alt+a" });`}</pr
   {
     id: "genui",
     group: "Packages",
-    title: "@agentable/genui",
+    title: "@agentable-ui/genui",
     summary: "AgentSurface and the present tool.",
-    text: "AgentSurface registers one present tool whose argument is a validated JSON tree of component names and props, rendered through an allowlist. The catalog is a projection of the registry: each component is declared as a capability with a render descriptor. Props are validated against the catalog schema before render. The catalog is tier-gated like everything else. uiCatalog from @agentable/ui ships Text Card Stat StatGroup Callout KeyValue SimpleTable List Stack Progress.",
+    text: "AgentSurface registers one present tool whose argument is a validated JSON tree of component names and props, rendered through an allowlist. The catalog is a projection of the registry: each component is declared as a capability with a render descriptor. Props are validated against the catalog schema before render. The catalog is tier-gated like everything else. uiCatalog from @agentable-ui/ui ships Text Card Stat StatGroup Callout KeyValue SimpleTable List Stack Progress.",
     body: (
       <>
-        <h1>@agentable/genui</h1>
-        <pre>{`import { AgentSurface } from "@agentable/genui";
-import { uiCatalog } from "@agentable/ui";
+        <h1>@agentable-ui/genui</h1>
+        <pre>{`import { AgentSurface } from "@agentable-ui/genui";
+import { uiCatalog } from "@agentable-ui/ui";
 
 <AgentSurface components={uiCatalog} />
 
@@ -472,7 +472,7 @@ import { uiCatalog } from "@agentable/ui";
     group: "Engineering",
     title: "Conformance",
     summary: "Real Chrome, real getTools(), every release.",
-    text: "Mocked tests are dangerous here: a published post-mortem describes eight WebMCP tools registering nothing in a real browser while a mocked suite stayed green. The conformance suite launches installed Chrome with --enable-features=WebMCP, checks the entry point and IDL, then loads @agentable/core and asserts that 120 capabilities resolve to at most 12 tools in document.modelContext.getTools(). Run pnpm test:conformance; the red/green report is conformance/REPORT.md.",
+    text: "Mocked tests are dangerous here: a published post-mortem describes eight WebMCP tools registering nothing in a real browser while a mocked suite stayed green. The conformance suite launches installed Chrome with --enable-features=WebMCP, checks the entry point and IDL, then loads @agentable-ui/core and asserts that 120 capabilities resolve to at most 12 tools in document.modelContext.getTools(). Run pnpm test:conformance; the red/green report is conformance/REPORT.md.",
     body: (
       <>
         <h1>Conformance</h1>
@@ -492,7 +492,7 @@ pnpm conformance:report   # writes conformance/REPORT.md`}</pre>
     group: "Engineering",
     title: "Decisions",
     summary: "The calls we made and why.",
-    text: "Headless base: built in-house, no Radix or Base UI, so the zero-dependency story holds and the agent value is independent of any design system. Framework scope: React only for v1, core is framework-free so Vue and Svelte adapters are cheap later. Open source from commit one, MIT. Name: @agentable scope. Repo: pnpm workspaces, changesets, independent versioning, tsdown, ESM only, sideEffects false. Schema: Standard Schema in, JSON Schema out.",
+    text: "Headless base: built in-house, no Radix or Base UI, so the zero-dependency story holds and the agent value is independent of any design system. Framework scope: React only for v1, core is framework-free so Vue and Svelte adapters are cheap later. Open source from commit one, MIT. Name: @agentable-ui scope. Repo: pnpm workspaces, changesets, independent versioning, tsdown, ESM only, sideEffects false. Schema: Standard Schema in, JSON Schema out.",
     body: (
       <>
         <h1>Decisions</h1>
@@ -523,7 +523,7 @@ pnpm conformance:report   # writes conformance/REPORT.md`}</pre>
             <tr>
               <td>Name</td>
               <td>
-                <code>@agentable/*</code>
+                <code>@agentable-ui/*</code>
               </td>
               <td>The scope is the one thing that is painful to change later.</td>
             </tr>

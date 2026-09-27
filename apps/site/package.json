@@ -1,5 +1,5 @@
 {
-  "name": "@agentable/site",
+  "name": "@agentable-ui/site",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,11 +10,11 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@agentable/core": "workspace:^",
-    "@agentable/devtools": "workspace:^",
-    "@agentable/genui": "workspace:^",
-    "@agentable/react": "workspace:^",
-    "@agentable/ui": "workspace:^",
+    "@agentable-ui/core": "workspace:^",
+    "@agentable-ui/devtools": "workspace:^",
+    "@agentable-ui/genui": "workspace:^",
+    "@agentable-ui/react": "workspace:^",
+    "@agentable-ui/ui": "workspace:^",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "zod": "^4.5.4"

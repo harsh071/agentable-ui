@@ -1,7 +1,7 @@
 import { useEffect } from "react";
-import { AgentableProvider, useAgentableSnapshot } from "@agentable/react";
-import { Nav, Toaster } from "@agentable/ui";
-import { AgentableDevtools } from "@agentable/devtools/react";
+import { AgentableProvider, useAgentableSnapshot } from "@agentable-ui/react";
+import { Nav, Toaster } from "@agentable-ui/ui";
+import { AgentableDevtools } from "@agentable-ui/devtools/react";
 import { useRoute } from "./router.js";
 import { DocsPage } from "./pages/Docs.js";
 import { DemoPage } from "./pages/Demo.js";
@@ -9,7 +9,7 @@ import { PlaygroundPage } from "./pages/Playground.js";
 
 const NAV = [
   { href: "#/", label: "Docs", describe: "Documentation, getting started, package reference" },
-  { href: "#/demo", label: "Demo", describe: "Orders dashboard built with @agentable/ui" },
+  { href: "#/demo", label: "Demo", describe: "Orders dashboard built with @agentable-ui/ui" },
   { href: "#/playground", label: "Playground", describe: "Generative UI surface and tool console" },
   { href: "https://github.com/harsh071/agentable-ui", label: "GitHub", external: true, agentHidden: true },
 ];

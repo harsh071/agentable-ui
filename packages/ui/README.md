@@ -1,15 +1,15 @@
-# @agentable/ui
+# @agentable-ui/ui
 
 Headless, agent-callable React components. Every component takes one `agent` prop and becomes a tool.
 
 ```bash
-npm install @agentable/ui @agentable/react @agentable/core
+npm install @agentable-ui/ui @agentable-ui/react @agentable-ui/core
 ```
 
 ```tsx
-import { AgentableProvider } from "@agentable/react";
-import { DataTable, ActionBar, Toaster } from "@agentable/ui";
-import "@agentable/ui/styles.css";
+import { AgentableProvider } from "@agentable-ui/react";
+import { DataTable, ActionBar, Toaster } from "@agentable-ui/ui";
+import "@agentable-ui/ui/styles.css";
 
 <AgentableProvider budget={12}>
   <DataTable
@@ -44,7 +44,7 @@ Omit the `agent` prop and the component is ordinary — no tool, no registry, no
 | `Pagination` | Page navigation. |
 | `Toaster` | `toast()` imperatively; the agent reads notifications back. |
 
-`uiCatalog` exports presentational primitives (`Text`, `Card`, `Stat`, `Callout`, `KeyValue`, `SimpleTable`, `List`, `Stack`, `Progress`) for use with [`@agentable/genui`](../genui).
+`uiCatalog` exports presentational primitives (`Text`, `Card`, `Stat`, `Callout`, `KeyValue`, `SimpleTable`, `List`, `Stack`, `Progress`) for use with [`@agentable-ui/genui`](../genui).
 
 ## The `agent` prop
 
@@ -70,7 +70,7 @@ Each component picks safe defaults: read-only components cache and skip confirma
 
 ## Styling
 
-`@agentable/ui/styles.css` is a plain stylesheet with no build step. Components are headless — they carry `data-agentable-*` attributes, so you can drop the stylesheet and use your own, or import the Tailwind preset from `@agentable/ui/tailwind`.
+`@agentable-ui/ui/styles.css` is a plain stylesheet with no build step. Components are headless — they carry `data-agentable-*` attributes, so you can drop the stylesheet and use your own, or import the Tailwind preset from `@agentable-ui/ui/tailwind`.
 
 Also exported for reuse outside the components: `applyQuery`, `applyFilters`, `matchOptions`, `resolveOption`, `useAgentCapability`.
 

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
-import { useAgentable, useAgentableSnapshot, useTool } from "@agentable/react";
-import { AgentSurface, type PresentArgs } from "@agentable/genui";
-import { uiCatalog, toast } from "@agentable/ui";
+import { useAgentable, useAgentableSnapshot, useTool } from "@agentable-ui/react";
+import { AgentSurface, type PresentArgs } from "@agentable-ui/genui";
+import { uiCatalog, toast } from "@agentable-ui/ui";
 import { makeOrders, type Order } from "../data.js";
 
 const SAMPLES: Array<{ label: string } & PresentArgs> = [
