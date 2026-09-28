@@ -151,6 +151,9 @@ main.page {
   top: 70px;
   align-self: start;
 }
+.docs-menu {
+  display: none;
+}
 .docs aside ul {
   list-style: none;
   margin: 0;
@@ -332,4 +335,109 @@ kbd {
   border-radius: 4px;
   padding: 0 5px;
   font-size: 12px;
+}
+a.pill {
+  text-decoration: none;
+}
+.cta {
+  display: inline-block;
+  padding: 9px 16px;
+  border-radius: var(--ag-radius);
+  background: var(--ag-accent);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+.cta.secondary {
+  background: transparent;
+  color: var(--ag-fg);
+  border: 1px solid var(--ag-line);
+}
+.steps {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+.steps pre {
+  white-space: pre-wrap;
+  margin: 8px 0 0;
+  font-size: 12px;
+}
+.steps p {
+  margin: 8px 0 0;
+}
+.callout {
+  margin-top: 24px;
+  padding: 12px 14px;
+  border-radius: var(--ag-radius);
+  border: 1px solid color-mix(in srgb, var(--ag-warning) 40%, transparent);
+  background: color-mix(in srgb, var(--ag-warning) 8%, transparent);
+}
+.lede {
+  color: var(--ag-muted);
+  font-size: 17px;
+}
+.docs article ol li,
+.docs article ul li {
+  margin-bottom: 6px;
+}
+
+/* Phones: wrap the top bar, drop the token estimate, and fold the docs nav. */
+@media (max-width: 700px) {
+  .topbar {
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    padding: 8px 16px;
+  }
+  .topbar .spacer {
+    display: none;
+  }
+  .status .count {
+    display: none;
+  }
+  main.page {
+    padding: 20px 16px 64px;
+  }
+  h1 {
+    font-size: 26px;
+  }
+  .hero {
+    padding: 16px 0 8px;
+  }
+  .docs aside {
+    position: static;
+  }
+  .docs {
+    gap: 12px;
+  }
+  .docs-menu {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    padding: 8px 12px;
+    text-align: left;
+    font: inherit;
+    font-size: 14px;
+    color: var(--ag-fg);
+    background: var(--ag-panel);
+    border: 1px solid var(--ag-line);
+    border-radius: var(--ag-radius);
+  }
+  .docs-group:not([data-open]) {
+    display: none;
+  }
+  .section {
+    padding: 14px;
+  }
+  footer.foot {
+    padding: 16px;
+  }
+}
+ol.try {
+  margin: 10px 0 0;
+  padding-left: 20px;
+  font-size: 14px;
+}
+ol.try li {
+  margin-bottom: 4px;
 }

@@ -14,68 +14,413 @@ interface Doc {
 const DOCS: Doc[] = [
   {
     id: "intro",
-    group: "Start",
-    title: "Agentable",
-    summary: "A component library that registers itself with the agent.",
-    text: "WebMCP lets a page hand an AI agent callable tools instead of buttons. Agentable is a React component library where every component can declare its capability with one prop, plus a framework-free core that keeps the tool surface small. The interesting engineering is not registering tools, it is deciding continuously which small subset of a large latent tool surface is worth the agent's attention.",
+    group: "Start here",
+    title: "What is Agentable?",
+    summary: "React components that AI assistants can use directly.",
+    text: "Agentable is a set of React components (tables, forms, buttons, tabs) that AI assistants can use directly. Add one agent prop and the component tells the assistant what it can do, for example search orders or create invoice, instead of the assistant guessing which button to click. It uses WebMCP, a new browser feature. It keeps the list of tools short (12 at most by default) and asks the user before anything risky. Next: quick start.",
     body: (
       <>
         <div className="hero">
-          <h1>A component library that registers itself with the agent.</h1>
+          <h1>Components that AI assistants can use.</h1>
           <p className="lede">
-            WebMCP lets a page hand an AI agent callable tools instead of making it guess at buttons. Agentable gives you React components that declare their tools with one prop, and a framework-free core that keeps the tool count small enough for agents to use well.
+            Agentable is a React component library. Add one <code>agent</code> prop to a table, form or button, and an AI assistant in the browser can use it directly instead of guessing where to click.
           </p>
-        </div>
-        <div className="grid">
-          <div className="card">
-            <h3>One prop</h3>
-            <p className="muted">
-              <code>agent=&#123;&#123; name: "query_orders" &#125;&#125;</code> on a table exposes one query tool. Omit it and the component is ordinary.
-            </p>
-          </div>
-          <div className="card">
-            <h3>Budgeted</h3>
-            <p className="muted">120 declared capabilities resolve to twelve or fewer resident tools. Everything else is one <code>open_capability</code> call away.</p>
-          </div>
-          <div className="card">
-            <h3>Real-browser tested</h3>
-            <p className="muted">
-              The conformance suite runs against real Chrome with <code>--enable-features=WebMCP</code> and fails loudly when the entry point moves.
-            </p>
+          <div className="row">
+            <a className="cta" href="#/docs/quickstart">
+              Get started in 5 minutes
+            </a>
+            <a className="cta secondary" href="#/demo">
+              See the demo
+            </a>
           </div>
         </div>
-        <h2>Install</h2>
-        <pre>{`pnpm add @agentable-ui/ui @agentable-ui/react @agentable-ui/core
-pnpm add -D @agentable-ui/devtools`}</pre>
-        <h2>Use</h2>
+        <h2>The whole idea in one picture</h2>
+        <div className="steps">
+          <div className="card">
+            <b>1. You write</b>
+            <pre>{`<DataTable rows={orders}
+  agent={{ name: "search_orders" }} />`}</pre>
+          </div>
+          <div className="card">
+            <b>2. The assistant sees</b>
+            <pre>{`search_orders(query?, sort?, filter?)
+"Search the orders table."`}</pre>
+          </div>
+          <div className="card">
+            <b>3. The user says</b>
+            <p className="muted">"Show me unpaid orders from Europe." The assistant calls the tool and the table updates on screen.</p>
+          </div>
+        </div>
+        <h2>Three things to know</h2>
+        <ul>
+          <li>
+            <b>It's opt-in.</b> No <code>agent</code> prop means a normal component.
+          </li>
+          <li>
+            <b>It asks before anything risky.</b> Submitting a form or refunding an order pops up "Allow?" for the user first.
+          </li>
+          <li>
+            <b>It keeps the list short.</b> Assistants get worse with too many tools, so at most 12 are shown at once. The rest are one step away.
+          </li>
+        </ul>
+        <div className="callout">
+          <b>Heads up:</b> this uses <b>WebMCP</b>, a new browser feature that is still experimental (Chrome only, behind a flag). You can build and test everything today without it, using the built-in devtools. See <a href="#/docs/see-it-work">See it working</a>.
+        </div>
+      </>
+    ),
+  },
+  {
+    id: "quickstart",
+    group: "Start here",
+    title: "Quick start",
+    summary: "Install, wrap your app, add one prop, test it. Five minutes.",
+    text: "Quick start. Step 1 install: npm install @agentable-ui/ui @agentable-ui/react @agentable-ui/core and npm install -D @agentable-ui/devtools. Step 2 wrap your app in AgentableProvider and import @agentable-ui/ui/styles.css. Step 3 add an agent prop to a component, for example DataTable agent name search_orders. Step 4 add AgentableDevtools, run your app, press Alt+A, open the Console tab and call search_orders. Step 5 optional: add your own tool with useTool.",
+    body: (
+      <>
+        <h1>Quick start</h1>
+        <p className="lede">Five steps. You don't need an AI assistant or any browser flags to follow along.</p>
+
+        <h2>1. Install</h2>
+        <pre>{`npm install @agentable-ui/ui @agentable-ui/react @agentable-ui/core
+npm install -D @agentable-ui/devtools`}</pre>
+        <p className="muted">Works with pnpm and yarn too. You need React 18 or newer.</p>
+
+        <h2>2. Wrap your app</h2>
+        <p>
+          Put <code>&lt;AgentableProvider&gt;</code> around your app, once, near the top. It's the thing that talks to the browser.
+        </p>
         <pre>{`import { AgentableProvider } from "@agentable-ui/react";
-import { DataTable, Form, Field } from "@agentable-ui/ui";
 import "@agentable-ui/ui/styles.css";
 
 export function App() {
   return (
     <AgentableProvider>
-      <DataTable
-        columns={cols} rows={rows}
-        agent={{ name: "query_orders", group: "orders", project: ["id", "customer", "total"] }}
-      />
-      <Form agent={{ name: "create_invoice", group: "billing" }} onSubmit={createInvoice}>
-        <Field name="customer" required describe="Customer's legal name" />
-        <Field name="amountCents" type="integer" min={1} describe="Amount in cents" />
-      </Form>
+      <YourPages />
     </AgentableProvider>
   );
 }`}</pre>
+
+        <h2>3. Add one prop</h2>
         <p>
-          Then open the <a href="#/demo">demo</a>, press <kbd>Alt</kbd>+<kbd>A</kbd>, and use the console tab to call tools without an agent.
+          Use an Agentable component and give it an <code>agent</code> prop with a name. The name is what the assistant will call.
+        </p>
+        <pre>{`import { DataTable } from "@agentable-ui/ui";
+
+const columns = [
+  { key: "id", header: "Order" },
+  { key: "customer", header: "Customer" },
+  { key: "status", header: "Status" },
+];
+
+<DataTable
+  columns={columns}
+  rows={orders}
+  agent={{ name: "search_orders" }}
+/>`}</pre>
+        <p>That's it. The table now has a <code>search_orders</code> tool that can search, sort and filter it.</p>
+
+        <h2>4. See what the assistant sees</h2>
+        <p>Add the devtools panel, then run your app.</p>
+        <pre>{`import { AgentableDevtools } from "@agentable-ui/devtools/react";
+
+<AgentableProvider>
+  <YourPages />
+  <AgentableDevtools />
+</AgentableProvider>`}</pre>
+        <ol>
+          <li>
+            Press <kbd>Alt</kbd>+<kbd>A</kbd> (or click the <b>Agent</b> button in the corner).
+          </li>
+          <li>
+            <b>Overview</b> lists every tool the assistant can see right now.
+          </li>
+          <li>
+            <b>Console</b> lets you call a tool yourself, exactly like an assistant would. Try <code>search_orders</code> with <code>{`{"query": "Ada"}`}</code> and watch the table change.
+          </li>
+        </ol>
+
+        <h2>5. (Optional) Add your own tool</h2>
+        <p>
+          For anything that isn't a component, use <code>useTool</code> in any component inside the provider.
+        </p>
+        <pre>{`import { useTool } from "@agentable-ui/react";
+
+function Cart() {
+  useTool({
+    name: "apply_coupon",
+    description: "Apply a discount code to the cart.",
+    inputSchema: {
+      type: "object",
+      properties: { code: { type: "string" } },
+      required: ["code"],
+    },
+    execute: ({ code }) => cart.applyCoupon(code),
+  });
+  // ...render your cart as usual
+}`}</pre>
+        <p>
+          Because this tool changes something, the user is asked to allow it before it runs. For tools that only read data, add <code>annotations: &#123; readOnlyHint: true &#125;</code> and they run without asking.
+        </p>
+
+        <h2>Next</h2>
+        <ul>
+          <li>
+            <a href="#/docs/see-it-work">See it working</a> with a real browser agent.
+          </li>
+          <li>
+            <a href="#/docs/recipes">Recipes</a>: forms, buttons, tabs, confirmations.
+          </li>
+          <li>
+            <a href="#/demo">The demo</a> is a full dashboard built this way. Open it and press <kbd>Alt</kbd>+<kbd>A</kbd>.
+          </li>
+        </ul>
+      </>
+    ),
+  },
+  {
+    id: "see-it-work",
+    group: "Start here",
+    title: "See it working",
+    summary: "Three ways to check your tools: devtools, the header counter, real Chrome.",
+    text: "See it working. Option 1 devtools: press Alt+A, Overview lists tools, Console calls them, no flag needed. Option 2 the header on this site shows resident tools out of the budget, estimated tokens, and WebMCP on or off. WebMCP off just means your browser does not have the experimental feature turned on; everything else still works. Option 3 real Chrome: quit Chrome and start it with --enable-features=WebMCP, for example on macOS open -a Google Chrome --args --enable-features=WebMCP. Then the pill says WebMCP on and any WebMCP agent or extension can call the tools.",
+    body: (
+      <>
+        <h1>See it working</h1>
+        <p className="lede">Three ways, from easiest to most real.</p>
+
+        <h2>1. The devtools panel (easiest)</h2>
+        <p>
+          Press <kbd>Alt</kbd>+<kbd>A</kbd> on any page, including this one. You'll see every tool that's live, how much of the assistant's memory they use, and a <b>Console</b> tab to call them by hand. No flag, no assistant needed.
+        </p>
+
+        <h2>2. The counter in the header</h2>
+        <p>The top-right of this site shows:</p>
+        <ul>
+          <li>
+            <b>6/12 tools</b>: how many tools are live right now, out of the maximum of 12.
+          </li>
+          <li>
+            <b>~1000 tokens</b>: roughly how much of the assistant's memory those tools cost.
+          </li>
+          <li>
+            <b>WebMCP on / not enabled</b>: whether your browser has the experimental WebMCP feature switched on. <b>"Not enabled" is normal</b> and nothing is broken. It only means a real assistant can't reach the tools from this browser yet.
+          </li>
+        </ul>
+        <p>
+          Move between Docs, Demo and Playground and watch the count change: each page registers only its own tools.
+        </p>
+
+        <h2>3. Real Chrome with WebMCP</h2>
+        <ol>
+          <li>Quit Chrome completely.</li>
+          <li>
+            Start it with the flag:
+            <pre>{`# macOS
+open -a "Google Chrome" --args --enable-features=WebMCP
+
+# Windows
+chrome.exe --enable-features=WebMCP
+
+# Linux
+google-chrome --enable-features=WebMCP`}</pre>
+          </li>
+          <li>
+            Open your app. The pill should say <b>WebMCP on</b>.
+          </li>
+          <li>Any WebMCP-aware agent or extension can now list and call your tools.</li>
+        </ol>
+      </>
+    ),
+  },
+  {
+    id: "recipes",
+    group: "Start here",
+    title: "Recipes",
+    summary: "Copy-paste snippets for the common cases.",
+    text: "Recipes. Let the assistant fill a form: Form with agent prop and Field children; the schema comes from the fields. Let it press buttons: ActionBar with actions, destructive actions ask first. Let it switch tabs: Tabs agent. Let it pick from a list: Combobox. Ask before running: confirm true or a message. Never ask: confirm false. Hide a column from the assistant: agentHidden. Group tools so they load only when needed: tier 1 and group. Show notifications to the assistant: Toaster agent.",
+    body: (
+      <>
+        <h1>Recipes</h1>
+        <p className="lede">Copy, paste, rename. Every snippet goes inside your <code>&lt;AgentableProvider&gt;</code>.</p>
+
+        <h2>Let the assistant fill in a form</h2>
+        <p>The form's fields become the tool's inputs. <code>describe</code> is the hint the assistant reads.</p>
+        <pre>{`<Form agent={{ name: "create_invoice" }} onSubmit={(values) => api.createInvoice(values)}>
+  <Field name="customer" required describe="Customer's legal name" />
+  <Field name="amountCents" type="integer" min={1} describe="Amount in cents" />
+  <Field name="sendNow" type="boolean" />
+</Form>`}</pre>
+        <p className="muted">Submitting asks the user first. Whatever you return from onSubmit goes back to the assistant.</p>
+
+        <h2>Let it press buttons</h2>
+        <p>A whole row of buttons becomes one tool, so it doesn't eat into the 12-tool limit.</p>
+        <pre>{`<ActionBar
+  agent={{ name: "order_actions" }}
+  actions={[
+    { id: "ship", label: "Ship", onAction: ship },
+    { id: "refund", label: "Refund", destructive: true, onAction: refund }, // asks first
+  ]}
+/>`}</pre>
+
+        <h2>Let it pick from a list</h2>
+        <pre>{`<Combobox
+  label="Customer"
+  options={[{ value: "c1", label: "Ada Lovelace" }]}
+  value={customer}
+  onChange={setCustomer}
+  agent={{ name: "choose_customer" }}
+/>`}</pre>
+
+        <h2>Let it switch tabs</h2>
+        <pre>{`<Tabs
+  agent={{ name: "settings_tab" }}
+  tabs={[
+    { value: "profile", label: "Profile", content: <Profile /> },
+    { value: "billing", label: "Billing", content: <Billing /> },
+  ]}
+/>`}</pre>
+        <p className="muted">Only the open tab exists, so only its tools are live.</p>
+
+        <h2>Control the "Allow?" prompt</h2>
+        <pre>{`agent={{ name: "archive_order", confirm: "Archive this order?" }} // custom message
+agent={{ name: "toggle_theme", confirm: false }}                  // never ask`}</pre>
+
+        <h2>Hide data from the assistant</h2>
+        <pre>{`{ key: "email", header: "Email", agentHidden: true } // column never sent
+agent={{ name: "search_orders", project: ["id", "status"] }}  // only send these fields`}</pre>
+
+        <h2>Load rarely-used tools only when needed</h2>
+        <p>
+          Put them in a group at <code>tier: 1</code>. The assistant sees a one-line summary and opens the group when it needs it.
+        </p>
+        <pre>{`agent={{ name: "export_report", group: "reports", tier: 1 }}`}</pre>
+
+        <h2>Let the assistant build UI</h2>
+        <p>
+          <code>&lt;AgentSurface&gt;</code> gives the assistant a <code>present</code> tool to draw cards, stats and tables from your components. Try it in the <a href="#/playground">playground</a>, and see <a href="#/docs/genui">@agentable-ui/genui</a>.
         </p>
       </>
     ),
   },
   {
+    id: "faq",
+    group: "Start here",
+    title: "FAQ & troubleshooting",
+    summary: "WebMCP off, missing tools, budget warnings, words explained.",
+    text: "FAQ. The header says WebMCP not enabled: normal, your browser lacks the flag, devtools still work. My tool doesn't show up: is the component inside AgentableProvider, is it mounted, is it tier 1 or evicted by the budget; check devtools Capabilities tab. Console warning Budget (12) exceeded: more tier-0 tools than the limit; raise priority, set tier 1, use ActionBar fan-in, or raise budget. Tool call hangs in tests: consequential tools wait for confirmation; mark readOnlyHint or pass confirm. Do I need Next.js: no, any React. Glossary: agent or assistant, tool, WebMCP, budget, resident, tier, group, fan-in, consequential.",
+    body: (
+      <>
+        <h1>FAQ &amp; troubleshooting</h1>
+
+        <h2>The header says "WebMCP not enabled". Is it broken?</h2>
+        <p>
+          No. Your browser just doesn't have the experimental WebMCP feature switched on. Everything else works, and you can call tools from the devtools console. To switch it on, see <a href="#/docs/see-it-work">See it working</a>.
+        </p>
+
+        <h2>My tool doesn't show up</h2>
+        <ol>
+          <li>
+            Is the component inside <code>&lt;AgentableProvider&gt;</code>? Outside it, <code>agent</code> props do nothing (you'll see one console warning).
+          </li>
+          <li>Is the component on screen? Tools only exist while their component is mounted. A closed dialog or an inactive tab has no tools.</li>
+          <li>
+            Open devtools (<kbd>Alt</kbd>+<kbd>A</kbd>) → <b>Capabilities</b>. It shows every tool and, if it isn't live, why: tier 1, evicted by the budget, or scrolled offscreen.
+          </li>
+        </ol>
+
+        <h2>Console says "Budget (12) exceeded"</h2>
+        <p>More tools want to be live than the limit allows, so the least important one was moved one step away. The assistant can still reach it. To choose what stays:</p>
+        <ul>
+          <li>
+            Give important tools a higher <code>priority</code>.
+          </li>
+          <li>
+            Move rarely-used ones to <code>tier: 1</code>.
+          </li>
+          <li>
+            Combine buttons with <code>&lt;ActionBar&gt;</code>.
+          </li>
+          <li>
+            Or raise the limit: <code>&lt;AgentableProvider budget=&#123;20&#125;&gt;</code>.
+          </li>
+        </ul>
+
+        <h2>A tool call hangs in my tests</h2>
+        <p>
+          Tools that change things wait for the user to click "Allow". In tests, mark read-only tools with <code>annotations: &#123; readOnlyHint: true &#125;</code>, or pass <code>confirm=&#123;async () =&gt; true&#125;</code> to the provider.
+        </p>
+
+        <h2>Do I need Next.js / a specific framework?</h2>
+        <p>
+          Any React 18+ app works. The engine in <code>@agentable-ui/core</code> has no framework at all, but only React components exist so far.
+        </p>
+
+        <h2>Words used in these docs</h2>
+        <table>
+          <tbody>
+            <tr>
+              <td>
+                <b>Agent / assistant</b>
+              </td>
+              <td>An AI that uses a website on someone's behalf.</td>
+            </tr>
+            <tr>
+              <td>
+                <b>Tool</b>
+              </td>
+              <td>One thing the assistant can do on your page, with a name and exact inputs. Like a function it can call.</td>
+            </tr>
+            <tr>
+              <td>
+                <b>WebMCP</b>
+              </td>
+              <td>The new browser feature that lets a page hand tools to an assistant.</td>
+            </tr>
+            <tr>
+              <td>
+                <b>Budget</b>
+              </td>
+              <td>The maximum number of live tools at once. 12 by default.</td>
+            </tr>
+            <tr>
+              <td>
+                <b>Resident</b>
+              </td>
+              <td>A tool that's live right now.</td>
+            </tr>
+            <tr>
+              <td>
+                <b>Tier</b>
+              </td>
+              <td>0 = always live. 1 = one step away, opened on request. 2 = only your code can turn it on.</td>
+            </tr>
+            <tr>
+              <td>
+                <b>Group</b>
+              </td>
+              <td>Tools that open and close together, like "billing".</td>
+            </tr>
+            <tr>
+              <td>
+                <b>Fan-in</b>
+              </td>
+              <td>Many buttons combined into one tool with an "action" choice.</td>
+            </tr>
+            <tr>
+              <td>
+                <b>Consequential</b>
+              </td>
+              <td>A tool that changes something. The user is asked before it runs.</td>
+            </tr>
+          </tbody>
+        </table>
+      </>
+    ),
+  },
+  {
     id: "plain-english",
-    group: "Start",
-    title: "In plain English",
+    group: "Start here",
+    title: "How it works (plain English)",
     summary: "What this is, why it helps, and what does and does not work today.",
     text: "Plain English explainer. AI agents today use websites like a person squinting at a screenshot: they guess which button to click. WebMCP lets a website hand the agent a menu of actions (tools) such as search orders or refund order, with exact inputs. Agentable is React components that come with that menu built in: add one agent prop. Too many tools confuse agents, so Agentable shows at most 12 at a time and keeps the rest one step away. Consequential actions ask the user first. Does it work: unit tests and a real-Chrome conformance suite pass; WebMCP itself is experimental and behind a Chrome flag; few agents call WebMCP tools yet; the accuracy benefit of the budget is based on published observations, not our own benchmark. For AI assistants: /llms.txt and /llms-full.txt.",
     body: (
@@ -185,7 +530,7 @@ export function App() {
   },
   {
     id: "problem",
-    group: "Start",
+    group: "Concepts",
     title: "Why budget tools",
     summary: "A component library is a tool-count bomb unless something manages the surface.",
     text: "Auto-registration is the obvious feature and the obvious trap. A table registers query sort filter, a form registers submit, a dialog registers open close. A dashboard with 40 agent-enabled components pushes 120 tool schemas, roughly 24K tokens, into the agent's context. Tool-selection accuracy degrades around 20 concurrent tools. Agentable keeps at most 12 resident: naive ~120 tools ~24K tokens, route scoped ~35 tools ~7K tokens, agentable tier 0 resident <= 12 tools ~2K tokens.",
@@ -659,6 +1004,7 @@ export function DocsPage({ route, navigate }: { route: string; navigate: (to: st
   const id = route.startsWith("/docs/") ? route.slice(6) : "intro";
   const doc = DOCS.find((d) => d.id === id) ?? DOCS[0]!;
   const [query, setQuery] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const search = useMemo(() => (q: string) => {
     const needle = q.trim().toLowerCase();
@@ -729,13 +1075,16 @@ export function DocsPage({ route, navigate }: { route: string; navigate: (to: st
             )}
           </ul>
         ) : null}
+        <button type="button" className="docs-menu" aria-expanded={menuOpen} onClick={() => setMenuOpen((o) => !o)}>
+          {menuOpen ? "Hide pages" : `Pages · ${doc.title}`}
+        </button>
         {groups.map((g) => (
-          <div key={g}>
+          <div key={g} className="docs-group" data-open={menuOpen ? "" : undefined}>
             <div className="group">{g}</div>
             <ul>
               {DOCS.filter((d) => d.group === g).map((d) => (
                 <li key={d.id}>
-                  <a href={`#/docs/${d.id}`} aria-current={d.id === doc.id ? "page" : undefined}>
+                  <a href={`#/docs/${d.id}`} aria-current={d.id === doc.id ? "page" : undefined} onClick={() => setMenuOpen(false)}>
                     {d.title}
                   </a>
                 </li>

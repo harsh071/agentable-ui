@@ -412,3 +412,17 @@ describe("registry: adapters and observation", () => {
     expect(registered).toEqual(["c0", "c1", "c2", "c3", "c4"]);
   });
 });
+
+describe("registry: redeclaration", () => {
+  it("runs the new execute after a capability is released and declared again with the same shape", async () => {
+    const ag = createAgentable();
+    const first = ag.declare(cap("c", {}, { execute: () => "first" }));
+    await ag.flush();
+    expect(await ag.invoke("c", {})).toContain("first");
+    first.release();
+    await ag.flush();
+    ag.declare(cap("c", {}, { execute: () => "second" }));
+    await ag.flush();
+    expect(await ag.invoke("c", {})).toContain("second");
+  });
+});
