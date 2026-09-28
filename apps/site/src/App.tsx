@@ -57,10 +57,16 @@ function Status() {
   const webmcp = s.adapters.find((a) => a.id === "webmcp");
   return (
     <div className="status" title="Resident tools / budget · estimated context">
-      <span>
+      <span className="count">
         <b>{s.budget.used}</b>/{s.budget.max} tools · ~<b>{s.estimatedTokens}</b> tokens
       </span>
-      <span className={`pill ${webmcp?.available ? "on" : "off"}`}>{webmcp?.available ? "WebMCP on" : "WebMCP off"}</span>
+      {webmcp?.available ? (
+        <span className="pill on">WebMCP on</span>
+      ) : (
+        <a className="pill off" href="#/docs/see-it-work" title="Your browser doesn't have the experimental WebMCP flag on. Everything still works in devtools (Alt+A).">
+          WebMCP not enabled
+        </a>
+      )}
       {s.agentPresent ? <span className="pill on">agent active</span> : null}
     </div>
   );

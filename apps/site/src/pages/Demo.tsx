@@ -53,8 +53,19 @@ export function DemoPage() {
         <div>
           <h1>Orders dashboard</h1>
           <p className="muted">
-            Every component on this page is agent-callable. Watch the tool count in the header: this page declares well over a hundred capabilities and keeps twelve or fewer resident.
+            A normal-looking dashboard where every component is also usable by an AI assistant. The page declares over a hundred tools, but only twelve or fewer are live at once (see the counter top right).
           </p>
+          <ol className="try">
+            <li>
+              Press <kbd>Alt</kbd>+<kbd>A</kbd> to open the agent panel.
+            </li>
+            <li>
+              Go to <b>Console</b>, pick <code>query_orders</code>, and send <code>{`{"query": "Ada"}`}</code>. The table filters itself.
+            </li>
+            <li>
+              Try <code>run_order_action</code> with <code>{`{"action": "refund"}`}</code> after selecting a row: you'll be asked to allow it first.
+            </li>
+          </ol>
         </div>
         <div className="row">
           <Dialog
@@ -184,7 +195,7 @@ export function DemoPage() {
         />
       </ToolScope>
 
-      <div className="tall-spacer">Scroll past this. Sections that stay offscreen for five seconds drop to tier 1 and come back instantly when you scroll up.</div>
+      <div className="tall-spacer">Scroll past this and watch the tool counter: sections that stay offscreen for five seconds step back (tier 1), and return instantly when you scroll up.</div>
 
       <ToolScope group="reports" describe="Reports archive with pagination" className="section">
         <h2>Reports</h2>
