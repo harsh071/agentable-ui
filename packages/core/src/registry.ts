@@ -73,7 +73,7 @@ export class Agentable {
   private cache: ToolCache;
   private warnings: string[] = [];
   private warned = new Set<string>();
-  private materialized = new Map<string, { tool: NormalizedTool; fingerprint: string }>();
+  private materialized = new Map<string, { tool: NormalizedTool; fingerprint: string; recs: Rec[] }>();
   private resident: NormalizedTool[] = [];
   private scheduled = false;
   private syncing: Promise<void> = Promise.resolve();
@@ -373,10 +373,13 @@ export class Agentable {
     const fingerprint =
       u.recs.map((r) => `${r.id}:${r.cap.tool ? fingerprintTool(r.cap.tool) : ""}`).join("|") + `#${u.declaredTier}`;
     const existing = this.materialized.get(u.key);
-    if (existing && existing.fingerprint === fingerprint) return existing.tool;
+    // Built tools close over their records, so a record released and declared
+    // again (a component remounting) must rebuild even when its shape is unchanged.
+    if (existing && existing.fingerprint === fingerprint && existing.recs.length === u.recs.length && existing.recs.every((r, i) => r === u.recs[i]))
+      return existing.tool;
     const tool = u.kind === "fan-in" ? this.buildFanIn(u) : this.buildTool(u.recs[0]!);
     tool.meta.version = ++this.version;
-    this.materialized.set(u.key, { tool, fingerprint });
+    this.materialized.set(u.key, { tool, fingerprint, recs: [...u.recs] });
     return tool;
   }
 
