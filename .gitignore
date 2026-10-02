@@ -8,3 +8,6 @@ playwright-report
 conformance/.results
 apps/site/dist
 *.log
+
+# local secrets
+.env*.local
