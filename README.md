@@ -1,5 +1,7 @@
 # Agentable
 
+> Part of [Interfaces for Humans](https://www.interfacesforhuman.com), the open lab for generative UI · [RUI](https://rui.interfacesforhuman.com) checks what generated UI does · [Agentable UI](https://agentable.interfacesforhuman.com) components for people and agents · [Agentable Studio](https://studio.interfacesforhuman.com) builds apps on them
+
 A React component library that registers itself with the agent. WebMCP-native, budget-managed.
 
 WebMCP lets a page hand an AI agent callable tools instead of making it guess at buttons. Registering tools is the easy part. The hard part is deciding, continuously, which small subset of a large latent tool surface is worth the agent's attention — Agentable is built around that problem.
