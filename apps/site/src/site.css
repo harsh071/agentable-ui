@@ -392,6 +392,11 @@ a.pill {
   .topbar .spacer {
     display: none;
   }
+  /* Five links don't fit a phone: the nav scrolls on its own instead of widening the page. */
+  .topbar > nav {
+    max-width: 100%;
+    overflow-x: auto;
+  }
   .status .count {
     display: none;
   }
