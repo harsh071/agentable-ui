@@ -11,7 +11,7 @@ const NAV = [
   { href: "#/", label: "Docs", describe: "Documentation, getting started, package reference" },
   { href: "#/demo", label: "Demo", describe: "Orders dashboard built with @agentable-ui/ui" },
   { href: "#/playground", label: "Playground", describe: "Generative UI surface and tool console" },
-  { href: "https://studio.interfacesforhuman.com", label: "Try it in Studio", external: true, agentHidden: true },
+  { href: "https://studio.interfacesforhuman.com", label: "Studio", external: true, agentHidden: true },
   { href: "https://github.com/harsh071/agentable-ui", label: "GitHub", external: true, agentHidden: true },
 ];
 
