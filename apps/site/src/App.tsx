@@ -11,6 +11,7 @@ const NAV = [
   { href: "#/", label: "Docs", describe: "Documentation, getting started, package reference" },
   { href: "#/demo", label: "Demo", describe: "Orders dashboard built with @agentable-ui/ui" },
   { href: "#/playground", label: "Playground", describe: "Generative UI surface and tool console" },
+  { href: "https://studio.interfacesforhuman.com", label: "Try it in Studio", external: true, agentHidden: true },
   { href: "https://github.com/harsh071/agentable-ui", label: "GitHub", external: true, agentHidden: true },
 ];
 
@@ -47,6 +48,9 @@ function Shell() {
       </main>
       <footer className="foot">
         MIT licensed. Every part of this site is agent-callable: open devtools (<kbd>Alt</kbd>+<kbd>A</kbd>) to see what an agent sees, or run Chrome with <code>--enable-features=WebMCP</code>.
+        <span className="family">
+          Part of <a href="https://www.interfacesforhuman.com">Interfaces for Humans</a> · <a href="https://rui.interfacesforhuman.com">RUI</a> checks what generated UI does · <a href="https://studio.interfacesforhuman.com">Agentable Studio</a> builds apps on Agentable
+        </span>
       </footer>
     </div>
   );
