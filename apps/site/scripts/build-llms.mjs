@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 
 const root = new URL("../../../", import.meta.url);
 const site = new URL("../", import.meta.url);
-const PACKAGES = ["core", "react", "ui", "genui", "devtools"];
+const PACKAGES = ["core", "react", "ui", "lang", "genui", "devtools"];
 const npm = (pkg) => `https://www.npmjs.com/package/@agentable-ui/${pkg}`;
 
 const readme = (pkg) =>

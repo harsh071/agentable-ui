@@ -9,7 +9,13 @@ export interface ToolAction {
   into?: string;
 }
 
-export type UIAction = StateAction | ToolAction;
+/** Send text to the assistant (the surface's `onMessage`). */
+export interface MessageAction {
+  type: "message";
+  text: string;
+}
+
+export type UIAction = StateAction | ToolAction | MessageAction;
 
 export interface UISpec {
   component: string;
@@ -53,6 +59,11 @@ export interface ValidateOptions {
   state?: SurfaceState;
   /** Tool names that `tool` actions may call. None when absent. */
   tools?: ReadonlySet<string>;
+  /**
+   * Drop nodes with issues instead of failing the whole spec. Used while a
+   * program streams in, where a half-formed node must not blank the rest.
+   */
+  prune?: boolean;
 }
 
 const ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
@@ -89,7 +100,8 @@ function actionIssues(a: unknown, path: string, tools: ReadonlySet<string> | und
     if (a.into !== undefined && !isStatePath(a.into, ["ui"])) out.push({ path: `${path}.into`, message: "into must be a ui.* path." });
     return out;
   }
-  if (!STATE_ACTIONS.has(a.type)) return [{ path: `${path}.type`, message: `Unknown action "${a.type}". Use set, merge, push, remove, increment, toggle or tool.` }];
+  if (a.type === "message") return typeof a.text === "string" ? [] : [{ path: `${path}.text`, message: "message needs a text string." }];
+  if (!STATE_ACTIONS.has(a.type)) return [{ path: `${path}.type`, message: `Unknown action "${a.type}". Use set, merge, push, remove, increment, toggle, tool or message.` }];
   if (!isStatePath(a.path, ["ui"])) return [{ path: `${path}.path`, message: "Actions may only write ui.* paths; data.* is read-only." }];
   if ((a.type === "set" || a.type === "push") && !("value" in a)) return [{ path, message: `${a.type} needs a value.` }];
   if (a.type === "merge" && !isObject(a.value)) return [{ path: `${path}.value`, message: "merge needs an object value." }];
@@ -108,7 +120,7 @@ export async function validateSpec(
   catalog: Record<string, ValidatableEntry>,
   allowed: Set<string>,
   opts: ValidateOptions = {},
-): Promise<{ ok: true; spec: UISpec; nodes: number } | { ok: false; issues: SpecIssue[] }> {
+): Promise<{ ok: true; spec: UISpec; nodes: number; issues: SpecIssue[] } | { ok: false; issues: SpecIssue[] }> {
   const maxDepth = opts.maxDepth ?? 6;
   const maxNodes = opts.maxNodes ?? 60;
   const state: SurfaceState = opts.state ?? { data: {}, ui: {} };
@@ -213,6 +225,7 @@ export async function validateSpec(
       }
     }
 
+    const ownBad = issues.length > before;
     if (Array.isArray(node.children) && node.children.length) {
       if (!entry.childrenProp) {
         issues.push({ path: `${path}.children`, message: `"${node.component}" does not accept children.` });
@@ -225,12 +238,16 @@ export async function validateSpec(
         out.children = kids;
       }
     }
-    return issues.length > before ? null : out;
+    if (ownBad) {
+      nodes--;
+      return null;
+    }
+    return out;
   }
 
   const cleaned = await walk(spec, "root", 1, false);
-  if (issues.length || !cleaned) return { ok: false, issues };
-  return { ok: true, spec: cleaned, nodes };
+  if (!cleaned || (issues.length && !opts.prune)) return { ok: false, issues };
+  return { ok: true, spec: cleaned, nodes, issues };
 }
 
 /**

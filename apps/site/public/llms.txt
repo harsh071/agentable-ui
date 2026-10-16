@@ -8,7 +8,7 @@ The docs site renders its pages client-side, so fetching them returns an empty p
 
 WebMCP is an experimental browser API (`document.modelContext`) that lets a web page register "tools" an AI agent can call: a name, a description, a JSON Schema for inputs, and an `execute` function. Agents call tools instead of guessing at buttons in screenshots.
 
-Agentable is a component library built on it. Each component takes an optional `agent` prop and declares its own tool: a `DataTable` becomes a query tool, a `Form` becomes a submit tool whose input schema comes from its fields. Without the prop, the component is ordinary.
+Agentable is a component library built on it, plus a generative-UI layer: models write Agentable Lang programs (`name = Component(args)`, one node per line) that `@agentable-ui/genui`'s Renderer draws as they stream, from the same component catalog. Each component takes an optional `agent` prop and declares its own tool: a `DataTable` becomes a query tool, a `Form` becomes a submit tool whose input schema comes from its fields. Without the prop, the component is ordinary.
 
 ## Why it exists
 

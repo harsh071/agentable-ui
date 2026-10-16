@@ -8,6 +8,7 @@ export default defineConfig({
       { test: { name: "devtools", root: "packages/devtools", environment: "happy-dom", include: ["test/**/*.test.ts?(x)"] } },
       { test: { name: "ui", root: "packages/ui", environment: "happy-dom", include: ["test/**/*.test.ts?(x)"] } },
       { test: { name: "genui", root: "packages/genui", environment: "happy-dom", include: ["test/**/*.test.ts?(x)"] } },
+      { test: { name: "lang", root: "packages/lang", environment: "node", include: ["test/**/*.test.ts"] } },
     ],
   },
 });

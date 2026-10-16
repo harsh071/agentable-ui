@@ -29,8 +29,21 @@ That one `agent` prop declares a capability. The registry decides whether it is 
 | [`@agentable-ui/core`](packages/core) | Framework-free capability registry: tiers, budgeter, cache, output shaper, adapters. No React, no WebMCP beyond one adapter file. |
 | [`@agentable-ui/react`](packages/react) | `AgentableProvider`, `useCapability`, `useTool`, `ToolScope`, snapshot hooks. |
 | [`@agentable-ui/ui`](packages/ui) | Headless agent-callable components: Form, DataTable, Combobox, ActionBar, Dialog, Tabs, Nav, Filters, Pagination, Toaster. |
-| [`@agentable-ui/genui`](packages/genui) | Generative UI: `AgentSurface` plus a single validated `present` tool over a component catalog. |
+| [`@agentable-ui/lang`](packages/lang) | Agentable Lang: a compact streaming language for model-generated UI. Parser, streaming parser, prompt generation, serializer. Framework-free. |
+| [`@agentable-ui/genui`](packages/genui) | Generative UI: `Renderer` draws a streamed program as it arrives; `AgentSurface` gives an in-page agent a single validated `present` tool over the same catalog. |
 | [`@agentable-ui/devtools`](packages/devtools) | In-page overlay (<kbd>Alt</kbd>+<kbd>A</kbd>) showing exactly what an agent sees. |
+
+## Generative UI: the model writes a program, your components render it
+
+```txt
+root = Stack([stats, note])
+stats = StatGroup([rev, orders])
+rev = Stat("Revenue", "$48.2k", "+6.1%", "up")
+orders = Stat("Orders", 140, "+12", "up")
+note = Callout("On track", "Ahead of target by 4%.", "success")
+```
+
+`createLibrary(uiCatalog).prompt()` is the system prompt; `<Renderer components={uiCatalog} response={text} isStreaming />` draws each line as it lands. Bad lines are dropped with structured errors, so a half-finished answer still renders. The same program is what a WebMCP agent sends to the `present` tool, at about half the tokens of the JSON tree. Model calls stay out of this library: Agentable Studio generates, RUI verifies.
 
 ## The core idea: a tool budget
 
@@ -54,7 +67,7 @@ pnpm test           # vitest unit tests
 pnpm test:conformance   # real Chrome, real WebMCP
 ```
 
-`pnpm dev` serves the docs, the orders demo (`/#/demo`) and a generative-UI playground (`/#/playground`). WebMCP tools only appear in a browser that supports it:
+`pnpm dev` serves the docs, the orders demo (`/#/demo`) and a generative-UI playground (`/#/playground`) where a program streams into `<Renderer>` line by line. WebMCP tools only appear in a browser that supports it:
 
 ```bash
 open -a "Google Chrome" --args --enable-features=WebMCP

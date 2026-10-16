@@ -899,21 +899,66 @@ mountDevtools(agentable, { position: "bottom-right", shortcut: "alt+a" });`}</pr
     ),
   },
   {
+    id: "lang",
+    group: "Packages",
+    title: "@agentable-ui/lang",
+    summary: "The language a model writes UI in.",
+    text: "Agentable Lang is a compact streaming language for model-generated UI: one node per line, name = Component(args), positional or named arguments, children as a list of names, $data and $ui bindings, when: conditions, and @Actions on events. createLibrary(catalog) gives signatures, a system prompt via prompt(), parse(), a streaming parser via stream(), and serialize(). Programs are about 40% smaller than the same tree as JSON and evaluate to the tree genui renders, so present accepts them too.",
+    body: (
+      <>
+        <h1>@agentable-ui/lang</h1>
+        <p>The language a model writes UI in. One node per line, rendered as each line arrives, about 40% smaller than the same tree as JSON.</p>
+        <pre>{`root = Stack([stats, note])
+stats = StatGroup([rev, orders])
+rev = Stat("Revenue", "$48.2k", "+6.1%", "up")
+orders = Stat("Orders", 140, "+12", "up")
+note = Callout("On track", "Ahead of target by 4%.", "success")`}</pre>
+        <pre>{`import { createLibrary } from "@agentable-ui/lang";
+import { uiCatalog } from "@agentable-ui/ui";
+
+const library = createLibrary(uiCatalog);
+const system = library.prompt({ tools: [{ name: "refund_order" }] }); // send with the user's message to any model
+
+const sp = library.stream();
+sp.push(chunk);            // { root, errors, unresolved } after every chunk
+sp.push("", true);         // done`}</pre>
+        <ul>
+          <li>Arguments are positional in declared prop order or named. Children are a list of statement names anywhere in the arguments. Forward references work; the last definition of a name wins.</li>
+          <li>
+            <code>$data.x</code> reads app data, <code>$ui.x</code> is interface state; a path as an argument binds that prop. <code>when: $ui.selected</code> shows a node conditionally.
+          </li>
+          <li>
+            Events are named arguments holding actions: <code>press: @Set($ui.selected, $event)</code>. Actions: <code>@Set @Merge @Push @Remove @Increment @Toggle @Tool @Say</code>.
+          </li>
+          <li>A bad line is dropped with a coded error and the rest renders. The host can send the errors back to the model.</li>
+        </ul>
+        <p>
+          The program evaluates to the same tree <a href="#/docs/genui">@agentable-ui/genui</a> validates and renders, so <code>present({`{ program }`})</code> works for an in-page agent. No model calls live in this package; Agentable Studio generates, RUI verifies. See it stream in the <a href="#/playground">playground</a>.
+        </p>
+      </>
+    ),
+  },
+  {
     id: "genui",
     group: "Packages",
     title: "@agentable-ui/genui",
-    summary: "AgentSurface and the present tool.",
-    text: "AgentSurface registers one present tool whose argument is a validated JSON tree of component names and props, rendered through an allowlist. The catalog is a projection of the registry: each component is declared as a capability with a render descriptor. Props are validated against the catalog schema before render. The catalog is tier-gated like everything else. uiCatalog from @agentable-ui/ui ships Text Card Stat StatGroup Callout KeyValue SimpleTable List Stack Progress.",
+    summary: "Renderer for streamed programs, AgentSurface and the present tool.",
+    text: "Renderer draws an Agentable Lang program as it streams: each complete line is parsed, validated against the catalog with bad nodes pruned, and rendered; the UI is inert until the stream ends. Bindings, when and actions work as in AgentSurface; @Tool actions go to a tools map or the Agentable registry. AgentSurface registers one present tool that accepts a program or a JSON tree, validated through an allowlist. The catalog is a projection of the registry and tier-gated. uiCatalog from @agentable-ui/ui ships Text Card Stat StatGroup Callout KeyValue SimpleTable List Stack Progress Button TextInput Select Checkbox RecordTable.",
     body: (
       <>
         <h1>@agentable-ui/genui</h1>
-        <pre>{`import { AgentSurface } from "@agentable-ui/genui";
+        <pre>{`import { Renderer, AgentSurface } from "@agentable-ui/genui";
 import { uiCatalog } from "@agentable-ui/ui";
 
-<AgentSurface components={uiCatalog} />
+// A model streams a program; each line renders as it lands.
+<Renderer components={uiCatalog} response={text} isStreaming={!done} data={data} tools={{ refund_order }} onMessage={send} onError={setErrors} />
 
-// registered while mounted:
-// present({ root: { component: "Card", props: { title: "..." }, children: [...] } })`}</pre>
+// An in-page agent gets one tool over the same catalog:
+<AgentSurface components={uiCatalog} />
+// present({ program: 'root = Card("Hello")' })  or  present({ root: { component: "Card", props: { title: "Hello" } } })`}</pre>
+        <p>
+          <code>Renderer</code> parses each complete line, validates the tree against the catalog with bad nodes pruned, and draws the rest. Interactions are disabled until the stream ends. Bindings to <code>$data</code> and <code>$ui</code>, <code>when</code>, and event actions work the same way for both components; <code>@Tool</code> calls go to the <code>tools</code> map you pass or, when an <code>AgentableProvider</code> is mounted, to registered tools with their confirmation and cache.
+        </p>
         <p>
           Two rules keep it safe and cheap: specs are validated against each component's prop schema before render (unknown props dropped, unknown components rejected, depth and node caps), and the catalog is tier-gated, so a page with sixty renderable components still advertises a bounded union.
         </p>

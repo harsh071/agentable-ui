@@ -1,0 +1,58 @@
+# @agentable-ui/lang
+
+Agentable Lang: a compact, streaming-first language for model-generated UI. One node per line, rendered as it arrives, about half the tokens of the same tree as JSON. Framework-free; no model calls, no network.
+
+```bash
+npm install @agentable-ui/lang @agentable-ui/core
+```
+
+```txt
+root = Stack([stats, note])
+stats = StatGroup([rev, orders])
+rev = Stat("Revenue", "$48.2k", "+6.1%", "up")
+orders = Stat("Orders", 140, "+12", "up")
+note = Callout("On track", "Ahead of target by 4%.", "success")
+```
+
+```ts
+import { createLibrary } from "@agentable-ui/lang";
+import { uiCatalog } from "@agentable-ui/ui";
+
+const library = createLibrary(uiCatalog);
+const system = library.prompt({ tools: [{ name: "refund_order", description: "Refund a paid order." }] });
+
+// Server: send `system` with the user's message to any model and stream the text back.
+// Client: <Renderer components={uiCatalog} response={text} isStreaming /> from @agentable-ui/genui,
+// or parse it yourself:
+const sp = library.stream();
+for await (const chunk of modelStream) {
+  const { root, errors } = sp.push(chunk);
+}
+sp.push("", true); // done
+```
+
+## The language
+
+- One statement per line: `name = Component(args)`. The entry is `root`. Forward references are fine; the last definition of a name wins.
+- Arguments are positional in the component's declared prop order, or named: `Callout("On track", text: "Ahead by 4%.")`. `null` skips an optional positional argument.
+- Children are a list of statement names, wherever they sit: `Stack([a, b])`, `Card("Title", [a, b])`, or `children: [a, b]`. A name may be used once.
+- Strings in double quotes, lists in `[]`, objects in `{key: value}`, numbers, `true`, `false`, `null`. `#` starts a comment.
+- State: `$data.x` reads app data (read-only); `$ui.x` is state the interface owns. A path given as an argument binds that prop: `rows: $data.paid`.
+- `when: $ui.selected` shows a node while the path is truthy, `when: !$ui.done` while falsy.
+- Events are named arguments holding actions: `press: @Set($ui.selected, $event)` or a list `[@Set(...), @Tool(...)]`. `$event` is the event's value, `$event.id` a field of it.
+- Actions: `@Set(path, value)`, `@Merge(path, object)`, `@Push(path, value)`, `@Remove(path)`, `@Increment(path, by?)`, `@Toggle(path)`, `@Tool(name, args?, into?)`, `@Say(text)`. Written paths must be `$ui.*`.
+
+A bad line is dropped with a structured error and the rest still renders. Unknown components, unknown arguments, excess arguments and bad action arguments are reported with codes (`unknown-component`, `unknown-arg`, `excess-args`, `bad-arg`, `missing-required`, `parse-failed`, `cycle`, `reused-node`, `no-root`) a host can feed back to the model.
+
+## API
+
+- `createLibrary(catalog, { root? })` — a catalog is `{ Name: { description, props, childrenProp?, events? } }`; `props` is JSON Schema or any Standard Schema (zod 4, valibot 1). The `uiCatalog` from `@agentable-ui/ui` works as is.
+- `library.prompt({ preamble?, rules?, examples?, tools?, data?, interactive? })` — the system prompt: rules, one signature line per component, tools, an example.
+- `library.parse(text)` — `{ root, nodes, unresolved, errors, chars, tokens }`.
+- `library.stream()` — `set(text, done?)` / `push(chunk, done?)`; the last unterminated line is held back until `done`.
+- `serialize(tree, library)` — a node tree as a program, root line first.
+- `parseProgram`, `evaluate`, `signatureLine`, `typeName` for lower-level use.
+
+The node tree it produces is the same `{ component, props, bind, on, when, children }` shape `@agentable-ui/genui` validates and renders, so a program and a JSON tree are interchangeable everywhere, including the `present` tool.
+
+MIT

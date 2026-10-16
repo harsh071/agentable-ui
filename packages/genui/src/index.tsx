@@ -3,8 +3,11 @@ import { toJsonSchema, type Capability, type JSONSchema, type SchemaInput, type 
 import { useAgentable, useAgentableSnapshot, useCapability } from "@agentable-ui/react";
 import { applyOps, isVisible, resolveProps, validateSpec, type SurfaceOp, type UIAction, type UISpec } from "./spec.js";
 import { createUiStore, getPath, interpolate, type StateAction, type SurfaceState } from "./state.js";
+import { createLibrary, type Library } from "@agentable-ui/lang";
 
-export { applyOps, isVisible, resolveProps, validateSpec, type SpecIssue, type SurfaceOp, type ToolAction, type UIAction, type UISpec, type ValidateOptions } from "./spec.js";
+export { Renderer, type RendererError, type RendererProps } from "./renderer.js";
+
+export { applyOps, isVisible, resolveProps, validateSpec, type MessageAction, type SpecIssue, type SurfaceOp, type ToolAction, type UIAction, type UISpec, type ValidateOptions } from "./spec.js";
 export { createUiStore, getPath, interpolate, parsePath, type StateAction, type SurfaceState, type UiStore } from "./state.js";
 
 export interface CatalogComponent<P = Record<string, unknown>> {
@@ -28,6 +31,8 @@ export type Catalog = Record<string, CatalogComponent<never>>;
 export interface PresentArgs {
   /** The tree to render. Replaces the current one and resets ui state. null clears the surface. */
   root?: UISpec | null;
+  /** The tree as an Agentable Lang program (about half the tokens of `root`). */
+  program?: string;
   /** Patch the current tree (applied after `root` when both are given). */
   ops?: SurfaceOp[];
   /** ui.* state to start from when sending `root`. */
@@ -85,6 +90,7 @@ export function catalogSchema(catalog: Catalog, allowed: Iterable<string>): JSON
     $defs: { node, action, op },
     properties: {
       root: { anyOf: [{ $ref: "#/$defs/node" }, { type: "null" }], description: "Tree to render; replaces the current one. null clears." },
+      program: { type: "string", description: 'The tree as a program, one node per line: `root = Stack([a, b])`, `a = Stat("Revenue", "$48k")`. Same components; fewer tokens than root.' },
       ops: { type: "array", items: { $ref: "#/$defs/op" }, description: "Edit the current tree in place instead of resending it." },
       ui: { type: "object", description: "Initial ui.* state for a new root." },
       title: { type: "string" },
@@ -156,6 +162,8 @@ export interface AgentSurfaceProps {
   stateTool?: string | false;
   /** Called when an action in the generated UI fails or is declined. */
   onActionError?: (message: string, node: UISpec) => void;
+  /** Receives text a `@Say` / message action sends to the assistant. Without it the action fails. */
+  onMessage?: (text: string, node: UISpec) => void;
 }
 
 /**
@@ -185,6 +193,7 @@ export function AgentSurface({
   tools,
   stateTool,
   onActionError,
+  onMessage,
 }: AgentSurfaceProps) {
   const [state, setState] = useState<{ spec: UISpec | null; title?: string; at: number }>({ spec: null, at: 0 });
   const [error, setError] = useState<string | null>(null);
@@ -196,8 +205,13 @@ export function AgentSurface({
   onPresentRef.current = onPresent;
   const onActionErrorRef = useRef(onActionError);
   onActionErrorRef.current = onActionError;
+  const onMessageRef = useRef(onMessage);
+  onMessageRef.current = onMessage;
   const catalogRef = useRef(components);
   catalogRef.current = components;
+  const library = useMemo<Library>(() => createLibrary(components), [components]);
+  const libraryRef = useRef(library);
+  libraryRef.current = library;
   const specRef = useRef(state.spec);
   specRef.current = state.spec;
   const dataRef = useRef<Record<string, unknown>>(data ?? {});
@@ -258,7 +272,7 @@ export function AgentSurface({
       const events = Object.keys(e.events ?? {});
       return `${n}{${propSummary(schema)}}${e.childrenProp ? "+children" : ""}${events.length ? ` on:${events.join("|")}` : ""}`;
     });
-    let text = "Render UI with this app's components: a tree of {component, props, children}. Nodes can bind props to state, run actions on events, and be patched by id via ops.";
+    let text = "Render UI with this app's components: a program (one `name = Component(args)` line per node) or a {component, props, children} tree. Nodes bind props to state, run actions on events, and can be patched by id via ops.";
     if (readName) text += ` Call ${readName} for bindable data.`;
     text += ` Components: ${lines.join(" ")}`;
     if (text.length > 500) text = text.slice(0, 497) + "...";
@@ -281,10 +295,17 @@ export function AgentSurface({
         onPresentRef.current?.(null);
         return { cleared: true };
       }
-      if (args.root === undefined && !args.ops?.length) return { error: "Send root to render a tree, ops to patch it, or root: null to clear." };
-      let tree = args.root ?? specRef.current;
+      let root = args.root;
+      if (typeof args.program === "string" && root === undefined) {
+        const parsed = libraryRef.current.parse(args.program);
+        const errors = parsed.errors.filter((e) => e.severity === "error");
+        if (!parsed.root || errors.length) return { error: "Invalid program.", issues: parsed.errors.map((e) => ({ path: `line ${e.line}`, message: e.message })) };
+        root = parsed.root as UISpec;
+      }
+      if (root === undefined && !args.ops?.length) return { error: "Send program or root to render, ops to patch, or root: null to clear." };
+      let tree = root ?? specRef.current;
       if (!tree) return { error: "Nothing is presented yet; send root first." };
-      const draft = createUiStore(args.root ? (args.ui ?? {}) : store.get());
+      const draft = createUiStore(root ? (args.ui ?? {}) : store.get());
       try {
         if (args.ops?.length) {
           const patched = applyOps(tree, args.ops);
@@ -301,10 +322,10 @@ export function AgentSurface({
         tools: new Set(callableRef.current.keys()),
       });
       if (!result.ok) return { error: "Invalid UI spec.", issues: result.issues };
-      const title = args.title ?? (args.root ? undefined : state.title);
+      const title = args.title ?? (root ? undefined : state.title);
       store.replace(draft.get());
       setError(null);
-      setState({ spec: result.spec, title, at: args.root ? Date.now() : state.at });
+      setState({ spec: result.spec, title, at: root ? Date.now() : state.at });
       onPresentRef.current?.(result.spec, title);
       return { rendered: true, nodes: result.nodes };
     },
@@ -365,6 +386,11 @@ export function AgentSurface({
         for (const raw of actions) {
           // Resolve each action against state as it is now, so later actions see earlier writes.
           const action = interpolate<UIAction>(raw, { value }, { data: dataRef.current, ui: store.get() });
+          if (action.type === "message") {
+            if (!onMessageRef.current) return fail("Nothing is listening for messages here.", node);
+            onMessageRef.current(action.text, node);
+            continue;
+          }
           if (action.type !== "tool") {
             try {
               store.dispatch(action as StateAction);
