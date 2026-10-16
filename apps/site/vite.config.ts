@@ -24,6 +24,7 @@ export default defineConfig(({ command }) => ({
             { find: "@agentable-ui/ui/styles.css", replacement: src("ui", "styles.css") },
             { find: "@agentable-ui/ui", replacement: src("ui") },
             { find: "@agentable-ui/genui", replacement: src("genui", "index.tsx") },
+            { find: "@agentable-ui/lang", replacement: src("lang") },
           ]
         : [],
   },
