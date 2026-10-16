@@ -158,11 +158,13 @@ export interface ProgressProps {
   max?: number;
 }
 export function Progress({ label, value, max = 100 }: ProgressProps) {
-  const pct = Math.max(0, Math.min(100, (value / max) * 100));
+  // A bound value may not exist yet (ui.* starts empty); show 0 rather than NaN.
+  const v = typeof value === "number" && Number.isFinite(value) ? value : 0;
+  const pct = max > 0 ? Math.max(0, Math.min(100, (v / max) * 100)) : 0;
   return (
     <div data-agentable-progress="">
       {label ? <span>{label}</span> : null}
-      <progress value={value} max={max} aria-label={label} />
+      <progress value={v} max={max} aria-label={label} />
       <span>{Math.round(pct)}%</span>
     </div>
   );

@@ -13,6 +13,7 @@
     "@agentable-ui/core": "workspace:^",
     "@agentable-ui/devtools": "workspace:^",
     "@agentable-ui/genui": "workspace:^",
+    "@agentable-ui/lang": "workspace:^",
     "@agentable-ui/react": "workspace:^",
     "@agentable-ui/ui": "workspace:^",
     "react": "^19.2.8",
