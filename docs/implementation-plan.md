@@ -1,6 +1,6 @@
-# Agentable — Implementation Plan
+# Agentable — Original implementation plan
 
-A component library that registers itself with the agent.
+> **Historical design document (4 September 2026).** This records the original proposal, assumptions, and milestones. It is not the current API or browser-support reference. Start with the [README](../README.md), [package guides](../packages/ui/README.md), and the [tested conformance report](../conformance/REPORT.md). Platform dates, benchmarks, package counts, and proposed APIs below describe the plan at the time.
 
 > Research current to **4 Sep 2026**. Published version: https://claude.ai/code/artifact/fe9a5021-b9ac-4137-84b2-8ae740f62208
 

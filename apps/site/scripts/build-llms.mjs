@@ -11,6 +11,7 @@ const readme = (pkg) =>
   readFileSync(new URL(`packages/${pkg}/README.md`, root), "utf8")
     // Relative links between packages only work on GitHub; point them at npm.
     .replace(/\]\(\.\.\/(\w+)\)/g, (_, p) => `](${npm(p)})`)
+    .replace(/\]\(\.\.\/\.\.\/([^)]+)\)/g, (_, path) => `](https://github.com/harsh071/agentable-ui/blob/master/${path})`)
     // Nest each README one level under "Package reference".
     .replace(/^(#{1,5}) /gm, "#$1 ")
     .trim();

@@ -1,22 +1,28 @@
 # @agentable-ui/core
 
-Framework-free WebMCP capability registry: tiers, budgeter, cache, output shaper, adapters.
+A framework-free registry for tools that agents can call. It manages which tools are available, validates inputs, asks for confirmation, and shapes results. No React or runtime dependencies.
 
-Knows nothing about React, and nothing about WebMCP beyond a single adapter file. Zero dependencies.
+## Install
 
 ```bash
 npm install @agentable-ui/core
 ```
 
-## Usage
+## Declare your first tool
+
+This example uses plain JSON Schema; a validator library is optional.
 
 ```ts
 import { createAgentable, webmcpAdapter } from "@agentable-ui/core";
 
+const orders = [
+  { id: "ORD-1001", status: "paid" },
+  { id: "ORD-1002", status: "pending" },
+];
 const agentable = createAgentable({
   budget: 12,
   adapters: [webmcpAdapter()],
-  confirm: async (req) => window.confirm(req.message),
+  confirm: async (request) => window.confirm(request.message),
 });
 
 const handle = agentable.declare({
@@ -24,44 +30,86 @@ const handle = agentable.declare({
   group: "orders",
   tool: {
     name: "query_orders",
-    description: "Filter and sort the orders table.",
-    inputSchema: z.object({ status: z.string().optional() }),
+    description: "Return orders, optionally filtered by status.",
+    inputSchema: {
+      type: "object",
+      properties: { status: { type: "string" } },
+    },
     annotations: { readOnlyHint: true },
-    execute: (args) => search(args),
+    execute: (args) => {
+      const { status } = args as { status?: string };
+      return orders.filter((order) => !status || order.status === status);
+    },
   },
 });
 
-handle.release(); // unregisters
+// When this feature is removed:
+handle.release();
+// When the whole application is removed:
+agentable.dispose();
 ```
 
-## What it does
+The WebMCP adapter registers tools when a compatible browser API is available. For React apps, use [AgentableProvider](../react), which also supplies a confirmation dialog.
 
-**Budget.** A hard cap on tools visible to the agent at any moment. Tier 0 is resident, tier 1 is indexed by a `list_capabilities` meta tool and loadable via `open_capability`, tier 2 is dormant. Eviction order: priority desc → most recently opened → declared tier → most recently declared.
+## Availability and the tool budget
 
-**Fan-in.** Capabilities sharing a `fanIn` bucket collapse into one tool with an `action` enum, so eight buttons cost one tool.
+The budget limits **resident tools**, including discovery tools. It defaults to 12.
 
-**Schemas.** `inputSchema` accepts a JSON Schema object or any [Standard Schema](https://standardschema.dev) validator (zod 4, valibot 1) via `~standard.jsonSchema`. Nothing is bundled; `setSchemaConverter` plugs in anything else. The library validates every call, because the browser does not.
+| Tier | Meaning |
+|---|---|
+| `0` | Preferred for residency, subject to the budget. |
+| `1` | Discoverable with `list_capabilities`, then loaded using `open_capability`. |
+| `2` | Dormant; application code must promote it. |
 
-**Output.** `shape()` projects fields, paginates by cursor, and hard-truncates to a character cap. Chrome enforces none of this.
+Use `group` to load related capabilities together and `priority` to decide what stays when space is limited. A higher priority wins; recency and declared tier break ties. Tier 0 does not guarantee residency.
 
-**Cache.** TTL and tag-based, on by default for read-only tools, invalidated by `invalidates` after a successful mutation.
+Capabilities in the same `fanIn` bucket share a tool with an `action` enum. This is how [ActionBar](../ui) presents a row of actions as one tool.
 
-**Confirmation.** Tools default to consequential unless `annotations.readOnlyHint` is set. A consequential call goes through the `confirm` handler first; a decline returns a structured `{"error": "...", "declined": true}` string rather than throwing, because thrown errors reach the agent as an opaque `UnknownError`. With no `confirm` handler, consequential calls are declined (fail closed); pass `confirm: false` to run them unconfirmed on purpose.
+## Inputs and results
+
+`inputSchema` accepts JSON Schema or a Standard Schema validator with JSON Schema conversion support. The library performs validation before calling `execute`; browser validation is not assumed. `setSchemaConverter` supports other conversion strategies.
+
+Results pass through `tool.output`:
+
+```ts
+output: {
+  project: ["id", "status"],
+  paginate: { pageSize: 20 },
+  maxChars: 1500,
+}
+```
+
+`project` keeps selected fields. Pagination supplies a cursor for the next result page. The character cap bounds returned text; inspect `has_more` and pagination metadata when consuming results.
+
+## Caching
+
+Read-only tools cache results by canonical input arguments, with a default TTL of 30 seconds. Override with `cache: { ttl, tags }`, or disable with `cache: false`. Successful calls with `invalidates: ["orders"]` clear matching tags.
+
+A cache hit skips `execute`. Disable caching when a call must also update visible UI or read state that changes outside tagged mutations. Human interactions do not automatically invalidate registry caches.
+
+## Confirmation
+
+Tools are consequential by default unless annotations or an explicit `confirm` override say otherwise. Consequential calls use the configured confirmation handler before execution.
+
+- `tool.confirm: "Archive this order?"` sets a custom prompt.
+- `tool.confirm: false` skips confirmation for that tool.
+- Without a registry confirmation handler, consequential calls are declined.
+- `createAgentable({ confirm: false })` explicitly disables confirmation globally.
+
+A declined call returns structured error text with `declined: true`. Execution failures are returned as structured error text rather than exposing a thrown browser error. Confirmation is a user interaction policy; it does not replace your application's authorization checks.
 
 ## Adapters
 
-```ts
-import { webmcpAdapter, findModelContext } from "@agentable-ui/core/adapters/webmcp";
-import { memoryAdapter } from "@agentable-ui/core/adapters/memory";
-import { bridgeAdapter } from "@agentable-ui/core/adapters/bridge";
-```
+| Import | Purpose |
+|---|---|
+| `@agentable-ui/core/adapters/webmcp` | `webmcpAdapter`, `findModelContext`: browser integration. Prefers `document.modelContext`, with legacy fallbacks. |
+| `@agentable-ui/core/adapters/memory` | `memoryAdapter`: normalized tools for local invocation and tests. |
+| `@agentable-ui/core/adapters/bridge` | `bridgeAdapter`: postMessage transport for extensions and iframes. |
 
-- `webmcpAdapter()` — `document.modelContext`. Defers unregistration until in-flight executions settle, because Chrome rejects a pending `executeTool()` when its tool disappears mid-flight.
-- `memoryAdapter()` — the normalized tool list without a browser. Used by devtools and tests.
-- `bridgeAdapter()` — `postMessage` transport for extensions and iframes.
+The WebMCP adapter waits for in-flight executions before unregistering a tool, preserving compatibility with older browser behavior. See the repository's [conformance report](../../conformance/REPORT.md) for the tested Chrome version.
 
-## Also exported
+## Other exports
 
-`applyBudget`, `ToolCache`, `shape`, `project`, `hardTruncate`, `encodeCursor`/`decodeCursor`, `toJsonSchema`, `validateInput`, `checkLimits`, `estimateTokens`, `inferAnnotations`, `errorText`, `defineCapability`.
+`applyBudget`, `ToolCache`, `shape`, `project`, `hardTruncate`, `encodeCursor`, `decodeCursor`, `toJsonSchema`, `validateInput`, `checkLimits`, `estimateTokens`, `inferAnnotations`, `errorText`, and `defineCapability` are available for lower-level integrations.
 
-MIT
+MIT licensed.
