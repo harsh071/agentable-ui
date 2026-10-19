@@ -1,6 +1,6 @@
 # Agentable
 
-> React components that expose themselves to AI agents as WebMCP tools, with a budget that keeps the agent's tool list small (12 by default). Published on npm as `@agentable-ui/*`, version 0.1.0, MIT.
+> One UI library that people and AI agents can both use: a person sees a table they can sort, an agent sees a tool it can call (WebMCP), and models can also generate screens from the same components. A budget keeps the agent's tool list small (12 by default). Published on npm as `@agentable-ui/*`, version 0.1.0, MIT.
 
 The docs site renders its pages client-side, so fetching them returns an empty page. This file and `/llms-full.txt` hold the same material as plain text.
 
