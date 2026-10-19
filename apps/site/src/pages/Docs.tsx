@@ -1,5 +1,6 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { useTool } from "@agentable-ui/react";
+import { Home } from "./Home.js";
 
 interface Doc {
   id: string;
@@ -15,59 +16,10 @@ const DOCS: Doc[] = [
   {
     id: "intro",
     group: "Start here",
-    title: "What is Agentable?",
-    summary: "React components that AI assistants can use directly.",
-    text: "Agentable is a set of React components (tables, forms, buttons, tabs) that AI assistants can use directly. Add one agent prop and the component tells the assistant what it can do, for example search orders or create invoice, instead of the assistant guessing which button to click. It uses WebMCP, a new browser feature. It keeps the list of tools short (12 at most by default) and asks the user before anything risky. Next: quick start.",
-    body: (
-      <>
-        <div className="hero">
-          <h1>Components that AI assistants can use.</h1>
-          <p className="lede">
-            Agentable is a React component library. Add one <code>agent</code> prop to a table, form or button, and an AI assistant in the browser can use it directly instead of guessing where to click.
-          </p>
-          <div className="row">
-            <a className="cta" href="#/docs/quickstart">
-              Get started in 5 minutes
-            </a>
-            <a className="cta secondary" href="#/demo">
-              See the demo
-            </a>
-          </div>
-        </div>
-        <h2>The whole idea in one picture</h2>
-        <div className="steps">
-          <div className="card">
-            <b>1. You write</b>
-            <pre>{`<DataTable rows={orders}
-  agent={{ name: "search_orders" }} />`}</pre>
-          </div>
-          <div className="card">
-            <b>2. The assistant sees</b>
-            <pre>{`search_orders(query?, sort?, filter?)
-"Search the orders table."`}</pre>
-          </div>
-          <div className="card">
-            <b>3. The user says</b>
-            <p className="muted">"Show me unpaid orders from Europe." The assistant calls the tool and the table updates on screen.</p>
-          </div>
-        </div>
-        <h2>Three things to know</h2>
-        <ul>
-          <li>
-            <b>It's opt-in.</b> No <code>agent</code> prop means a normal component.
-          </li>
-          <li>
-            <b>It asks before anything risky.</b> Submitting a form or refunding an order pops up "Allow?" for the user first.
-          </li>
-          <li>
-            <b>It keeps the list short.</b> Assistants get worse with too many tools, so at most 12 are shown at once. The rest are one step away.
-          </li>
-        </ul>
-        <div className="callout">
-          <b>Heads up:</b> this uses <b>WebMCP</b>, a new browser feature that is still experimental (Chrome only, behind a flag). You can build and test everything today without it, using the built-in devtools. See <a href="#/docs/see-it-work">See it working</a>.
-        </div>
-      </>
-    ),
+    title: "Overview",
+    summary: "One UI library that both people and AI agents can use.",
+    text: "Agentable is a set of React components that work both ways: a person sees a table they can sort, an AI agent sees a tool it can call. Same component, one extra prop. It works in two directions. One, agents use your UI: add an agent prop to a table, form or button and an assistant can use it in the page the person is looking at; anything risky asks the person first. Two, agents build UI from your components: a model writes a short program (name = Component(args), one line each) and your components render it as it streams, so generated screens look like your product. Three things to know: it is opt-in (no agent prop means a normal component), it asks first before consequential actions, and it keeps the agent's tool list short (12 at most by default). Part of Interfaces for Humans: Agentable gives the components, Agentable Studio generates apps from them, RUI checks what a generated screen really does. Next: quick start.",
+    body: <Home />,
   },
   {
     id: "quickstart",
@@ -144,6 +96,7 @@ const columns = [
           For anything that isn't a component, use <code>useTool</code> in any component inside the provider.
         </p>
         <pre>{`import { useTool } from "@agentable-ui/react";
+import { Home } from "./Home.js";
 
 function Cart() {
   useTool({
@@ -305,7 +258,7 @@ agent={{ name: "search_orders", project: ["id", "status"] }}  // only send these
   {
     id: "faq",
     group: "Start here",
-    title: "FAQ & troubleshooting",
+    title: "FAQ",
     summary: "WebMCP off, missing tools, budget warnings, words explained.",
     text: "FAQ. The header says WebMCP not enabled: normal, your browser lacks the flag, devtools still work. My tool doesn't show up: is the component inside AgentableProvider, is it mounted, is it tier 1 or evicted by the budget; check devtools Capabilities tab. Console warning Budget (12) exceeded: more tier-0 tools than the limit; raise priority, set tier 1, use ActionBar fan-in, or raise budget. Tool call hangs in tests: consequential tools wait for confirmation; mark readOnlyHint or pass confirm. Do I need Next.js: no, any React. Glossary: agent or assistant, tool, WebMCP, budget, resident, tier, group, fan-in, consequential.",
     body: (
@@ -420,7 +373,7 @@ agent={{ name: "search_orders", project: ["id", "status"] }}  // only send these
   {
     id: "plain-english",
     group: "Start here",
-    title: "How it works (plain English)",
+    title: "How it works",
     summary: "What this is, why it helps, and what does and does not work today.",
     text: "Plain English explainer. AI agents today use websites like a person squinting at a screenshot: they guess which button to click. WebMCP lets a website hand the agent a menu of actions (tools) such as search orders or refund order, with exact inputs. Agentable is React components that come with that menu built in: add one agent prop. Too many tools confuse agents, so Agentable shows at most 12 at a time and keeps the rest one step away. Consequential actions ask the user first. Does it work: unit tests and a real-Chrome conformance suite pass; WebMCP itself is experimental and behind a Chrome flag; few agents call WebMCP tools yet; the accuracy benefit of the budget is based on published observations, not our own benchmark. For AI assistants: /llms.txt and /llms-full.txt.",
     body: (
@@ -530,8 +483,8 @@ agent={{ name: "search_orders", project: ["id", "status"] }}  // only send these
   },
   {
     id: "problem",
-    group: "Concepts",
-    title: "Why budget tools",
+    group: "Learn",
+    title: "Why a tool budget",
     summary: "A component library is a tool-count bomb unless something manages the surface.",
     text: "Auto-registration is the obvious feature and the obvious trap. A table registers query sort filter, a form registers submit, a dialog registers open close. A dashboard with 40 agent-enabled components pushes 120 tool schemas, roughly 24K tokens, into the agent's context. Tool-selection accuracy degrades around 20 concurrent tools. Agentable keeps at most 12 resident: naive ~120 tools ~24K tokens, route scoped ~35 tools ~7K tokens, agentable tier 0 resident <= 12 tools ~2K tokens.",
     body: (
@@ -580,7 +533,7 @@ agent={{ name: "search_orders", project: ["id", "status"] }}  // only send these
   },
   {
     id: "mechanisms",
-    group: "Concepts",
+    group: "Learn",
     title: "Six mechanisms",
     summary: "Scope, tier gate, fan-in, cache, shape, budget.",
     text: "Scope: only mounted components register; ToolScope uses an IntersectionObserver to demote long-offscreen groups to tier 1. Tier gate: tier 0 always exposed; list_capabilities and open_capability unlock groups. Fan-in: N sibling tools collapse into one with an action enum. Cache: read-only tools memoize on canonical args with TTL and tag invalidation. Shape: output is projected, paginated with a cursor, then hard-truncated at 1500 characters with has_more. Budget: a hard cap on resident tools, default 12, evicts lowest priority to tier 1 with a warning naming both tools.",
@@ -1097,6 +1050,8 @@ export function DocsPage({ route, navigate }: { route: string; navigate: (to: st
 
   const results = search(query);
   const groups = [...new Set(DOCS.map((d) => d.group))];
+
+  if (doc.id === "intro") return doc.body;
 
   return (
     <div className="docs">

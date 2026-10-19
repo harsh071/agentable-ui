@@ -8,7 +8,8 @@ import { DemoPage } from "./pages/Demo.js";
 import { PlaygroundPage } from "./pages/Playground.js";
 
 const NAV = [
-  { href: "#/", label: "Docs", describe: "Documentation, getting started, package reference" },
+  { href: "#/", label: "Home", describe: "What Agentable is: one UI library for people and AI agents" },
+  { href: "#/docs/quickstart", label: "Docs", describe: "Quick start, guides, package reference" },
   { href: "#/demo", label: "Demo", describe: "Orders dashboard built with @agentable-ui/ui" },
   { href: "#/playground", label: "Playground", describe: "Generative UI surface and tool console" },
   { href: "https://studio.interfacesforhuman.com", label: "Studio", external: true, agentHidden: true },
@@ -28,10 +29,17 @@ export function App() {
 function Shell() {
   const [route, navigate] = useRoute();
   useEffect(() => {
-    document.title = route.startsWith("/demo") ? "Demo · Agentable" : route.startsWith("/playground") ? "Playground · Agentable" : "Agentable";
+    window.scrollTo(0, 0);
+    document.title = route.startsWith("/demo")
+      ? "Demo · Agentable"
+      : route.startsWith("/playground")
+        ? "Playground · Agentable"
+        : route.startsWith("/docs/")
+          ? "Docs · Agentable"
+          : "Agentable: one UI library for people and AI";
   }, [route]);
 
-  const current = route.startsWith("/demo") ? "#/demo" : route.startsWith("/playground") ? "#/playground" : "#/";
+  const current = route.startsWith("/demo") ? "#/demo" : route.startsWith("/playground") ? "#/playground" : route.startsWith("/docs/") ? "#/docs/quickstart" : "#/";
 
   return (
     <div className="shell">
