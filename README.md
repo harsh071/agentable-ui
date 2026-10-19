@@ -55,7 +55,7 @@ A real dashboard has hundreds of possible actions. Agents degrade badly past a f
 
 Capabilities are grouped, prioritised, and evicted by a budgeter (priority desc → most recently opened → declared tier → most recently declared). Fan-in collapses many related actions into one tool with an `action` enum. Output is shaped, paginated by cursor, and hard-truncated, because the browser enforces none of that.
 
-The demo declares 19 capabilities and holds 12 resident, at about 1,300 tokens of context (~110 per tool).
+The demo keeps at most 12 tools resident. Open the agent panel to inspect the current capability count and estimated context cost.
 
 ## Getting started
 
@@ -84,7 +84,7 @@ pnpm test:conformance
 pnpm conformance:report   # writes conformance/REPORT.md
 ```
 
-[`conformance/REPORT.md`](conformance/REPORT.md) is the red/green record of what Chrome actually does, including where it diverges from the spec draft (`document.modelContext` only; input must be a JSON string; no schema validation; no output truncation; thrown errors collapse to `UnknownError`).
+[`conformance/REPORT.md`](conformance/REPORT.md) is the red/green record of what Chrome actually does, including where it diverges from the spec draft (`document.modelContext` only; input is an object; no schema validation; no output truncation; thrown errors collapse to `UnknownError`).
 
 ## Design notes
 

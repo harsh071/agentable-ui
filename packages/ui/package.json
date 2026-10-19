@@ -4,7 +4,7 @@
   "description": "Headless, agent-callable React components: Form, DataTable, Combobox, ActionBar, Dialog, Tabs, Nav, Filters, Pagination, Toast.",
   "license": "MIT",
   "type": "module",
-  "sideEffects": false,
+  "sideEffects": ["**/*.css"],
   "files": ["dist", "README.md"],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

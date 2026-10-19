@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import type { JSONSchema } from "@agentable-ui/core";
 import { useAgentCapability } from "./useAgentCapability.js";
 import type { AgentProp } from "./types.js";
@@ -29,6 +29,7 @@ export interface FiltersProps {
  * page with nine filters still costs one schema.
  */
 export function Filters({ filters, value: controlled, defaultValue, onChange, agent, noun = "results", className, showReset = true }: FiltersProps) {
+  const instanceId = useId();
   const [inner, setInner] = useState<FilterValues>(defaultValue ?? {});
   const value = controlled ?? inner;
   const valueRef = useRef(value);
@@ -48,6 +49,7 @@ export function Filters({ filters, value: controlled, defaultValue, onChange, ag
   const set = (id: string, v: unknown) => {
     const next = { ...value };
     if (v === undefined || v === "" || v === null) delete next[id];
+    else if (typeof v === "object" && Object.values(v as object).every((bound) => bound === undefined)) delete next[id];
     else next[id] = v;
     setValue(next);
   };
@@ -115,7 +117,7 @@ export function Filters({ filters, value: controlled, defaultValue, onChange, ag
     <div role="group" aria-label="Filters" className={className} data-agentable-filters="" data-agent={agent?.name} data-agent-active={agentActive ? "" : undefined}>
       {filters.map((f) => {
         const v = value[f.id];
-        const id = `filter-${f.id}`;
+        const id = `${instanceId}-filter-${f.id}`;
         return (
           <div key={f.id} data-agentable-filter={f.id} data-active={v !== undefined ? "" : undefined}>
             <label htmlFor={id} data-agentable-label="">
@@ -153,10 +155,10 @@ export function Filters({ filters, value: controlled, defaultValue, onChange, ag
 }
 
 /** Apply filter values to rows using plain field comparisons. Handy for demos and simple pages. */
-export function applyFilters<Row extends Record<string, unknown>>(rows: Row[], values: FilterValues): Row[] {
+export function applyFilters<Row extends object>(rows: Row[], values: FilterValues): Row[] {
   return rows.filter((row) =>
     Object.entries(values).every(([k, v]) => {
-      const cell = row[k];
+      const cell = (row as Record<string, unknown>)[k];
       if (v === undefined || v === "") return true;
       if (typeof v === "boolean") return Boolean(cell) === v;
       if (v && typeof v === "object") {

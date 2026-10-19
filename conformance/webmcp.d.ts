@@ -18,7 +18,7 @@ interface RegisteredTool {
 interface ModelContext extends EventTarget {
   registerTool(tool: ModelContextTool, options?: { signal?: AbortSignal; exposedTo?: string[] }): Promise<void>;
   getTools(options?: object): Promise<RegisteredTool[]>;
-  executeTool(tool: RegisteredTool, input: string): Promise<string>;
+  executeTool(tool: RegisteredTool, input: Record<string, unknown>): Promise<string>;
   ontoolchange: ((e: Event) => void) | null;
 }
 interface Document {

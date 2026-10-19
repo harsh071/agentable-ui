@@ -50,15 +50,15 @@ test("phase 01 gate: 120 declared capabilities resolve to <= 12 tools in getTool
     const tools = await mc.getTools();
     const names = tools.map((t) => t.name).sort();
     const list = tools.find((t) => t.name === "list_capabilities")!;
-    const index = await mc.executeTool(list, "{}");
+    const index = await mc.executeTool(list, {});
     const open = tools.find((t) => t.name === "open_capability")!;
-    const opened = await mc.executeTool(open, JSON.stringify({ group: "g7" }));
+    const opened = await mc.executeTool(open, { group: "g7" });
     await new Promise((r) => setTimeout(r, 30));
     const after = (await mc.getTools()).map((t) => t.name).sort();
     const g7 = (await mc.getTools()).find((t) => t.name === "g7_c0")!;
-    const executed = await mc.executeTool(g7, JSON.stringify({ q: "hello" }));
-    const cached = await mc.executeTool(g7, JSON.stringify({ q: "hello" }));
-    const invalid = await mc.executeTool(g7, JSON.stringify({ q: 5 }));
+    const executed = await mc.executeTool(g7, { q: "hello" });
+    const cached = await mc.executeTool(g7, { q: "hello" });
+    const invalid = await mc.executeTool(g7, { q: 5 });
     return { declared: ag.snapshot().capabilities.length, count: tools.length, names, index, opened, afterCount: after.length, after, executed, cached, invalid, changes, warnings: warnings.length, tokens: ag.snapshot().estimatedTokens };
   });
 

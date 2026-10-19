@@ -970,3 +970,48 @@
 [data-agentable-keyvalue] dt {
   font-size: 12.5px;
 }
+
+/* Shared control treatment. Theme through --ag-* tokens; override data hooks. */
+[data-agentable-button] {
+  min-height: 36px;
+  justify-content: center;
+  border-radius: var(--ag-radius);
+  transition: background-color 140ms, border-color 140ms, box-shadow 140ms;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 4%);
+}
+[data-agentable-button][data-size="sm"] { min-height: 30px; padding: 5px 10px; font-size: 12px; }
+[data-agentable-button][data-size="lg"] { min-height: 44px; padding: 11px 18px; }
+[data-agentable-button="ghost"] { border-color: transparent; background: transparent; box-shadow: none; }
+[data-agentable-button]:focus-visible,
+[data-agentable-tab]:focus-visible,
+[data-agentable-sort]:focus-visible,
+[data-agentable-navlink]:focus-visible {
+  outline: 2px solid var(--ag-accent);
+  outline-offset: 3px;
+}
+[data-agentable-input], [data-agentable-field] select {
+  min-height: 38px;
+  transition: border-color 140ms, box-shadow 140ms;
+}
+[data-agentable-table] input[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--ag-accent); cursor: pointer; }
+[data-agentable-table] td { padding-top: 13px; padding-bottom: 13px; font-variant-numeric: tabular-nums; }
+[data-agentable-table] thead th { text-transform: none; letter-spacing: 0; font-size: 12px; }
+[data-agentable-table] [data-agentable-empty] { padding: 48px 16px; text-align: center; }
+[data-agentable-tab] { font-weight: 500; transition: color 140ms, border-color 140ms; }
+[data-agentable-tab]:disabled { opacity: .45; cursor: not-allowed; }
+[data-agentable-filter] { min-width: 0; flex: 1 1 140px; }
+[data-agentable-range] > input { min-width: 0; width: 100%; }
+@media (prefers-reduced-motion: reduce) {
+  [data-agentable-button], [data-agentable-input], [data-agentable-tab] { transition: none; }
+  [data-agentable-button][data-busy]::after { animation: none; }
+}
+[data-agentable-field][data-type="boolean"] input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  min-height: 0;
+  flex: 0 0 16px;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--ag-accent);
+  box-shadow: none;
+}

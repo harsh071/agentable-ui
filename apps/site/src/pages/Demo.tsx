@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { ToolScope, useTool } from "@agentable-ui/react";
-import { ActionBar, Combobox, DataTable, Dialog, Field, Filters, Form, Pagination, Tabs, applyFilters, toast, type Column, type FilterValues } from "@agentable-ui/ui";
+import { ActionBar, Button, Stat, StatGroup, Combobox, DataTable, Dialog, Field, Filters, Form, Pagination, Tabs, applyQuery, applyFilters, toast, type Column, type TableQuery, type FilterValues } from "@agentable-ui/ui";
 import { customers, integrations, makeOrders, type Order } from "../data.js";
 
 const money = (n: number) => n.toLocaleString(undefined, { style: "currency", currency: "USD" });
@@ -12,13 +12,13 @@ export function DemoPage() {
   const [invoiceOpen, setInvoiceOpen] = useState(false);
   const [customer, setCustomer] = useState<string | null>(null);
   const [page, setPage] = useState(1);
+  const [query, setQuery] = useState<TableQuery>({});
 
-  const filtered = useMemo(() => applyFilters(orders as unknown as Record<string, unknown>[], filters) as unknown as Order[], [orders, filters]);
+  const filtered = useMemo(() => applyFilters(orders, filters), [orders, filters]);
 
   const columns: Column<Order>[] = [
     { key: "id", header: "Order", describe: "order id" },
-    { key: "customer", header: "Customer" },
-    { key: "email", header: "Email", agentHidden: true },
+    { key: "customer", header: "Customer", render: (o) => <div className="customer-cell"><span className="customer-avatar" aria-hidden="true">{o.customer.split(" ").map((part) => part[0]).slice(0, 2).join("")}</span><span>{o.customer}<small>{o.email}</small></span></div> },
     { key: "total", header: "Total", align: "right", render: (o) => money(o.total), describe: "USD" },
     { key: "status", header: "Status", render: (o) => <span className="status-badge" data-status={o.status}>{o.status}</span> },
     { key: "region", header: "Region" },
@@ -43,7 +43,6 @@ export function DemoPage() {
     group: "orders",
     description: "Totals for the orders dashboard: revenue, order count, pending and refunded counts.",
     annotations: { readOnlyHint: true },
-    cache: { ttl: 10_000, tags: ["orders"] },
     execute: () => ({ ...stats, revenue: Math.round(stats.revenue * 100) / 100 }),
   });
 
@@ -51,21 +50,9 @@ export function DemoPage() {
     <div className="dash">
       <div className="dash-header">
         <div>
+          <span className="demo-eyebrow">WORKSPACE / OVERVIEW</span>
           <h1>Orders dashboard</h1>
-          <p className="muted">
-            A normal-looking dashboard where every component is also usable by an AI assistant. The page declares over a hundred tools, but only twelve or fewer are live at once (see the counter top right).
-          </p>
-          <ol className="try">
-            <li>
-              Press <kbd>Alt</kbd>+<kbd>A</kbd> to open the agent panel.
-            </li>
-            <li>
-              Go to <b>Console</b>, pick <code>query_orders</code>, and send <code>{`{"query": "Ada"}`}</code>. The table filters itself.
-            </li>
-            <li>
-              Try <code>run_order_action</code> with <code>{`{"action": "refund"}`}</code> after selecting a row: you'll be asked to allow it first.
-            </li>
-          </ol>
+          <p className="muted">Your orders, customers, and operations. One workspace for people and agents.</p>
         </div>
         <div className="row">
           <Dialog
@@ -75,9 +62,7 @@ export function DemoPage() {
             description="Invoices are sent to the customer's email on file."
             agent={{ name: "invoice_dialog", group: "billing" }}
             trigger={(open) => (
-              <button type="button" data-agentable-button="primary" onClick={open}>
-                New invoice
-              </button>
+              <Button variant="primary" onClick={open}><span aria-hidden="true">＋</span> New invoice</Button>
             )}
           >
             <Form
@@ -98,15 +83,29 @@ export function DemoPage() {
         </div>
       </div>
 
+      <StatGroup>
+        <Stat label="Collected revenue" value={money(stats.revenue)} delta="Paid & shipped orders" />
+        <Stat label="Total orders" value={stats.count} delta="Across all regions" />
+        <Stat label="Awaiting payment" value={stats.pending} delta="Pending orders" />
+        <Stat label="Refunded" value={stats.refunded} delta="Refunded orders" />
+      </StatGroup>
+
+      <details className="demo-guide">
+        <summary><span className="demo-live-dot" /> This dashboard is agent-ready <span>Try it yourself ↗</span></summary>
+        <ol className="try">
+          <li>Press <kbd>Alt</kbd>+<kbd>A</kbd> to open the agent panel.</li>
+          <li>In <b>Console</b>, call <code>query_orders</code> with <code>{`{"query":"Ada"}`}</code>. The table updates.</li>
+          <li>Select a row, then call <code>run_order_action</code> with <code>{`{"action":"refund"}`}</code> to preview confirmation.</li>
+        </ol>
+        <p className="muted">The registry keeps at most twelve tools live. Inspect the panel to see the full capability index.</p>
+      </details>
+
       <ToolScope group="orders" describe="Order list: query, filter, select, and act on orders" className="section">
         <h2>Orders</h2>
-        <p className="muted">One query tool for the whole table, one fan-in tool for eight actions, one tool for six filters.</p>
+        <p className="muted">Track orders, narrow your results, and take action on a selection.</p>
         <Filters
           value={filters}
-          onChange={(v) => {
-            setFilters(v);
-            setPage(1);
-          }}
+          onChange={setFilters}
           noun="orders"
           agent={{ name: "set_order_filters" }}
           filters={[
@@ -118,38 +117,45 @@ export function DemoPage() {
             { id: "placedAt", label: "Placed on", type: "date" },
           ]}
         />
-        <div style={{ height: 14 }} />
         <ActionBar
-          agent={{ name: "run_order_action", title: "Order actions", description: "Act on the selected orders (select them with the table's select tool first)." }}
+          agent={{ name: "run_order_action", invalidates: ["orders"], title: "Order actions", description: "Act on the selected orders (select them with the table's select tool first)." }}
           actions={[
             { id: "mark_paid", label: "Mark paid", describe: "Set selected orders to paid", onAction: () => update(selected, { status: "paid" }, "Marked paid"), disabled: !selected.length },
             { id: "ship", label: "Ship", describe: "Set selected orders to shipped", onAction: () => update(selected, { status: "shipped" }, "Shipped"), disabled: !selected.length },
             { id: "refund", label: "Refund", describe: "Refund selected orders", destructive: true, onAction: () => update(selected, { status: "refunded" }, "Refunded"), disabled: !selected.length },
             { id: "cancel", label: "Cancel", describe: "Cancel selected orders", destructive: true, onAction: () => update(selected, { status: "cancelled" }, "Cancelled"), disabled: !selected.length },
             { id: "resend_receipt", label: "Resend receipt", describe: "Email receipts for selected orders", onAction: () => { toast({ title: `Receipts sent for ${selected.length} orders` }); return { sent: selected }; }, disabled: !selected.length },
-            { id: "export_csv", label: "Export CSV", describe: "Download the filtered orders as CSV", onAction: () => { toast({ title: `Exported ${filtered.length} orders` }); return { rows: filtered.length }; } },
+            { id: "export_csv", label: "Export CSV", describe: "Download the filtered orders as CSV", onAction: () => {
+              // Export the same search, sort, and filters shown in the table.
+              const visible = applyQuery(filtered, columns, query, (column, row) => column.value ? column.value(row) : row[column.key as keyof Order]);
+              downloadOrders(visible);
+              toast({ title: `Exported ${visible.length} orders`, kind: "success" });
+              return { rows: visible.length };
+            } },
             { id: "clear_selection", label: "Clear selection", describe: "Deselect all orders", onAction: () => { setSelected([]); return { selected: [] }; }, disabled: !selected.length },
-            { id: "reset_filters", label: "Reset filters", describe: "Remove all filters", onAction: () => { setFilters({}); return { filters: {} }; } },
+            { id: "reset_filters", label: "Reset filters", describe: "Remove all filters", onAction: () => { setFilters({}); setQuery({}); return { filters: {} }; } },
           ]}
         />
-        <div style={{ height: 14 }} />
         <DataTable
           columns={columns}
+          query={query}
+          onQueryChange={setQuery}
+          emptyMessage="No orders match your search. Try clearing your filters."
           rows={filtered}
           noun="orders"
           selectable
           selected={selected}
           onSelectionChange={setSelected}
           pageSize={12}
-          agent={{ name: "query_orders", project: ["id", "customer", "total", "status", "region"], cache: { ttl: 30_000, tags: ["orders"] } }}
+          agent={{ name: "query_orders", project: ["id", "customer", "total", "status", "region"] }}
         />
       </ToolScope>
 
       <ToolScope group="customers" describe="Customer picker and account details" className="section">
         <h2>Customer</h2>
-        <p className="muted">A combobox exposes one tool that both searches and selects.</p>
+        <p className="muted">Find a customer account to view their details.</p>
         <div className="row">
-          <div style={{ width: 320 }}>
+          <div className="customer-picker">
             <Combobox label="Account" options={customers} value={customer} onChange={setCustomer} noun="customer" agent={{ name: "choose_customer" }} placeholder="Search customers..." />
           </div>
           {customer ? <span className="muted">Selected: {customers.find((c) => c.value === customer)?.label}</span> : null}
@@ -158,8 +164,9 @@ export function DemoPage() {
 
       <ToolScope group="settings" describe="Workspace settings: profile, notifications, and integrations" className="section">
         <h2>Settings</h2>
-        <p className="muted">Tabs unmount inactive panels, so only the visible tab's tools exist. The integrations tab declares sixty tier-1 tools that stay out of the way until opened.</p>
+        <p className="muted">Manage your workspace profile, notifications, and connected tools.</p>
         <Tabs
+          aria-label="Workspace settings"
           agent={{ name: "settings_tab" }}
           tabs={[
             {
@@ -195,11 +202,9 @@ export function DemoPage() {
         />
       </ToolScope>
 
-      <div className="tall-spacer">Scroll past this and watch the tool counter: sections that stay offscreen for five seconds step back (tier 1), and return instantly when you scroll up.</div>
-
       <ToolScope group="reports" describe="Reports archive with pagination" className="section">
         <h2>Reports</h2>
-        <p className="muted">Pagination exposes a single page tool.</p>
+        <p className="muted">Browse weekly revenue reports across your regions.</p>
         <ReportList page={page} onPageChange={setPage} />
       </ToolScope>
     </div>
@@ -250,4 +255,21 @@ function IntegrationCard({ name, enabled, onToggle }: { name: string; enabled: b
       </button>
     </div>
   );
+}
+
+function downloadOrders(orders: Order[]) {
+  const keys: (keyof Order)[] = ["id", "customer", "email", "total", "status", "region", "items", "placedAt"];
+  const escape = (value: unknown) => {
+    const text = String(value ?? "");
+    // Keep spreadsheet applications from interpreting customer data as formulas.
+    const safe = /^[=+@-]/.test(text) ? `'${text}` : text;
+    return `"${safe.replaceAll('"', '""')}"`;
+  };
+  const csv = [keys.join(","), ...orders.map((order) => keys.map((key) => escape(order[key])).join(","))].join("\r\n");
+  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "orders.csv";
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

@@ -75,3 +75,26 @@ Each component picks safe defaults: read-only components cache and skip confirma
 Also exported for reuse outside the components: `applyQuery`, `applyFilters`, `matchOptions`, `resolveOption`, `useAgentCapability`.
 
 MIT
+
+### Styled controls and native button props
+
+Import `@agentable-ui/ui/styles.css` once for the default light/dark theme. Override
+`--ag-*` CSS variables or the documented `data-agentable-*` hooks to match your app.
+Buttons accept native button props (including `ref`, `type`, `aria-*`, `className`,
+and `onClick`), rich children, a size, and a loading state:
+
+```tsx
+<Button variant="primary" size="lg" loading={saving} onClick={save}>
+  Save changes
+</Button>
+<Button variant="ghost" size="sm" aria-label="Close" onClick={close}>×</Button>
+```
+
+`loading` disables interaction and sets `aria-busy`. Existing `label` and `onPress`
+props continue to work for generated UI. `onClick` runs before `onPress`; calling
+`event.preventDefault()` cancels `onPress`. Variants are `default`, `primary`,
+`danger`, and `ghost`; sizes are `sm`, `md` (default), and `lg`.
+
+For tables, pass `getRowId` when records have no `id` and their source order can
+change. Selection stays stable through table search, sorting, and pagination.
+Avoid caching query tools when repeating a query must also reapply visible UI state.

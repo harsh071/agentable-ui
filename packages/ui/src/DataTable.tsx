@@ -72,9 +72,10 @@ export function DataTable<Row extends object>({
   caption,
   emptyMessage = "No rows.",
   className,
-  pageSize = 25,
+  pageSize: requestedPageSize = 25,
   noun = "rows",
 }: DataTableProps<Row>) {
+  const pageSize = Number.isFinite(requestedPageSize) ? Math.max(1, Math.floor(requestedPageSize)) : 25;
   const [inner, setInner] = useState<TableQuery>(defaultQuery ?? {});
   const query = controlled ?? inner;
   const [innerSelected, setInnerSelected] = useState<string[]>([]);
@@ -98,7 +99,12 @@ export function DataTable<Row extends object>({
     [controlledSelected, onSelectionChange],
   );
 
-  const rowId = useCallback((row: Row, i: number) => (getRowId ? getRowId(row, i) : "id" in row ? String((row as { id: unknown }).id) : String(i)), [getRowId]);
+  // Resolve index-based IDs against source rows, before filtering or sorting.
+  const sourceIndices = useMemo(() => new Map(rows.map((row, index) => [row, index])), [rows]);
+  const rowId = useCallback((row: Row, i: number) => {
+    const index = sourceIndices.get(row) ?? i;
+    return getRowId ? getRowId(row, index) : "id" in row ? String((row as { id: unknown }).id) : String(index);
+  }, [getRowId, sourceIndices]);
   const colValue = useCallback((col: Column<Row>, row: Row) => (col.value ? col.value(row) : (row as Record<string, unknown>)[col.key]), []);
 
   const visible = useMemo(() => applyQuery(rows, columns, query, colValue), [rows, columns, query, colValue]);
