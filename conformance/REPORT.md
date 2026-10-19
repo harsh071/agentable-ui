@@ -89,7 +89,7 @@ Red rows are facts about the platform that differ from the documented spec, or l
 | 🟢 | consequential action gated by confirm dialog | user decline returns declined:true | {"error":"The user declined this action.","declined":true} |
 | 🟢 | list_capabilities index | lists evicted/unloaded groups only | billing [1]: invoice_dialog \| page [1]: read_notifications |
 | 🟢 | dialog tool mounts form tool | create_invoice appears after invoice_dialog{open:true} | 12: choose_customer, create_invoice, get_dashboard_stats, invoice_dialog, list_capabilities, navigate, open_capability, query_orders, query_orders_select, reports_page, settings_tab, update_profile |
-| 🟢 | form fill + submit via confirm dialog | invoiceId returned, toast shown, dialog closed | {"invoiceId":"INV-6481"} |
+| 🟢 | form fill + submit via confirm dialog | invoiceId returned, toast shown, dialog closed | {"invoiceId":"INV-2388"} |
 | 🟢 | combobox select by label | Grace Hopper selected | {"selected":{"value":"cust_2","label":"Grace Hopper","description":"grace.hopper@example.com"}} |
 | 🟢 | read_notifications after actions | includes 'Invoice created' | ["Invoice created","Marked paid 3 orders"] |
 | 🟢 | phase 05 gate: agent drives the docs site | navigate + search_docs return results | ["faq","mechanisms"] |
@@ -106,3 +106,6 @@ Red rows are facts about the platform that differ from the documented spec, or l
 - 🟢 phase 04 gate: an agent completes a three-step task on the demo through real WebMCP
 - 🟢 demo supports search, real CSV export, and keyboard settings navigation
 - 🟢 demo fits mobile viewport without page overflow
+- 🟢 all documentation pages render and search indexes the actual examples
+- 🟢 code can be copied and section links work on direct loads
+- 🟢 mobile navigation and long reference content fit the viewport

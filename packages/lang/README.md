@@ -1,10 +1,12 @@
 # @agentable-ui/lang
 
-Agentable Lang: a compact, streaming-first language for model-generated UI. One node per line, rendered as it arrives, about half the tokens of the same tree as JSON. Framework-free; no model calls, no network.
+Parse, stream, and generate prompts for model-written UI programs. Each line names a component and its arguments. The package is framework-free and makes no model or network calls. Use [genui](../genui) to render the result.
 
 ```bash
 npm install @agentable-ui/lang @agentable-ui/core
 ```
+
+## Read a program
 
 ```txt
 root = Stack([stats, note])
@@ -14,6 +16,10 @@ orders = Stat("Orders", 140, "+12", "up")
 note = Callout("On track", "Ahead of target by 4%.", "success")
 ```
 
+## Parse or stream a response
+
+The built-in catalog comes from `@agentable-ui/ui`; install it separately if you use this example. `createLibrary` also accepts your own catalog, without React.
+
 ```ts
 import { createLibrary } from "@agentable-ui/lang";
 import { uiCatalog } from "@agentable-ui/ui";
@@ -21,17 +27,19 @@ import { uiCatalog } from "@agentable-ui/ui";
 const library = createLibrary(uiCatalog);
 const system = library.prompt({ tools: [{ name: "refund_order", description: "Refund a paid order." }] });
 
-// Server: send `system` with the user's message to any model and stream the text back.
-// Client: <Renderer components={uiCatalog} response={text} isStreaming /> from @agentable-ui/genui,
-// or parse it yourself:
-const sp = library.stream();
-for await (const chunk of modelStream) {
-  const { root, errors } = sp.push(chunk);
-}
-sp.push("", true); // done
+// Your application sends system with the user's message to a model.
+// Parse a finished response:
+const result = library.parse('root = Text("Hello")');
+console.log(result.root, result.errors);
+
+// Or feed successive chunks to the streaming parser:
+const parser = library.stream();
+parser.push('root = Text("Hel');
+parser.push('lo")\n');
+const finished = parser.push("", true); // flush the final partial line
 ```
 
-## The language
+## Syntax at a glance
 
 - One statement per line: `name = Component(args)`. The entry is `root`. Forward references are fine; the last definition of a name wins.
 - Arguments are positional in the component's declared prop order, or named: `Callout("On track", text: "Ahead by 4%.")`. `null` skips an optional positional argument.
@@ -44,7 +52,7 @@ sp.push("", true); // done
 
 A bad line is dropped with a structured error and the rest still renders. Unknown components, unknown arguments, excess arguments and bad action arguments are reported with codes (`unknown-component`, `unknown-arg`, `excess-args`, `bad-arg`, `missing-required`, `parse-failed`, `cycle`, `reused-node`, `no-root`) a host can feed back to the model.
 
-## API
+## API reference
 
 - `createLibrary(catalog, { root? })` — a catalog is `{ Name: { description, props, childrenProp?, events? } }`; `props` is JSON Schema or any Standard Schema (zod 4, valibot 1). The `uiCatalog` from `@agentable-ui/ui` works as is.
 - `library.prompt({ preamble?, rules?, examples?, tools?, data?, interactive? })` — the system prompt: rules, one signature line per component, tools, an example.
@@ -55,4 +63,10 @@ A bad line is dropped with a structured error and the rest still renders. Unknow
 
 The node tree it produces is the same `{ component, props, bind, on, when, children }` shape `@agentable-ui/genui` validates and renders, so a program and a JSON tree are interchangeable everywhere, including the `present` tool.
 
-MIT
+## Rendering and error handling
+
+Parsing returns a tree and structured errors; it does not execute application tools. Pass the accumulated program to `Renderer` from `@agentable-ui/genui` to display it. In Lang, `$event` is the event payload; the JSON tree representation uses `{{value}}`.
+
+Handle `errors` and `unresolved` separately. Forward references can remain unresolved while streaming. Pass `done: true` on the final push so the parser processes the final line even without a newline. Token figures are estimates, not a guaranteed reduction compared with JSON.
+
+MIT licensed.

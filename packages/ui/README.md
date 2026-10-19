@@ -1,100 +1,141 @@
 # @agentable-ui/ui
 
-Headless, agent-callable React components. Every component takes one `agent` prop and becomes a tool.
+React controls for people and agents, with an optional default theme. Add an `agent` prop to a supported control to declare its tools. Leave the prop off to use it as an ordinary component.
+
+## Install
 
 ```bash
 npm install @agentable-ui/ui @agentable-ui/react @agentable-ui/core
 ```
 
+## Start with a table
+
 ```tsx
 import { AgentableProvider } from "@agentable-ui/react";
-import { DataTable, ActionBar, Toaster } from "@agentable-ui/ui";
+import { DataTable } from "@agentable-ui/ui";
 import "@agentable-ui/ui/styles.css";
 
-<AgentableProvider budget={12}>
-  <DataTable
-    rows={orders}
-    columns={columns}
-    agent={{ name: "query_orders", project: ["id", "customer", "total", "status"], cache: { ttl: 30_000, tags: ["orders"] } }}
-  />
-  <ActionBar
-    agent={{ name: "run_order_action", title: "Order actions" }}
-    actions={[
-      { id: "mark_paid", label: "Mark paid", describe: "Set selected orders to paid", onAction: markPaid },
-      { id: "ship", label: "Ship", describe: "Set selected orders to shipped", onAction: ship },
-    ]}
-  />
-  <Toaster agent={{ name: "read_notifications", group: "page", tier: 1 }} />
-</AgentableProvider>;
-```
+const orders = [
+  { id: "ORD-1001", customer: "Ada Lovelace", total: 129 },
+  { id: "ORD-1002", customer: "Grace Hopper", total: 249 },
+];
+const columns = [
+  { key: "id", header: "Order" },
+  { key: "customer", header: "Customer" },
+  { key: "total", header: "Total" },
+];
 
-Omit the `agent` prop and the component is ordinary — no tool, no registry, no cost.
-
-## Components
-
-| Component | Tools it declares |
-|---|---|
-| `Form` + `Field` | One submit tool whose input schema is derived from the fields. |
-| `DataTable` | A query tool (filter, sort, project, paginate) and a select tool. |
-| `Combobox` | Select an option by label or value, ranked by exact, prefix, then substring match. |
-| `ActionBar` | Fan-in: many actions collapse into one tool with an `action` enum. |
-| `Dialog` | Open/close; tools inside it mount only while it is open. |
-| `Tabs`, `Nav` | Navigate by value or href. |
-| `Filters` | One tool for the whole filter set. |
-| `Pagination` | Page navigation. |
-| `Toaster` | `toast()` imperatively; the agent reads notifications back. |
-
-`uiCatalog` exports presentational primitives (`Text`, `Card`, `Stat`, `StatGroup`, `Callout`, `KeyValue`, `SimpleTable`, `List`, `Stack`, `Progress`) and interactive ones with events (`Button`, `TextInput`, `Select`, `Checkbox`, `RecordTable`) for use with [`@agentable-ui/genui`](../genui).
-
-## The `agent` prop
-
-```ts
-{
-  name: string;            // tool name, <= 30 chars
-  id?: string;             // capability id, defaults to `<component>.<name>`
-  description?: string;    // overrides the generated description
-  title?: string;
-  group?: string;
-  tier?: 0 | 1 | 2;
-  priority?: number;
-  confirm?: boolean | string;
-  cache?: CacheOptions | false;
-  invalidates?: string[];
-  project?: string[];      // fields to keep in output
-  maxChars?: number;       // output cap, default 1500
-  exposedTo?: string[];
+export default function App() {
+  return (
+    <AgentableProvider>
+      <DataTable
+        rows={orders}
+        columns={columns}
+        agent={{ name: "query_orders", cache: false }}
+      />
+    </AgentableProvider>
+  );
 }
 ```
 
-Each component picks safe defaults: read-only components cache and skip confirmation, mutating ones ask first.
+Call `query_orders` with `{"query":"Ada"}` to update the table and return matching rows. Add [devtools](../devtools) to try this without a browser agent.
 
-## Styling
+## Callable controls
 
-`@agentable-ui/ui/styles.css` is a plain stylesheet with no build step. Components are headless — they carry `data-agentable-*` attributes, so you can drop the stylesheet and use your own, or import the Tailwind preset from `@agentable-ui/ui/tailwind`.
+| Component | Agent behavior | Confirmation default |
+|---|---|---|
+| `Form` + `Field` | Submit values using a schema derived from fields. | Asks before agent submission. |
+| `DataTable` | Search, sort, and filter; selection tool when selectable (or explicitly enabled). | Query and selection do not ask. |
+| `Combobox` | Search options or select by label/value. | Does not ask. |
+| `ActionBar` | Choose an action id; fan-in shares one tool by default. | Destructive actions ask. |
+| `Dialog` | Open/close; child tools mount while open. | Does not ask. |
+| `Tabs` | Switch tabs; inactive panels unmount. | Does not ask. |
+| `Nav` | Navigate by href or label. | Does not ask. |
+| `Filters` | Set part of a filter set, or reset it. | Does not ask. |
+| `Pagination` | Navigate to a page. | Does not ask. |
+| `Toaster` | Read notifications created with `toast()`. | Read-only. |
 
-Also exported for reuse outside the components: `applyQuery`, `applyFilters`, `matchOptions`, `resolveOption`, `useAgentCapability`.
+These defaults describe agent calls. Human interaction uses your normal event handlers. Explicit confirmation settings can override them.
 
-MIT
-
-### Styled controls and native button props
-
-Import `@agentable-ui/ui/styles.css` once for the default light/dark theme. Override
-`--ag-*` CSS variables or the documented `data-agentable-*` hooks to match your app.
-Buttons accept native button props (including `ref`, `type`, `aria-*`, `className`,
-and `onClick`), rich children, a size, and a loading state:
+## Forms and actions
 
 ```tsx
+import { Form, Field, ActionBar } from "@agentable-ui/ui";
+
+<Form
+  agent={{ name: "create_invoice" }}
+  onSubmit={(values) => createInvoice(values)}
+>
+  <Field name="customer" label="Customer" required />
+  <Field name="amountCents" label="Amount (cents)" type="integer" min={1} required />
+</Form>
+
+<ActionBar
+  agent={{ name: "order_actions", invalidates: ["orders"] }}
+  actions={[
+    { id: "ship", label: "Ship", onAction: ship },
+    { id: "refund", label: "Refund", destructive: true, onAction: refund },
+  ]}
+/>
+```
+
+Provide your application's `createInvoice`, `ship`, and `refund` callbacks. Return a useful result for the agent. Use `describe` on fields and actions to explain their purpose.
+
+## Shared agent options
+
+| Option | Purpose |
+|---|---|
+| `name` | Stable tool name. Keep it within the 30-character guidance. |
+| `id` | Optional capability id; otherwise derived from component and name. |
+| `group`, `tier`, `priority` | Availability and budget preference. Tier 0 is still subject to eviction. |
+| `description`, `title` | Override generated tool descriptions and labels. |
+| `confirm` | Override confirmation with `true`, `false`, or a message. |
+| `cache` | Cache configuration or `false`. Read-only queries cache by default. |
+| `invalidates` | Tags cleared after a successful agent mutation. |
+| `project` | Fields retained in tool output. |
+| `maxChars` | Output cap; default 1,500. |
+| `exposedTo` | Explicit browser exposure configuration. |
+
+A cached call skips its callback. Set `cache: false` on table query tools if repeated calls must reapply visible state. For pure reads, use tags and invalidate them when data changes; human callbacks do not automatically clear registry caches.
+
+For tables, use stable record `id` values or provide `getRowId`. Index-based IDs survive internal search and sort, but a changing source order needs a stable key. `agentHidden` excludes a column from agent output; use `project` to further limit fields. Neither replaces server-side access control.
+
+## Theme and custom styles
+
+Import `@agentable-ui/ui/styles.css` once. It follows system light/dark mode; set `data-theme="light"` or `data-theme="dark"` on the root HTML element to choose explicitly.
+
+```css
+:root {
+  --ag-accent: #2563eb;
+  --ag-accent-fg: #ffffff;
+  --ag-radius: 10px;
+  --ag-font: system-ui, sans-serif;
+}
+```
+
+Other tokens include `--ag-bg`, `--ag-panel`, `--ag-fg`, `--ag-muted`, `--ag-line`, `--ag-success`, `--ag-warning`, and `--ag-danger`. Scope them to a parent element for local themes. Styles target `data-agentable-*` hooks, so you can override or replace them. The optional `@agentable-ui/ui/tailwind` preset supplies matching tokens and state variants.
+
+## Button API
+
+The source checkout includes native button props and refs, rich children, sizes, a ghost variant, and loading state. Check your installed release when using these additions.
+
+```tsx
+import { Button } from "@agentable-ui/ui";
+
 <Button variant="primary" size="lg" loading={saving} onClick={save}>
   Save changes
 </Button>
 <Button variant="ghost" size="sm" aria-label="Close" onClick={close}>×</Button>
 ```
 
-`loading` disables interaction and sets `aria-busy`. Existing `label` and `onPress`
-props continue to work for generated UI. `onClick` runs before `onPress`; calling
-`event.preventDefault()` cancels `onPress`. Variants are `default`, `primary`,
-`danger`, and `ghost`; sizes are `sm`, `md` (default), and `lg`.
+Variants: `default`, `primary`, `danger`, `ghost`. Sizes: `sm`, `md` (default), `lg`. Loading disables interaction and sets `aria-busy`. Existing `label` and `onPress` remain supported. `onClick` runs first; `preventDefault()` cancels `onPress`.
 
-For tables, pass `getRowId` when records have no `id` and their source order can
-change. Selection stays stable through table search, sorting, and pagination.
-Avoid caching query tools when repeating a query must also reapply visible UI state.
+Button is presentational and does not take `agent`. Use ActionBar for callable actions.
+
+## Generative UI catalog
+
+`uiCatalog` describes presentational components (`Text`, `Card`, `Stat`, `StatGroup`, `Callout`, `KeyValue`, `SimpleTable`, `List`, `Stack`, `Progress`) and interactive ones (`Button`, `TextInput`, `Select`, `Checkbox`, `RecordTable`). Use it with [genui](../genui) or [lang](../lang).
+
+Utility exports: `applyQuery`, `applyFilters`, `matchOptions`, `resolveOption`, and `useAgentCapability`.
+
+MIT licensed.
