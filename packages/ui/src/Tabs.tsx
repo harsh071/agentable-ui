@@ -26,7 +26,7 @@ export interface TabsProps {
  * only while it is shown. One tool switches tabs.
  */
 export function Tabs({ tabs, value: controlled, defaultValue, onValueChange, agent, className, "aria-label": ariaLabel }: TabsProps) {
-  const [inner, setInner] = useState(defaultValue ?? tabs[0]?.value ?? "");
+  const [inner, setInner] = useState(defaultValue ?? tabs.find((t) => !t.disabled)?.value ?? "");
   const value = controlled ?? inner;
   const id = useId();
   const setValue = (v: string) => {
@@ -63,7 +63,7 @@ export function Tabs({ tabs, value: controlled, defaultValue, onValueChange, age
     ),
   );
 
-  const active = tabs.find((t) => t.value === value) ?? tabs[0];
+  const active = tabs.find((t) => t.value === value) ?? tabs.find((t) => !t.disabled);
 
   return (
     <div className={className} data-agentable-tabs="" data-agent={agent?.name}>
@@ -84,8 +84,16 @@ export function Tabs({ tabs, value: controlled, defaultValue, onValueChange, age
               onKeyDown={(e) => {
                 const enabled = tabs.filter((x) => !x.disabled);
                 const i = enabled.findIndex((x) => x.value === t.value);
-                if (e.key === "ArrowRight") setValue(enabled[(i + 1) % enabled.length]!.value);
-                if (e.key === "ArrowLeft") setValue(enabled[(i - 1 + enabled.length) % enabled.length]!.value);
+                let next: Tab | undefined;
+                if (e.key === "ArrowRight") next = enabled[(i + 1) % enabled.length];
+                if (e.key === "ArrowLeft") next = enabled[(i - 1 + enabled.length) % enabled.length];
+                if (e.key === "Home") next = enabled[0];
+                if (e.key === "End") next = enabled[enabled.length - 1];
+                if (next) {
+                  e.preventDefault();
+                  setValue(next.value);
+                  document.getElementById(`${id}-tab-${next.value}`)?.focus();
+                }
               }}
               data-agentable-tab={t.value}
               data-state={selected ? "active" : "inactive"}

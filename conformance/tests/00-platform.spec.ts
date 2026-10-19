@@ -71,7 +71,7 @@ test("registerTool + AbortSignal lifecycle, duplicate names, toolchange", async 
   expect(r.after).toEqual(["t1"]);
 });
 
-test("executeTool encoding: JSON-string input, string output, no validation, no truncation", async ({ page }) => {
+test("executeTool encoding: object input, string output, validation and truncation", async ({ page }) => {
   await blankPage(page);
   const r = await page.evaluate(async () => {
     const mc = document.modelContext!;
@@ -83,22 +83,25 @@ test("executeTool encoding: JSON-string input, string output, no validation, no 
     const get = (n: string) => tools.find((t) => t.name === n)!;
     const out: Record<string, unknown> = {};
     out.schemaType = typeof get("echo").inputSchema;
-    try { out.objectInput = await mc.executeTool(get("echo"), { text: "hi" } as never); } catch (e) { out.objectInput = String(e); }
-    out.stringInput = await mc.executeTool(get("echo"), JSON.stringify({ text: "hi" }));
+    try { out.objectInput = await mc.executeTool(get("echo"), { text: "hi" }); } catch (e) { out.objectInput = String(e); }
+    try { out.stringInput = await mc.executeTool(get("echo"), JSON.stringify({ text: "hi" }) as never); } catch (e) { out.stringInput = String(e); }
     out.seenType = typeof seen;
-    out.wrongShape = await mc.executeTool(get("echo"), JSON.stringify({ nope: 1 }));
-    out.bigLen = (await mc.executeTool(get("big"), "{}")).length;
-    try { out.thrown = await mc.executeTool(get("thrower"), "{}"); } catch (e) { out.thrown = String(e); }
+    try { out.wrongShape = await mc.executeTool(get("echo"), { nope: 1 }); } catch (e) { out.wrongShape = String(e); }
+    out.bigLen = (await mc.executeTool(get("big"), {})).length;
+    try { out.thrown = await mc.executeTool(get("thrower"), {}); } catch (e) { out.thrown = String(e); }
     return out as { schemaType: string; objectInput: string; stringInput: string; seenType: string; wrongShape: string; bigLen: number; thrown: string };
   });
-  record({ area: "execute", check: "getTools().inputSchema type", expected: "string (serialized JSON)", actual: r.schemaType, ok: r.schemaType === "string" });
-  record({ area: "execute", check: "object input", expected: "rejected (must be JSON string)", actual: r.objectInput, ok: /Failed to parse/.test(r.objectInput) });
-  record({ area: "execute", check: "JSON-string input reaches execute as", expected: "object", actual: r.seenType, ok: r.seenType === "object" });
-  record({ area: "execute", check: "output", expected: "string, objects JSON-serialized", actual: r.stringInput, ok: r.stringInput === '{"got":{"text":"hi"}}' });
-  record({ area: "execute", check: "schema validation by browser", expected: "none (library must validate)", actual: `wrong-shape input passed through: ${r.wrongShape}`, ok: true });
+  record({ area: "execute", check: "getTools().inputSchema type", expected: "object", actual: r.schemaType, ok: r.schemaType === "object" });
+  record({ area: "execute", check: "object input", expected: 'accepted as object', actual: r.objectInput, ok: r.objectInput === '{"got":{"text":"hi"}}' });
+  record({ area: "execute", check: "JSON-string input", expected: "rejected (input must be an object)", actual: r.stringInput, ok: /invalid input object/.test(r.stringInput) });
+  record({ area: "execute", check: "output", expected: "string, objects JSON-serialized", actual: r.objectInput, ok: r.objectInput === '{"got":{"text":"hi"}}' });
+  record({ area: "execute", check: "schema validation by browser", expected: "none (library must validate)", actual: r.wrongShape, ok: r.wrongShape === '{"got":{"nope":1}}' });
   record({ area: "execute", check: "1500-char output limit enforced", expected: "no (guidance only; library truncates)", actual: `${r.bigLen} chars returned`, ok: r.bigLen === 5000 });
   record({ area: "execute", check: "thrown error surfaces as", expected: "generic UnknownError (library returns structured error text instead)", actual: r.thrown, ok: /UnknownError/.test(r.thrown) });
   expect(r.seenType).toBe("object");
+  expect(r.schemaType).toBe("object");
+  expect(r.objectInput).toBe('{"got":{"text":"hi"}}');
+  expect(r.stringInput).toMatch(/invalid input object/);
 });
 
 test("limits and annotations: what Chrome enforces vs reflects", async ({ page }) => {
@@ -121,7 +124,7 @@ test("limits and annotations: what Chrome enforces vs reflects", async ({ page }
   record({ area: "exposedTo", check: "wildcard", expected: "SecurityError", actual: r.exposedStar, ok: /SecurityError/.test(r.exposedStar) });
 });
 
-test("unregistering a tool while its execute is pending rejects the pending call", async ({ page }) => {
+test("unregistering a tool preserves a pending invocation", async ({ page }) => {
   await blankPage(page);
   const r = await page.evaluate(async () => {
     const mc = document.modelContext!;
@@ -129,13 +132,13 @@ test("unregistering a tool while its execute is pending rejects the pending call
     let release!: () => void;
     await mc.registerTool({ name: "slow", description: "slow", inputSchema: { type: "object", properties: {} }, execute: () => new Promise<string>((res) => { release = () => res("done"); }) }, { signal: ac.signal });
     const tool = (await mc.getTools()).find((t) => t.name === "slow")!;
-    const pending = mc.executeTool(tool, "{}").then((v) => `resolved:${v}`, (e) => `rejected:${String(e)}`);
+    const pending = mc.executeTool(tool, {}).then((v) => `resolved:${v}`, (e) => `rejected:${String(e)}`);
     await new Promise((r) => setTimeout(r, 20));
     ac.abort();
     await new Promise((r) => setTimeout(r, 20));
     release();
     return pending;
   });
-  record({ area: "lifecycle", check: "abort during pending execute", expected: "pending call rejects (adapter defers abort until idle)", actual: r, ok: /rejected/.test(r) });
-  expect(r).toMatch(/rejected/);
+  record({ area: "lifecycle", check: "abort during pending execute", expected: "pending invocation completes after unregistering", actual: r, ok: r === "resolved:done" });
+  expect(r).toBe("resolved:done");
 });

@@ -1,4 +1,4 @@
-import { useId, type ComponentType, type ReactNode } from "react";
+import { useId, type ComponentType, type ReactNode, type ComponentPropsWithRef } from "react";
 import type { JSONSchema } from "@agentable-ui/core";
 
 /**
@@ -170,16 +170,31 @@ export function Progress({ label, value, max = 100 }: ProgressProps) {
   );
 }
 
-export interface ButtonProps {
-  label: string;
-  variant?: "default" | "primary" | "danger";
-  disabled?: boolean;
+export interface ButtonProps extends Omit<ComponentPropsWithRef<"button">, "children"> {
+  /** Use children for rich content, or label for generated UI. */
+  children?: ReactNode;
+  label?: string;
+  variant?: "default" | "primary" | "danger" | "ghost";
+  size?: "sm" | "md" | "lg";
+  loading?: boolean;
   onPress?: () => void;
 }
-export function Button({ label, variant = "default", disabled, onPress }: ButtonProps) {
+export function Button({ label, children, variant = "default", size = "md", loading = false, disabled, onPress, onClick, type = "button", ...props }: ButtonProps) {
   return (
-    <button type="button" data-agentable-button={variant === "default" ? "" : variant} disabled={disabled} onClick={() => onPress?.()}>
-      {label}
+    <button
+      {...props}
+      type={type}
+      data-agentable-button={variant === "default" ? "" : variant}
+      data-size={size}
+      data-busy={loading ? "" : undefined}
+      aria-busy={loading || undefined}
+      disabled={disabled || loading}
+      onClick={(event) => {
+        onClick?.(event);
+        if (!event.defaultPrevented) onPress?.();
+      }}
+    >
+      {children ?? label}
     </button>
   );
 }
@@ -319,7 +334,7 @@ export const uiCatalog = {
   List: { component: List, description: "A bulleted or numbered list.", props: { type: "object", properties: { items: { type: "array", items: { type: "string" } }, ordered: { type: "boolean" } }, required: ["items"] } },
   Stack: { component: Stack, description: "Arranges children in a row or column.", props: { type: "object", properties: { direction: { type: "string", enum: ["row", "column"] } } }, childrenProp: "children" },
   Progress: { component: Progress, description: "A progress bar.", props: { type: "object", properties: { label: str(), value: { type: "number" }, max: { type: "number" } }, required: ["value"] } },
-  Button: { component: Button, description: "A button. Label says what happens.", props: { type: "object", properties: { label: str(), variant: { type: "string", enum: ["default", "primary", "danger"] }, disabled: { type: "boolean" } }, required: ["label"] }, events: { press: "onPress" } },
+  Button: { component: Button, description: "A button. Label says what happens.", props: { type: "object", properties: { label: str(), variant: { type: "string", enum: ["default", "primary", "danger", "ghost"] }, size: { type: "string", enum: ["sm", "md", "lg"] }, loading: { type: "boolean" }, disabled: { type: "boolean" } }, required: ["label"] }, events: { press: "onPress" } },
   TextInput: { component: TextInput, description: "A labelled text or number input. Bind value to ui.* and set it on change.", props: { type: "object", properties: { label: str(), value: { type: ["string", "number"] }, placeholder: str(), kind: { type: "string", enum: ["text", "number", "email", "date"] } }, required: ["label"] }, events: { change: "onChange", submit: "onSubmit" } },
   Select: { component: Select, description: "A labelled dropdown.", props: { type: "object", properties: { label: str(), options: { type: "array", items: { type: ["string", "object"] } }, value: str(), placeholder: str() }, required: ["label", "options"] }, events: { change: "onChange" } },
   Checkbox: { component: Checkbox, description: "A labelled checkbox.", props: { type: "object", properties: { label: str(), checked: { type: "boolean" } }, required: ["label"] }, events: { change: "onChange" } },

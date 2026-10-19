@@ -1,6 +1,6 @@
 # WebMCP conformance report
 
-Generated 2026-09-07 against real Chrome with `--enable-features=WebMCP`. 45/45 checks green.
+Generated 2026-10-19 against real Chrome with `--enable-features=WebMCP`. 45/45 checks green.
 
 Red rows are facts about the platform that differ from the documented spec, or library gates that failed. Every row is asserted in `conformance/tests`, never mocked.
 
@@ -8,7 +8,7 @@ Red rows are facts about the platform that differ from the documented spec, or l
 
 | | Check | Expected | Actual |
 |---|---|---|---|
-| 🟢 | browser | Chrome >= 149 with --enable-features=WebMCP | 152.0.7977.82 |
+| 🟢 | browser | Chrome >= 149 with --enable-features=WebMCP | 155.0.8059.84 |
 | 🟢 | document.modelContext present | true | true |
 | 🟢 | navigator.modelContext alias | false (moved July 2026) | false |
 | 🟢 | window.agent alias | false | false |
@@ -30,17 +30,17 @@ Red rows are facts about the platform that differ from the documented spec, or l
 | 🟢 | duplicate name | InvalidStateError | InvalidStateError: Duplicate tool name |
 | 🟢 | pre-aborted signal | AbortError | AbortError: signal is aborted without reason |
 | 🟢 | toolchange fires per register/unregister | >= 3 | 3 |
-| 🟢 | abort during pending execute | pending call rejects (adapter defers abort until idle) | rejected:UnknownError: The operation failed for an unknown transient reason (e.g. out of memory). |
+| 🟢 | abort during pending execute | pending invocation completes after unregistering | resolved:done |
 
 ## execute
 
 | | Check | Expected | Actual |
 |---|---|---|---|
-| 🟢 | getTools().inputSchema type | string (serialized JSON) | string |
-| 🟢 | object input | rejected (must be JSON string) | UnknownError: Failed to parse input arguments |
-| 🟢 | JSON-string input reaches execute as | object | object |
+| 🟢 | getTools().inputSchema type | object | object |
+| 🟢 | object input | accepted as object | {"got":{"text":"hi"}} |
+| 🟢 | JSON-string input | rejected (input must be an object) | TypeError: Failed to execute 'executeTool' on 'ModelContext': invalid input object: value is not an object |
 | 🟢 | output | string, objects JSON-serialized | {"got":{"text":"hi"}} |
-| 🟢 | schema validation by browser | none (library must validate) | wrong-shape input passed through: {"got":{"nope":1}} |
+| 🟢 | schema validation by browser | none (library must validate) | {"got":{"nope":1}} |
 | 🟢 | 1500-char output limit enforced | no (guidance only; library truncates) | 5000 chars returned |
 | 🟢 | thrown error surfaces as | generic UnknownError (library returns structured error text instead) | UnknownError: Tool was executed but the invocation failed. For example, the script function threw an error |
 
@@ -55,7 +55,7 @@ Red rows are facts about the platform that differ from the documented spec, or l
 
 | | Check | Expected | Actual |
 |---|---|---|---|
-| 🟢 | reflected by getTools() | readOnlyHint, untrustedContentHint (consequentialHint dropped) | {"readOnlyHint":true,"untrustedContentHint":true} |
+| 🟢 | reflected by getTools() | readOnlyHint, untrustedContentHint (consequentialHint dropped) | {"consequentialHint":true,"readOnlyHint":true,"untrustedContentHint":true} |
 
 ## exposedTo
 
@@ -89,18 +89,20 @@ Red rows are facts about the platform that differ from the documented spec, or l
 | 🟢 | consequential action gated by confirm dialog | user decline returns declined:true | {"error":"The user declined this action.","declined":true} |
 | 🟢 | list_capabilities index | lists evicted/unloaded groups only | billing [1]: invoice_dialog \| page [1]: read_notifications |
 | 🟢 | dialog tool mounts form tool | create_invoice appears after invoice_dialog{open:true} | 12: choose_customer, create_invoice, get_dashboard_stats, invoice_dialog, list_capabilities, navigate, open_capability, query_orders, query_orders_select, reports_page, settings_tab, update_profile |
-| 🟢 | form fill + submit via confirm dialog | invoiceId returned, toast shown, dialog closed | {"invoiceId":"INV-9890"} |
+| 🟢 | form fill + submit via confirm dialog | invoiceId returned, toast shown, dialog closed | {"invoiceId":"INV-6481"} |
 | 🟢 | combobox select by label | Grace Hopper selected | {"selected":{"value":"cust_2","label":"Grace Hopper","description":"grace.hopper@example.com"}} |
 | 🟢 | read_notifications after actions | includes 'Invoice created' | ["Invoice created","Marked paid 3 orders"] |
-| 🟢 | phase 05 gate: agent drives the docs site | navigate + search_docs return results | ["mechanisms"] |
+| 🟢 | phase 05 gate: agent drives the docs site | navigate + search_docs return results | ["faq","mechanisms"] |
 
 ## Playwright specs
 
 - 🟢 entry point is document.modelContext (not navigator, not window.agent)
 - 🟢 IDL surface matches the spec draft
 - 🟢 registerTool + AbortSignal lifecycle, duplicate names, toolchange
-- 🟢 executeTool encoding: JSON-string input, string output, no validation, no truncation
+- 🟢 executeTool encoding: object input, string output, validation and truncation
 - 🟢 limits and annotations: what Chrome enforces vs reflects
-- 🟢 unregistering a tool while its execute is pending rejects the pending call
+- 🟢 unregistering a tool preserves a pending invocation
 - 🟢 phase 01 gate: 120 declared capabilities resolve to <= 12 tools in getTools()
 - 🟢 phase 04 gate: an agent completes a three-step task on the demo through real WebMCP
+- 🟢 demo supports search, real CSV export, and keyboard settings navigation
+- 🟢 demo fits mobile viewport without page overflow
