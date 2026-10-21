@@ -1,6 +1,6 @@
 {
   "name": "@agentable-ui/devtools",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "In-page devtools overlay for Agentable: resident tools, budget, cache hit rate, schema sizes, tool console.",
   "license": "MIT",
   "type": "module",

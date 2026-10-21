@@ -1,6 +1,6 @@
 {
   "name": "@agentable-ui/react",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "React bindings for @agentable-ui/core: AgentableProvider, useTool, useCapability, ToolScope.",
   "license": "MIT",
   "type": "module",
