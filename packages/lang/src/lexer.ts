@@ -9,18 +9,32 @@ export class LineParser {
   private i = 0;
   constructor(private readonly src: string) {}
 
-  /** Parse `name = expr`; throws a plain Error with a message on bad syntax. */
-  statement(): { name: string; expr: Expr } {
+  /**
+   * Parse `name = expr`, or the property shorthand `name.arg = expr` (sets one named argument on the
+   * component statement `name`). Throws a plain Error with a message on bad syntax.
+   */
+  statement(): { name: string; prop?: string; expr: Expr } {
     this.ws();
     const name = this.ident();
     if (!name) throw new Error("A statement starts with a name, e.g. `root = Stack([...])`.");
+    let prop: string | undefined;
+    if (this.eat(".")) {
+      prop = this.ident() ?? undefined;
+      if (!prop) throw new Error(`Expected an argument name after "${name}.", e.g. ${name}.label = "Save".`);
+    }
     this.ws();
-    if (!this.eat("=")) throw new Error(`Expected "=" after "${name}".`);
+    if (!this.eat("=")) {
+      throw new Error(
+        prop
+          ? `Expected "=" after "${name}.${prop}".`
+          : `Expected "=" after "${name}". Write one statement per line, e.g. ${name} = Button("Save", press: @Say("saved")).`,
+      );
+    }
     this.ws();
     const expr = this.expr();
     this.ws();
     if (this.i < this.src.length) throw new Error(`Unexpected "${this.src[this.i]}" after the expression.`);
-    return { name, expr };
+    return prop ? { name, prop, expr } : { name, expr };
   }
 
   private ws() {
