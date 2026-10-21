@@ -1,5 +1,12 @@
 # @agentable-ui/genui
 
+## 0.3.2
+
+### Patch Changes
+
+- Updated dependencies [d26ca73]
+  - @agentable-ui/lang@0.3.0
+
 ## 0.3.1
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@agentable-ui/lang",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Agentable Lang: a compact, streaming-first language for model-generated UI. Parser, streaming parser, prompt generation and serializer, framework-free.",
   "license": "MIT",
   "type": "module",

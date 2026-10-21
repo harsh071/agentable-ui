@@ -1,6 +1,6 @@
 {
   "name": "@agentable-ui/genui",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Generative UI for Agentable: a streaming Renderer for Agentable Lang programs, AgentSurface with a single validated present tool, catalog schema generation.",
   "license": "MIT",
   "type": "module",
