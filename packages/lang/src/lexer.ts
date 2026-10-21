@@ -177,10 +177,18 @@ export class LineParser {
         continue;
       }
       if (this.src[this.i] === "[") {
-        const m = /^\[(\d+)\]/.exec(this.src.slice(this.i));
-        if (!m) throw new Error(`Only numeric indexes are allowed in $${path}[...].`);
-        this.i += m[0].length;
-        path += `[${m[1]}]`;
+        const rest = this.src.slice(this.i);
+        const m = /^\[(\d+)\]/.exec(rest);
+        if (m) {
+          this.i += m[0].length;
+          path += `[${m[1]}]`;
+          continue;
+        }
+        // Read-only list filter: $data.items[done=true], $data.items[status!="archived"].
+        const f = /^\[\s*([A-Za-z_][A-Za-z0-9_]*)\s*(!?=)\s*("[^"\]]*"|[A-Za-z0-9_.-]+)\s*\]/.exec(rest);
+        if (!f) throw new Error(`Use [0] or [field=value] in $${path}[...].`);
+        this.i += f[0].length;
+        path += `[${f[1]}${f[2]}${f[3]}]`;
         continue;
       }
       return { kind: "path", path, negated };

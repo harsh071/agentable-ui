@@ -46,6 +46,7 @@ export function buildPrompt(lib: Library, opts: PromptOptions = {}): string {
   if (interactive) {
     rules.push(
       "State: `$data.x` reads app data (read-only); `$ui.x` is interface state you own. Pass a path as an argument to bind that prop, e.g. `rows: $data.paid`.",
+      "Read paths can filter lists and count them: `$data.items[done=true]`, `$data.items[status!=\"archived\"]`, `$data.items[done=true].length`. Filters are read-only; actions cannot write through them.",
       "`when: $ui.selected` shows a node only while that path is truthy; `when: !$ui.done` while it is falsy.",
       "Events take actions: `press: @Set($ui.selected, $event)` or a list `[@Set(...), @Tool(...)]`. `$event` is the value the event fired with; `$event.id` a field of it.",
       "Actions: @Set(path, value) @Merge(path, object) @Push(path, value) @Remove(path) @Increment(path, by?) @Toggle(path) @Tool(name, args?, into?) @Say(text). Paths written by actions must be $ui.*.",

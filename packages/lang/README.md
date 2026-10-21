@@ -46,6 +46,7 @@ const finished = parser.push("", true); // flush the final partial line
 - Children are a list of statement names, wherever they sit: `Stack([a, b])`, `Card("Title", [a, b])`, or `children: [a, b]`. A name may be used once.
 - Strings in double quotes, lists in `[]`, objects in `{key: value}`, numbers, `true`, `false`, `null`. `#` starts a comment.
 - State: `$data.x` reads app data (read-only); `$ui.x` is state the interface owns. A path given as an argument binds that prop: `rows: $data.paid`.
+- Read paths can filter and count lists: `$data.items[done=true]`, `$data.items[status!="archived"]`, `$data.items[done=true].length`. A missing boolean field counts as `false`. Filters are read-only; actions can't write through them.
 - `when: $ui.selected` shows a node while the path is truthy, `when: !$ui.done` while falsy.
 - Events are named arguments holding actions: `press: @Set($ui.selected, $event)` or a list `[@Set(...), @Tool(...)]`. `$event` is the event's value, `$event.id` a field of it.
 - Actions: `@Set(path, value)`, `@Merge(path, object)`, `@Push(path, value)`, `@Remove(path)`, `@Increment(path, by?)`, `@Toggle(path)`, `@Tool(name, args?, into?)`, `@Say(text)`. Written paths must be `$ui.*`.

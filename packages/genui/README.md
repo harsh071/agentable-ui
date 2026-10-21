@@ -58,7 +58,7 @@ A single tool avoids one tool per visual component; its schema size still depend
 
 ## Bind data and handle events
 
-- `$data.*` in Lang (or `data.*` in JSON bindings) reads application data passed through `data`. Generated UI cannot write to it.
+- `$data.*` in Lang (or `data.*` in JSON bindings) reads application data passed through `data`. Generated UI cannot write to it. Read paths can filter and count arrays: `$data.items[done=true].length`.
 - `$ui.*` is local interface state. Actions can set, merge, push, remove, increment, or toggle it.
 - A catalog entry maps event names to callback props, for example `events: { press: "onPress" }`.
 - `when` conditionally shows a node. `@Say` forwards a message to `onMessage`.
