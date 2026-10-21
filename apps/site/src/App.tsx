@@ -6,10 +6,12 @@ import { useRoute } from "./router.js";
 import { DocsPage } from "./pages/Docs.js";
 import { DemoPage } from "./pages/Demo.js";
 import { PlaygroundPage } from "./pages/Playground.js";
+import { ComponentsPage } from "./pages/Components.js";
 
 const NAV = [
   { href: "#/", label: "Home", describe: "What Agentable is: one UI library for people and AI agents" },
   { href: "#/docs/quickstart", label: "Docs", describe: "Quick start, guides, package reference" },
+  { href: "#/components", label: "Components", describe: "Every @agentable-ui/ui component, live, with code and props" },
   { href: "#/demo", label: "Demo", describe: "Orders dashboard built with @agentable-ui/ui" },
   { href: "#/playground", label: "Playground", describe: "Generative UI surface and tool console" },
   { href: "https://studio.interfacesforhuman.com", label: "Studio", external: true, agentHidden: true },
@@ -30,7 +32,9 @@ function Shell() {
   const [route, navigate] = useRoute();
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = route.startsWith("/demo")
+    document.title = route.startsWith("/components")
+      ? "Components · Agentable"
+      : route.startsWith("/demo")
       ? "Demo · Agentable"
       : route.startsWith("/playground")
         ? "Playground · Agentable"
@@ -39,7 +43,7 @@ function Shell() {
           : "Agentable: one UI library for people and AI";
   }, [route]);
 
-  const current = route.startsWith("/demo") ? "#/demo" : route.startsWith("/playground") ? "#/playground" : route.startsWith("/docs/") ? "#/docs/quickstart" : "#/";
+  const current = route.startsWith("/components") ? "#/components" : route.startsWith("/demo") ? "#/demo" : route.startsWith("/playground") ? "#/playground" : route.startsWith("/docs/") ? "#/docs/quickstart" : "#/";
 
   return (
     <div className="shell">
@@ -52,7 +56,7 @@ function Shell() {
         <Status />
       </header>
       <main className="page">
-        {route.startsWith("/demo") ? <DemoPage /> : route.startsWith("/playground") ? <PlaygroundPage /> : <DocsPage route={route} navigate={navigate} />}
+        {route.startsWith("/components") ? <ComponentsPage route={route} navigate={navigate} /> : route.startsWith("/demo") ? <DemoPage /> : route.startsWith("/playground") ? <PlaygroundPage /> : <DocsPage route={route} navigate={navigate} />}
       </main>
       <footer className="foot">
         MIT licensed. Every part of this site is agent-callable: open devtools (<kbd>Alt</kbd>+<kbd>A</kbd>) to see what an agent sees, or run Chrome with <code>--enable-features=WebMCP</code>.

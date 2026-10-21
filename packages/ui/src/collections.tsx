@@ -125,7 +125,7 @@ export function ItemList({ items, title, empty = "Nothing here yet.", onSelect }
                     {body}
                   </a>
                 ) : (
-                  <div data-agentable-row="">{body}</div>
+                  <div data-agentable-itemlist-row="">{body}</div>
                 )}
               </li>
             );
