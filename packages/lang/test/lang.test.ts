@@ -116,3 +116,52 @@ describe("literal null in actions", () => {
     ]);
   });
 });
+
+describe("name.arg = expr lines", () => {
+  it("attach named arguments, including events, to the component statement", () => {
+    const r = lib.parse(`root = Stack([save])
+save = Button("Save")
+save.variant = "primary"
+save.press = @Set($ui.saved, true)`);
+    expect(r.errors).toEqual([]);
+    expect(r.root?.children?.[0]).toEqual({
+      component: "Button",
+      id: "save",
+      props: { label: "Save", variant: "primary" },
+      on: { press: [{ type: "set", path: "ui.saved", value: true }] },
+    });
+  });
+
+  it("work before the definition and replace an inline argument of the same name", () => {
+    const r = lib.parse(`root.label = "Saved"
+root = Button("Save", variant: "ghost")
+root.variant = "primary"`);
+    expect(r.errors).toEqual([]);
+    expect(r.root?.props).toEqual({ label: "Saved", variant: "primary" });
+    // `save` doesn't exist, so its line is reported rather than silently dropped.
+    const r2 = lib.parse(`root = Button("Go")\nghost.label = "x"`);
+    expect(r2.errors[0]?.message).toMatch(/needs a component statement named "ghost"/);
+  });
+
+  it("parse the program a real model wrote for a reading list", () => {
+    const r = createLibrary({
+      Stack: { description: "", props: { type: "object", properties: { direction: { type: "string" } } }, childrenProp: "children" },
+      TextInput: { description: "", props: { type: "object", properties: { label: { type: "string" }, value: { type: ["string", "number"] }, placeholder: { type: "string" }, kind: { type: "string" } }, required: ["label"] }, events: { change: "onChange" } },
+      Button: { description: "", props: { type: "object", properties: { label: { type: "string" }, variant: { type: "string" } }, required: ["label"] }, events: { press: "onPress" } },
+    }).parse(`root = Stack("column", [titleinput, addbutton])
+titleinput = TextInput("Title", $ui.title, "e.g. Wuthering Heights")
+titleinput.change = @Set($ui.title, $event)
+addbutton = Button("Add book", "primary")
+addbutton.press = [@Tool("add_book", {title: $ui.title}), @Set($ui.title, "")]`);
+    expect(r.errors).toEqual([]);
+    const [input, button] = r.root!.children!;
+    expect(input!.bind).toEqual({ value: "ui.title" });
+    expect(input!.on?.change).toEqual([{ type: "set", path: "ui.title", value: "{{value}}" }]);
+    expect(button!.on?.press).toHaveLength(2);
+  });
+
+  it("explain a missing = with an example", () => {
+    const r = lib.parse("root Button(\"x\")");
+    expect(r.errors[0]?.message).toMatch(/Expected "=" after "root"\. Write one statement per line/);
+  });
+});

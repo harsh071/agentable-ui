@@ -43,6 +43,7 @@ const finished = parser.push("", true); // flush the final partial line
 
 - One statement per line: `name = Component(args)`. The entry is `root`. Forward references are fine; the last definition of a name wins.
 - Arguments are positional in the component's declared prop order, or named: `Callout("On track", text: "Ahead by 4%.")`. `null` skips an optional positional argument.
+- `name.arg = value` lines set one named argument on the component statement `name`, e.g. `save.press = @Say("saved")`. They apply after the whole program is read, so order doesn't matter; the last one wins. Inline named arguments are the canonical form, and `serialize` writes that form.
 - Children are a list of statement names, wherever they sit: `Stack([a, b])`, `Card("Title", [a, b])`, or `children: [a, b]`. A name may be used once.
 - Strings in double quotes, lists in `[]`, objects in `{key: value}`, numbers, `true`, `false`, `null`. `#` starts a comment.
 - State: `$data.x` reads app data (read-only); `$ui.x` is state the interface owns. A path given as an argument binds that prop: `rows: $data.paid`.
