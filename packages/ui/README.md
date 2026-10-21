@@ -134,7 +134,25 @@ Button is presentational and does not take `agent`. Use ActionBar for callable a
 
 ## Generative UI catalog
 
-`uiCatalog` describes presentational components (`Text`, `Card`, `Stat`, `StatGroup`, `Callout`, `KeyValue`, `SimpleTable`, `List`, `Stack`, `Progress`) and interactive ones (`Button`, `TextInput`, `Select`, `Checkbox`, `RecordTable`). Use it with [genui](../genui) or [lang](../lang).
+`uiCatalog` describes presentational components (`Text`, `Card`, `Stat`, `StatGroup`, `Callout`, `KeyValue`, `SimpleTable`, `List`, `Stack`, `Grid`, `Progress`, `Badge`, `Divider`, `Image`, `LinkCard`, `Chart`) and interactive ones (`Button`, `TextInput`, `Select`, `Checkbox`, `RecordTable`, `Checklist`, `ItemList`, `Timeline`). Use it with [genui](../genui) or [lang](../lang).
+
+### Data-bound collections
+
+`Checklist`, `ItemList`, `Timeline` and `Chart` take an array, usually bound to `$data.*`, and fire per-item events with the whole item. A program can then act on one row:
+
+```text
+root = Card("Packing", [list])
+list = Checklist($data.items, toggle: @Tool("toggle_item", {id: $event.id}), remove: @Tool("remove_item", {id: $event.id}))
+```
+
+| Component | Item shape | Events |
+|---|---|---|
+| `Checklist` | `{id, text, done?, note?}` | `toggle`, `remove` (the remove button only shows when bound) |
+| `ItemList` | `{id, title, subtitle?, meta?, badge?, href?}` | `select` (rows are buttons only when bound) |
+| `Timeline` | `{id?, time, title, detail?, done?}` | `select` |
+| `Chart` | rows with the `x` key and each `series` key; `kind` is `bar`, `line` or `area` | `select` (fires with the row) |
+
+Collections render an empty state instead of failing when the bound value is missing. `Image` and `LinkCard` accept only `http(s)` URLs (and `data:image/*` for images). Chart colors come from `--ag-series-1` to `--ag-series-5`.
 
 Utility exports: `applyQuery`, `applyFilters`, `matchOptions`, `resolveOption`, and `useAgentCapability`.
 
