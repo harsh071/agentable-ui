@@ -123,7 +123,7 @@ The React interface and devtools work without WebMCP. Browser-agent access needs
 open -a "Google Chrome" --args --enable-features=WebMCP
 ```
 
-WebMCP is experimental. Use the conformance suite to verify the browser version you intend to support. The current checked-in run uses object inputs to `document.modelContext.executeTool()` and receives string outputs. Agentable's adapters isolate the rest of the library from platform changes.
+WebMCP is experimental. Use the conformance suite to verify the browser version you intend to support. The current checked-in run (Chrome 155) uses object inputs to `document.modelContext.executeTool()` and receives string outputs; Chrome 154 expected a JSON string. `executeModelContextTool` from core handles both. Agentable's adapters isolate the rest of the library from platform changes.
 
 ## Documentation for tools and assistants
 

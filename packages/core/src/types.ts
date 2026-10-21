@@ -197,7 +197,7 @@ export interface Snapshot {
     capabilityIds: string[];
   }>;
   capabilities: CapabilityState[];
-  groups: Array<{ name: string; size: number; open: boolean; hidden: boolean }>;
+  groups: Array<{ name: string; description?: string; size: number; open: boolean; hidden: boolean }>;
   budget: { max: number; used: number; metaTools: number };
   cache: { hits: number; misses: number; size: number };
   adapters: Array<{ id: string; available: boolean }>;

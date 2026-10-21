@@ -2,7 +2,7 @@ import type { AgentAdapter, NormalizedTool } from "../types.js";
 
 /**
  * Subset of the WebMCP ModelContext surface we touch. Verified against
- * Chrome 152 (see conformance/REPORT.md). Everything else in the library goes
+ * Chrome 154 and 155 (see conformance/REPORT.md; executeTool's input encoding changed between them). Everything else in the library goes
  * through AgentAdapter, so when this moves again only this file changes.
  */
 export interface ModelContextLike extends EventTarget {
@@ -27,6 +27,31 @@ export interface RegisteredToolLike {
   inputSchema?: string | object;
   annotations?: Record<string, unknown>;
   origin?: string;
+}
+
+/**
+ * Call a registered tool through the browser's ModelContext, the way an external agent would.
+ * Chrome 155 takes an object input and rejects JSON strings; Chrome 154 took a JSON string and
+ * failed to parse objects. Try the object form first, then fall back to the string form.
+ * Resolves to the tool's string output.
+ */
+export async function executeModelContextTool(mc: ModelContextLike, tool: string | RegisteredToolLike, args: Record<string, unknown> = {}): Promise<string> {
+  if (typeof mc.executeTool !== "function") throw new Error("This browser's ModelContext has no executeTool().");
+  let target: RegisteredToolLike | undefined = typeof tool === "string" ? undefined : tool;
+  if (!target) {
+    const tools = (await mc.getTools?.()) ?? [];
+    target = tools.find((t) => t.name === tool);
+    if (!target) throw new Error(`No registered tool named "${String(tool)}".`);
+  }
+  try {
+    return await mc.executeTool(target, args as unknown as string);
+  } catch (objectError) {
+    try {
+      return await mc.executeTool(target, JSON.stringify(args));
+    } catch {
+      throw objectError;
+    }
+  }
 }
 
 /** Entry points in order of preference. Older names are kept for the trial period. */

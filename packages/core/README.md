@@ -102,7 +102,7 @@ A declined call returns structured error text with `declined: true`. Execution f
 
 | Import | Purpose |
 |---|---|
-| `@agentable-ui/core/adapters/webmcp` | `webmcpAdapter`, `findModelContext`: browser integration. Prefers `document.modelContext`, with legacy fallbacks. |
+| `@agentable-ui/core/adapters/webmcp` | `webmcpAdapter`, `findModelContext`: browser integration. Prefers `document.modelContext`, with legacy fallbacks. `executeModelContextTool(mc, name, args)` calls a registered tool the way an external agent would, handling both input encodings Chrome has shipped (an object in 155, a JSON string in 154). |
 | `@agentable-ui/core/adapters/memory` | `memoryAdapter`: normalized tools for local invocation and tests. |
 | `@agentable-ui/core/adapters/bridge` | `bridgeAdapter`: postMessage transport for extensions and iframes. |
 

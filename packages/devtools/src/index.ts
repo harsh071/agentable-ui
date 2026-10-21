@@ -257,16 +257,22 @@ function defineElement(): void {
       const total = s.cache.hits + s.cache.misses;
       const hitRate = total ? Math.round((s.cache.hits / total) * 100) : 0;
       const ranked = [...s.resident].sort((a, b) => b.schemaChars - a.schemaChars);
+      // Show a group's description (from ToolScope describe) where one exists; keep the id as a tooltip.
+      const groupLabel = (name?: string) => {
+        if (!name) return "";
+        const d = s.groups.find((g) => g.name === name)?.description;
+        return d ? `<span title="${esc(name)}">${esc(d)}</span>` : esc(name);
+      };
       const rows = ranked
         .map(
           (t) =>
-            `<tr><td><code>${esc(t.name)}</code>${t.kind === "meta" ? '<span class="tag meta">meta</span>' : t.kind === "fan-in" ? `<span class="tag fan">fan-in ×${t.capabilityIds.length}</span>` : ""}</td><td>${esc(t.group ?? "")}</td><td class="num">${t.schemaChars}</td><td class="num">~${Math.ceil(t.schemaChars / 4)}</td></tr>`,
+            `<tr><td><code>${esc(t.name)}</code>${t.kind === "meta" ? '<span class="tag meta">meta</span>' : t.kind === "fan-in" ? `<span class="tag fan">fan-in ×${t.capabilityIds.length}</span>` : ""}</td><td>${groupLabel(t.group)}</td><td class="num">${t.schemaChars}</td><td class="num">~${Math.ceil(t.schemaChars / 4)}</td></tr>`,
         )
         .join("");
       const groups = s.groups
         .map(
           (g) =>
-            `<span>${esc(g.name)} <span class="tag">${g.size}</span>${g.hidden ? '<span class="tag t1">offscreen</span>' : ""}<button data-open-group="${esc(g.name)}">${g.open ? "close" : "open"}</button></span>`,
+            `<span>${groupLabel(g.name)} <span class="tag">${g.size}</span>${g.hidden ? '<span class="tag t1">offscreen</span>' : ""}<button data-open-group="${esc(g.name)}">${g.open ? "close" : "open"}</button></span>`,
         )
         .join(" ");
       return `
