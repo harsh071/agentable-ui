@@ -8,7 +8,7 @@ import { createLibrary, type Library } from "@agentable-ui/lang";
 export { Renderer, type RendererError, type RendererProps } from "./renderer.js";
 
 export { applyOps, isVisible, resolveProps, validateSpec, type MessageAction, type SpecIssue, type SurfaceOp, type ToolAction, type UIAction, type UISpec, type ValidateOptions } from "./spec.js";
-export { createUiStore, getPath, interpolate, parsePath, type StateAction, type SurfaceState, type UiStore } from "./state.js";
+export { createUiStore, getPath, interpolate, parsePath, type PathFilter, type PathKey, type StateAction, type SurfaceState, type UiStore } from "./state.js";
 
 export interface CatalogComponent<P = Record<string, unknown>> {
   component: ComponentType<P>;
