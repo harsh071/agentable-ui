@@ -1,6 +1,6 @@
 {
   "name": "@agentable-ui/ui",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Headless, agent-callable React components: Form, DataTable, Combobox, ActionBar, Dialog, Tabs, Nav, Filters, Pagination, Toast.",
   "license": "MIT",
   "type": "module",
