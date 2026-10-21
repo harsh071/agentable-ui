@@ -104,3 +104,15 @@ b = Button("Refund", when: $ui.selected, press: [@Tool("refund_order", {id: $eve
     expect(lib.parse(text).root).toEqual(first.root);
   });
 });
+
+describe("literal null in actions", () => {
+  it("counts as the value for @Set and @Push, and still skips optional args", () => {
+    const r = lib.parse('root = Button("Clear", press: [@Set($ui.sel, null), @Push($ui.log, null), @Increment($ui.n, null)])');
+    expect(r.errors).toEqual([]);
+    expect(r.root?.on?.press).toEqual([
+      { type: "set", path: "ui.sel", value: null },
+      { type: "push", path: "ui.log", value: null },
+      { type: "increment", path: "ui.n" },
+    ]);
+  });
+});

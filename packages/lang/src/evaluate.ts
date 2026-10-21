@@ -230,7 +230,11 @@ export function evaluate(statements: Statement[], signatures: Record<string, Sig
         out[p.name] = x.path;
         continue;
       }
-      if (x.kind === "null") continue;
+      if (x.kind === "null") {
+        // `null` is a real value for value params (@Set($ui.sel, null)); elsewhere it skips the argument.
+        if (p.kind === "value") out[p.name] = null;
+        continue;
+      }
       const v = template(x, st, `${where} @${name}`);
       if (v === undefined) continue;
       if (p.kind === "string" && typeof v !== "string") {

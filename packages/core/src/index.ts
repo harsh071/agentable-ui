@@ -6,6 +6,6 @@ export { toJsonSchema, validateInput, canonicalize, parseInput, isStandardSchema
 export { shape, project, hardTruncate, encodeCursor, decodeCursor, CURSOR_PARAM, type ShapeResult } from "./shaper.js";
 export { ToolCache, type CacheStats } from "./cache.js";
 export { applyBudget, type BudgetCandidate, type BudgetDecision } from "./budgeter.js";
-export { webmcpAdapter, findModelContext, type WebMcpAdapterOptions, type ModelContextLike } from "./adapters/webmcp.js";
+export { webmcpAdapter, findModelContext, executeModelContextTool, type WebMcpAdapterOptions, type ModelContextLike } from "./adapters/webmcp.js";
 export { memoryAdapter, type MemoryAdapter } from "./adapters/memory.js";
 export { bridgeAdapter, type BridgeAdapterOptions, type BridgeMessage } from "./adapters/bridge.js";

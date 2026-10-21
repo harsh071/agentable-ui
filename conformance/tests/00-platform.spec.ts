@@ -71,7 +71,7 @@ test("registerTool + AbortSignal lifecycle, duplicate names, toolchange", async 
   expect(r.after).toEqual(["t1"]);
 });
 
-test("executeTool encoding: object input, string output, validation and truncation", async ({ page }) => {
+test("executeTool encoding: input form, string output, validation and truncation", async ({ page }) => {
   await blankPage(page);
   const r = await page.evaluate(async () => {
     const mc = document.modelContext!;
@@ -82,19 +82,26 @@ test("executeTool encoding: object input, string output, validation and truncati
     const tools = await mc.getTools();
     const get = (n: string) => tools.find((t) => t.name === n)!;
     const out: Record<string, unknown> = {};
+    // The accepted input form changed between Chrome versions (154: JSON string, 155: object).
+    const exec = async (t: Parameters<typeof mc.executeTool>[0], args: Record<string, unknown>) => {
+      try { return await mc.executeTool(t, args); } catch { return await mc.executeTool(t, JSON.stringify(args) as never); }
+    };
     out.schemaType = typeof get("echo").inputSchema;
     try { out.objectInput = await mc.executeTool(get("echo"), { text: "hi" }); } catch (e) { out.objectInput = String(e); }
     try { out.stringInput = await mc.executeTool(get("echo"), JSON.stringify({ text: "hi" }) as never); } catch (e) { out.stringInput = String(e); }
     out.seenType = typeof seen;
-    try { out.wrongShape = await mc.executeTool(get("echo"), { nope: 1 }); } catch (e) { out.wrongShape = String(e); }
-    out.bigLen = (await mc.executeTool(get("big"), {})).length;
-    try { out.thrown = await mc.executeTool(get("thrower"), {}); } catch (e) { out.thrown = String(e); }
+    try { out.wrongShape = await exec(get("echo"), { nope: 1 }); } catch (e) { out.wrongShape = String(e); }
+    out.bigLen = (await exec(get("big"), {})).length;
+    try { out.thrown = await exec(get("thrower"), {}); } catch (e) { out.thrown = String(e); }
     return out as { schemaType: string; objectInput: string; stringInput: string; seenType: string; wrongShape: string; bigLen: number; thrown: string };
   });
   record({ area: "execute", check: "getTools().inputSchema type", expected: "object", actual: r.schemaType, ok: r.schemaType === "object" });
-  record({ area: "execute", check: "object input", expected: 'accepted as object', actual: r.objectInput, ok: r.objectInput === '{"got":{"text":"hi"}}' });
-  record({ area: "execute", check: "JSON-string input", expected: "rejected (input must be an object)", actual: r.stringInput, ok: /invalid input object/.test(r.stringInput) });
-  record({ area: "execute", check: "output", expected: "string, objects JSON-serialized", actual: r.objectInput, ok: r.objectInput === '{"got":{"text":"hi"}}' });
+  const okOut = '{"got":{"text":"hi"}}';
+  const form = r.stringInput === okOut ? (r.objectInput === okOut ? "both" : "JSON string") : r.objectInput === okOut ? "object" : "neither";
+  record({ area: "execute", check: "object input", expected: "accepted in Chrome 155; rejected in 154", actual: r.objectInput, ok: true });
+  record({ area: "execute", check: "JSON-string input", expected: "rejected in Chrome 155; accepted in 154", actual: r.stringInput, ok: true });
+  record({ area: "execute", check: "accepted input form", expected: "object or JSON string (executeModelContextTool handles both)", actual: form, ok: form !== "neither" });
+  record({ area: "execute", check: "output", expected: "string, objects JSON-serialized", actual: r.stringInput === okOut ? r.stringInput : r.objectInput, ok: r.stringInput === okOut || r.objectInput === okOut });
   record({ area: "execute", check: "schema validation by browser", expected: "none (library must validate)", actual: r.wrongShape, ok: r.wrongShape === '{"got":{"nope":1}}' });
   record({ area: "execute", check: "1500-char output limit enforced", expected: "no (guidance only; library truncates)", actual: `${r.bigLen} chars returned`, ok: r.bigLen === 5000 });
   record({ area: "execute", check: "thrown error surfaces as", expected: "generic UnknownError (library returns structured error text instead)", actual: r.thrown, ok: /UnknownError/.test(r.thrown) });

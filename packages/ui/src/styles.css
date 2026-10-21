@@ -372,6 +372,8 @@
   color: var(--ag-fg);
   box-shadow: var(--ag-shadow);
   width: min(520px, calc(100vw - 32px));
+  /* CSS resets (e.g. Tailwind preflight) zero dialog margins, which un-centers modals. */
+  margin: auto;
 }
 [data-agentable-dialog]::backdrop,
 [data-agentable-confirm]::backdrop {
@@ -1372,4 +1374,15 @@ a[data-agentable-linkcard]:hover {
   width: 10px;
   height: 10px;
   border-radius: 3px;
+}
+
+/* Containers that space children with gap: no extra field margin, no stretched buttons. */
+[data-agentable-stack] > [data-agentable-field],
+[data-agentable-grid] > [data-agentable-field],
+[data-agentable-card-body] > [data-agentable-field] {
+  margin-bottom: 0;
+}
+[data-agentable-stack="column"] > [data-agentable-button],
+[data-agentable-card-body] > [data-agentable-button] {
+  align-self: flex-start;
 }

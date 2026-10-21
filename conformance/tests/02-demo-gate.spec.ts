@@ -9,7 +9,12 @@ async function call(page: Page, name: string, input: unknown) {
     async ([name, input]) => {
       const t = (await document.modelContext!.getTools()).find((t) => t.name === name);
       if (!t) throw new Error(`tool ${name} not registered`);
-      return document.modelContext!.executeTool(t, input as Record<string, unknown>);
+      // Chrome 155 takes an object; Chrome 154 took a JSON string.
+      try {
+        return await document.modelContext!.executeTool(t, input as Record<string, unknown>);
+      } catch {
+        return document.modelContext!.executeTool(t, JSON.stringify(input) as never);
+      }
     },
     [name, input] as const,
   );

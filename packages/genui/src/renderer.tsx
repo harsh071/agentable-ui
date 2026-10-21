@@ -106,8 +106,9 @@ export function Renderer({ components, library, response, isStreaming = false, d
   }, [parsed, components, callable, isStreaming]);
 
   const fail = useCallback((message: string, node: UISpec) => {
-    setActionError(message);
-    onActionErrorRef.current?.(message, node);
+    // When the host handles action errors, it owns how they look; don't repeat them inline.
+    if (onActionErrorRef.current) onActionErrorRef.current(message, node);
+    else setActionError(message);
   }, []);
 
   const emit = useCallback(

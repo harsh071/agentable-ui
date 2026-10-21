@@ -822,6 +822,7 @@ export class Agentable {
       capabilities,
       groups: this.groupSummaries().map((g) => ({
         name: g.name,
+        description: this.groupDescriptions.get(g.name),
         size: g.units.length,
         open: g.open,
         hidden: g.units.every((u) => this.isHidden(u)),

@@ -373,8 +373,8 @@ export function AgentSurface({
   );
 
   const fail = useCallback((message: string, node: UISpec) => {
-    setError(message);
-    onActionErrorRef.current?.(message, node);
+    if (onActionErrorRef.current) onActionErrorRef.current(message, node);
+    else setError(message);
   }, []);
 
   const emit = useCallback(
