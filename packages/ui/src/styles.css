@@ -1128,7 +1128,7 @@
   background: var(--ag-panel);
   color: var(--ag-fg);
 }
-[data-agentable-row],
+[data-agentable-itemlist-row],
 [data-agentable-row-button] {
   flex: 1;
   min-width: 0;

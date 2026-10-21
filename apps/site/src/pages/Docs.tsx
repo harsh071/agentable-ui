@@ -26,7 +26,7 @@ function highlightCode(code: string): ReactNode[] {
   return parts;
 }
 
-function CodeBlock({ code }: { code: string }) {
+export function CodeBlock({ code }: { code: string }) {
   const [copyState, setCopyState] = useState("Copy");
   useEffect(() => {
     if (copyState === "Copy") return;
