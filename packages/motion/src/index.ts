@@ -16,3 +16,7 @@ export { Segmented, type SegmentedProps } from "./Segmented.js";
 export { Compare, type CompareProps } from "./Compare.js";
 export { Terminal, type TerminalProps } from "./Terminal.js";
 export { Headline, type HeadlineProps } from "./Headline.js";
+export { Animate, ENTER_PRESETS, LOOP_PRESETS, INTERACT_PRESETS, type AnimateProps, type AnimatePreset } from "./Animate.js";
+export { Scene, sceneColor, type SceneProps, type SceneItem, type SceneShape, type SceneMotion } from "./Scene.js";
+export { Orbit, type OrbitProps } from "./Orbit.js";
+export { Layers, type LayersProps, type Layer } from "./Layers.js";

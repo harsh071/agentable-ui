@@ -2,7 +2,8 @@ import { useMemo } from "react";
 import { animated, easings, useSprings } from "@react-spring/web";
 import { useReducedMotion } from "./hooks.js";
 
-const COLORS = ["var(--ag-series-1)", "var(--ag-series-2)", "var(--ag-series-3)", "var(--ag-series-4)", "var(--ag-agent)", "#facc15"];
+// Theme colours only: the accent plus ink tones, so a celebration still looks like the product.
+const COLORS = ["var(--ag-accent)", "var(--ag-fg)", "var(--ag-muted)", "var(--ag-accent)", "var(--ag-line)"];
 
 export interface ConfettiProps {
   /** Change this to fire another burst. */
@@ -11,7 +12,7 @@ export interface ConfettiProps {
 }
 
 /** A burst of paper from the center of the nearest positioned parent. Decorative; skipped under reduced motion. */
-export function Confetti({ fire, count = 42 }: ConfettiProps) {
+export function Confetti({ fire, count = 28 }: ConfettiProps) {
   const reduce = useReducedMotion();
   const bits = useMemo(
     () =>
