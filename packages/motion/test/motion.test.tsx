@@ -68,3 +68,53 @@ test("numbers keep their formatting while they tick", () => {
   expect(parseNumber("no number")).toBeNull();
   expect(formatNumber(12345.6, 1, true)).toBe("12,345.6");
 });
+
+import { Animate, Layers, Scene, sceneColor } from "../src/index.js";
+
+test("Scene colours accept tokens and plain colours, and refuse anything else", () => {
+  expect(sceneColor("accent")).toBe("var(--ag-accent)");
+  expect(sceneColor("#1f6feb")).toBe("#1f6feb");
+  expect(sceneColor("hsl(210 80% 50%)")).toBe("hsl(210 80% 50%)");
+  expect(sceneColor("red; background: url(https://evil)")).toBe("var(--ag-fg)");
+  expect(sceneColor("url(x)", "var(--ag-line)")).toBe("var(--ag-line)");
+});
+
+test("Scene draws its items and describes itself", () => {
+  const view = render(<Scene label="The inner planets" items={[{ x: 50, y: 50, size: 40, color: "warning" }, { kind: "text", x: 50, y: 80, text: "Sun" }, { kind: "line", x: 10, y: 10, x2: 90, y2: 90 }]} />);
+  expect(view.getByRole("img", { name: "The inner planets" })).toBeTruthy();
+  expect(view.getByText("Sun")).toBeTruthy();
+  expect(view.container.querySelectorAll("[data-agentable-scene-item]").length).toBe(2);
+  expect(view.container.querySelectorAll("line").length).toBe(1);
+});
+
+test("Scene ignores non-https images", () => {
+  const view = render(<Scene items={[{ kind: "image", x: 50, y: 50, src: "javascript:alert(1)" }]} />);
+  expect(view.container.querySelector("img")).toBeNull();
+});
+
+test("Animate keeps its children usable", () => {
+  const onClick = vi.fn();
+  const view = render(
+    <Animate preset="float">
+      <button onClick={onClick}>Go</button>
+    </Animate>,
+  );
+  fireEvent.click(view.getByRole("button", { name: "Go" }));
+  expect(onClick).toHaveBeenCalled();
+});
+
+test("Layers shows the detail of the layer you pick", () => {
+  const onSelect = vi.fn();
+  const view = render(<Layers layers={[{ title: "App", detail: "Your code" }, { title: "Runtime", detail: "Node" }]} onSelect={onSelect} />);
+  fireEvent.click(view.getAllByRole("button", { name: /Runtime/ })[0]!);
+  expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ title: "Runtime", index: 1 }));
+  expect(view.getByText("Node")).toBeTruthy();
+});
+
+test("the language accepts a Scene and an Animate wrapper", () => {
+  const lib = createLibrary(motionCatalog);
+  const out = lib.parse(`root = Animate("float", children: [s])
+s = Scene([{x: 50, y: 50, size: 60, color: "accent", motion: "pulse"}, {kind: "glyph", x: 50, y: 50, text: "☀", motion: "spin"}], tilt: true, label: "Sun")`);
+  expect(out.errors.filter((e) => e.severity === "error")).toEqual([]);
+  expect(out.root).toMatchObject({ component: "Animate", children: [{ component: "Scene" }] });
+});

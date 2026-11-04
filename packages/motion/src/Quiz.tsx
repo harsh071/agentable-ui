@@ -125,7 +125,7 @@ export function Quiz({ questions, title, onAnswer, onFinish }: QuizProps) {
         <span data-agentable-quiz-meta="">
           {streak >= 2 && !finished ? (
             <animated.span data-agentable-quiz-streak="" style={{ transform: flame.s.to((s) => `scale(${s})`) }}>
-              🔥 {streak}
+              {streak} in a row
             </animated.span>
           ) : null}
           <span>{finished ? `${qs.length}/${qs.length}` : `${at + 1}/${qs.length}`}</span>

@@ -52,12 +52,27 @@ Use the same catalog to build the model's prompt, so it knows the new components
 | `Compare(before, after, beforeLabel?, afterLabel?)` | Before/after image slider. |
 | `Terminal(lines, title?)` | Types `$ ` commands out and prints their output. |
 
+### Creative components
+
+These give the model building blocks instead of fixed widgets, so it can compose a visual for the question in front of it.
+
+| Component | What it's for |
+| --- | --- |
+| `Scene(items, height?, background?, tilt?, label?, caption?)` | A stage for spring-animated illustrations. Each item is a shape, glyph, text, image or line placed by `x`/`y` (0-100%), with a depth `z` (parallax, and 3D when `tilt` is on) and a `motion` (float, bob, spin, pulse, orbit, drift, sway). Colors are theme tokens (`accent`, `ink`, `muted`, `line`, `success`, `warning`, `danger`, `s1`-`s5`) or hex/rgb/hsl; anything else falls back to ink, and images must be https. |
+| `Animate(preset?, delay?, speed?, amount?, children)` | Motion for any node: an entrance when scrolled into view (`rise`, `pop`, `flip`, `unfold`, …), a loop (`float`, `breathe`, `sway`, `spin`, …) or a pointer response (`tilt`, `lift`, `magnet`). |
+| `Orbit(width?, autoplay?, tilt?, labels?, children)` · event `change` | Cards on a 3D ring. Drag to spin, click to bring one forward. A few cards fan out on an arc; seven or more fill the ring and wrap. |
+| `Layers(layers, title?)` · event `select` | An exploded 3D stack that pulls apart on hover; pick a layer to read its detail. |
+
 `Flashcards` and `Carousel` also take an `agent` prop (like other Agentable components) that registers a tool, so a browser agent can flip, grade or change slides.
 
 ## Building blocks
 
 `Enter`, `withEnter`, `springCatalog(catalog)` (spring entrances for your own catalog), `Ticker`, `Ring`, `Collapse`, `Confetti`, `useTilt`, `useInView`, `useReducedMotion` and the shared `springs` presets are exported too.
 
+## Design stance
+
+The defaults avoid the usual tells of generated UI: no gradient text, no purple glows, no rainbow colors that carry no meaning, no emoji icons, sentence-case labels. One accent color does the highlighting, and color is used where it means something (a selected answer, the top rank, a distinct ring). Elevation is used only where something is physically stacked (a deck, a device, a lifted layer).
+
 ## Theming
 
-Everything reads the `--ag-*` tokens from `@agentable-ui/ui/styles.css`, plus `--ag-motion-grad` (accent gradient) and `--ag-motion-radius`. Styles target `data-agentable-*` attributes, so you can replace the file.
+Everything reads the `--ag-*` tokens from `@agentable-ui/ui/styles.css`, plus `--ag-motion-fill` (progress and highlight fill, the accent by default) and `--ag-motion-radius`. Styles target `data-agentable-*` attributes, so you can replace the file.

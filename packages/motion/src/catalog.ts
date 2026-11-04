@@ -15,6 +15,10 @@ import { Segmented } from "./Segmented.js";
 import { Ranking } from "./Ranking.js";
 import { Terminal } from "./Terminal.js";
 import { Lesson } from "./Lesson.js";
+import { Animate, ENTER_PRESETS, INTERACT_PRESETS, LOOP_PRESETS } from "./Animate.js";
+import { Scene } from "./Scene.js";
+import { Orbit } from "./Orbit.js";
+import { Layers } from "./Layers.js";
 
 type Entry = CatalogEntry<never>;
 type AnyCatalog = Record<string, { component: ComponentType<never>; description: string; props: unknown; childrenProp?: string; events?: Record<string, string> }>;
@@ -123,7 +127,7 @@ export const motionComponents = {
         tags: strs,
         footer: str(),
         image: str("https URL"),
-        foil: { type: "string", enum: ["rainbow", "gold", "aurora", "mono"] },
+        foil: { type: "string", enum: ["silver", "gold", "aurora", "rainbow"] },
       },
       required: ["title"],
     },
@@ -157,10 +161,82 @@ export const motionComponents = {
     description: 'Terminal window that types commands out. Lines starting "$ " are commands; others are output.',
     props: { type: "object", properties: { lines: strs, title: str() }, required: ["lines"] },
   },
+  Animate: {
+    component: Animate,
+    description: "Wrap any nodes in motion: an entrance on scroll (rise, pop, flip, unfold…), a gentle loop (float, breathe, sway, spin…) or a pointer response (tilt, lift, magnet). Use one per idea, not on everything.",
+    props: {
+      type: "object",
+      properties: {
+        preset: { type: "string", enum: [...ENTER_PRESETS, ...LOOP_PRESETS, ...INTERACT_PRESETS] },
+        delay: { type: "number", description: "ms" },
+        speed: { type: "number", description: "0.25-3" },
+        amount: { type: "number", description: "Loop strength 0.25-3" },
+      },
+    },
+    childrenProp: "children",
+  },
+  Scene: {
+    component: Scene,
+    description:
+      "Your canvas for illustrations and explainers in 2D/3D: place shapes, glyphs, text, images and lines by x/y (0-100%), give each a depth z (-100..100, parallax) and a motion (float, bob, spin, pulse, orbit around x/y, drift, sway). tilt makes the stage 3D. Colors: theme tokens (accent, ink, muted, line, success, warning, danger, s1-s5) or hex. Draw solar systems, atoms, flows, maps, hero art.",
+    props: {
+      type: "object",
+      properties: {
+        items: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              kind: { type: "string", enum: ["shape", "text", "glyph", "image", "line"] },
+              shape: { type: "string", enum: ["circle", "square", "ring", "pill", "triangle", "diamond"] },
+              x: { type: "number" },
+              y: { type: "number" },
+              x2: { type: "number" },
+              y2: { type: "number" },
+              size: { type: "number" },
+              w: { type: "number" },
+              h: { type: "number" },
+              z: { type: "number" },
+              rotate: { type: "number" },
+              color: str(),
+              opacity: { type: "number" },
+              text: str(),
+              src: str(),
+              weight: { type: "number" },
+              motion: { type: "string", enum: ["none", "float", "bob", "spin", "pulse", "orbit", "drift", "sway"] },
+              speed: { type: "number" },
+              delay: { type: "number" },
+              radius: { type: "number" },
+            },
+            required: ["x", "y"],
+          },
+        },
+        height: { type: "number" },
+        background: { type: "string", enum: ["none", "panel", "ink", "grid", "dots"] },
+        tilt: { type: "boolean" },
+        label: str("What it shows, for screen readers"),
+        caption: str(),
+      },
+      required: ["items"],
+    },
+  },
+  Orbit: {
+    component: Orbit,
+    description: "Children as cards on a 3D ring; drag to spin, click to bring forward. Options, products, people, moments.",
+    props: { type: "object", properties: { width: { type: "number" }, autoplay: { type: "number", description: "Seconds per card; 0 off" }, tilt: { type: "number" }, labels: strs } },
+    childrenProp: "children",
+    events: { change: "onChange" },
+  },
+  Layers: {
+    component: Layers,
+    description: "Exploded 3D stack of planes (top first) that pulls apart on hover; pick one to read its detail. Architectures, protocols, anything layered.",
+    props: { type: "object", properties: { layers: { type: "array", items: { type: "object", properties: { title: str(), detail: str(), tag: str(), color: str() }, required: ["title"] } }, title: str() }, required: ["layers"] },
+    events: { select: "onSelect" },
+  },
 } satisfies Record<string, Entry>;
 
 /** New components that bring their own entrance. */
-const OWN_ENTRANCE = ["Headline", "Device"];
+const OWN_ENTRANCE = ["Headline", "Device", "Animate", "Scene", "Layers"];
 
 /**
  * The full motion catalog: every @agentable-ui/ui component with spring

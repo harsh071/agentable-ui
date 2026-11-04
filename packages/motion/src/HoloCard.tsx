@@ -1,7 +1,7 @@
 import { animated, to } from "@react-spring/web";
 import { useTilt } from "./hooks.js";
 
-export type HoloFoil = "rainbow" | "gold" | "aurora" | "mono";
+export type HoloFoil = "silver" | "gold" | "aurora" | "rainbow";
 
 export interface HoloCardProps {
   title: string;
@@ -23,7 +23,7 @@ export interface HoloCardProps {
  * and glare slide across it as it moves. Good for achievements, profiles,
  * a summary someone will screenshot.
  */
-export function HoloCard({ title, subtitle, emblem, image, stats, tags, footer, foil = "rainbow" }: HoloCardProps) {
+export function HoloCard({ title, subtitle, emblem, image, stats, tags, footer, foil = "silver" }: HoloCardProps) {
   const t = useTilt({ max: 14, scale: 1.04 });
   return (
     <div data-agentable-holo-wrap="">
