@@ -1,0 +1,32 @@
+{
+  "name": "@agentable-ui/motion",
+  "version": "0.0.0",
+  "description": "Spring-physics generative UI for Agentable: animated catalog entries plus devices, flashcards, quizzes, rings, holo cards and more, built on react-spring.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": ["**/*.css"],
+  "files": ["dist", "README.md"],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+    "./styles.css": "./dist/styles.css"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "repository": { "type": "git", "url": "https://github.com/harsh071/agentable-ui", "directory": "packages/motion" },
+  "keywords": ["generative-ui", "genui", "react-spring", "animation", "agent", "webmcp", "components", "react"],
+  "publishConfig": { "access": "public" },
+  "dependencies": {
+    "@agentable-ui/core": "workspace:^",
+    "@agentable-ui/react": "workspace:^",
+    "@agentable-ui/ui": "workspace:^",
+    "@react-spring/web": "^10.1.2",
+    "@use-gesture/react": "^10.3.1"
+  },
+  "peerDependencies": { "react": "^18.2.0 || ^19.0.0", "react-dom": "^18.2.0 || ^19.0.0" },
+  "devDependencies": { "react": "^19.2.8", "react-dom": "^19.2.8", "@types/react": "^19.2.18", "@types/react-dom": "^19.2.7", "@testing-library/react": "^16.3.3", "@agentable-ui/genui": "workspace:^", "@agentable-ui/lang": "workspace:^" }
+}
